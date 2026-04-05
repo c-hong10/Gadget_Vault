@@ -1,0 +1,694 @@
+@{
+    ViewData["Title"] = "Warehouse Manager";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<!-- Tailwind CSS CDN (Play CDN — UI prototype) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'gv-dark':   '#061f17',
+                    'gv-deep':   '#0a3124',
+                    'gv-mid':    '#115740',
+                    'gv-accent': '#23a476',
+                    'gv-light':  '#f2f7f5',
+                    'gv-sage':   '#d1e8df',
+                },
+                fontFamily: {
+                    sans: ['Inter', 'Segoe UI', 'Roboto', 'sans-serif'],
+                },
+            },
+        },
+    }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+<!-- ═══════════════════════════════════════════════════════
+     OUTER SHELL
+     ═══════════════════════════════════════════════════════ -->
+<div class="flex min-h-screen bg-gv-light font-sans">
+
+    <!-- ────────────────────────────────────────
+         SIDEBAR
+         ──────────────────────────────────────── -->
+    <aside class="w-72 bg-gv-dark text-white flex flex-col shrink-0" style="padding: 30px;">
+
+        <!-- brand -->
+        <div class="flex items-center gap-3 mb-8">
+            <div class="w-9 h-9 rounded-lg bg-gv-accent flex items-center justify-center shadow-lg shrink-0">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <rect x="2"  y="2"  width="7" height="7" rx="1.5" fill="white" opacity="0.95"/>
+                    <rect x="11" y="2"  width="7" height="7" rx="1.5" fill="white" opacity="0.6"/>
+                    <rect x="2"  y="11" width="7" height="7" rx="1.5" fill="white" opacity="0.6"/>
+                    <rect x="11" y="11" width="7" height="7" rx="1.5" fill="white" opacity="0.85"/>
+                </svg>
+            </div>
+            <div>
+                <div class="font-extrabold text-base leading-tight">
+                    Gadget<span class="text-gv-accent">Vault</span>
+                </div>
+                <div class="text-xs text-gv-sage opacity-70 font-medium leading-tight">Warehouse Manager</div>
+            </div>
+        </div>
+
+        <!-- nav label -->
+        <div class="text-xs font-bold uppercase tracking-widest text-gv-sage opacity-50 mb-3 px-1">
+            Command Center
+        </div>
+
+        <!-- nav links -->
+        <nav class="flex flex-col gap-1">
+            <!-- Live Dashboard (active) -->
+            <a href="#" aria-current="page"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gv-accent text-white font-semibold text-sm transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <rect x="1" y="1" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.9"/>
+                    <rect x="9" y="1" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.5"/>
+                    <rect x="1" y="9" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.5"/>
+                    <rect x="9" y="9" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.8"/>
+                </svg>
+                Live Dashboard
+            </a>
+            <!-- Inventory Valuation -->
+            <a href="#"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M8 5v1.5M8 11v1M6 8.5c0 1.1.9 1.5 2 1.5s2-.5 2-1.5-.9-1.5-2-1.5V6c1.1 0 2 .4 2 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                </svg>
+                Inventory Valuation
+            </a>
+            <!-- Stock Adjustments -->
+            <a href="#"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <rect x="1.5" y="1.5" width="13" height="13" rx="2.5" stroke="currentColor" stroke-width="1.4"/>
+                </svg>
+                Stock Adjustments
+            </a>
+            <!-- Floor Analytics -->
+            <a href="#"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <rect x="1" y="9"  width="3" height="6" rx="1" fill="currentColor" opacity="0.6"/>
+                    <rect x="6" y="6"  width="3" height="9" rx="1" fill="currentColor"/>
+                    <rect x="11" y="3" width="3" height="12" rx="1" fill="currentColor" opacity="0.75"/>
+                    <path d="M2.5 8.5L7.5 5.5L12.5 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                </svg>
+                Floor Analytics
+            </a>
+            <!-- Threshold Alerts -->
+            <a href="#"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M8 2l1.2 3.6H13L9.9 7.9l1.2 3.6L8 9.2l-3.1 2.3 1.2-3.6L3 5.6h3.8L8 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                </svg>
+                Threshold Alerts
+                <!-- alert count badge -->
+                <span class="ml-auto text-xs font-extrabold bg-yellow-400 text-yellow-900 px-2 py-0.5 rounded-full">14</span>
+            </a>
+            <!-- Reports -->
+            <a href="#"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <rect x="2" y="1" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M5 6h6M5 9h4M5 12h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                </svg>
+                Valuation Reports
+            </a>
+        </nav>
+
+        <!-- bottom -->
+        <div class="mt-auto">
+            <hr class="border-white/10 my-5" />
+            <a href="#"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M2 14c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                My Profile
+            </a>
+            <a asp-controller="Home" asp-action="Index"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 font-semibold text-sm hover:bg-red-500/10 transition-all duration-200 mt-1">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M10 11l3-3-3-3M13 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Log Out
+            </a>
+        </div>
+    </aside>
+
+    <!-- ────────────────────────────────────────
+         MAIN CONTENT
+         ──────────────────────────────────────── -->
+    <main class="flex-1 p-8 overflow-auto" id="main-content">
+
+        <!-- ┌──────────────────────────────────────────────────────
+             │  PAGE HEADER
+             └────────────────────────────────────────────────────── -->
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
+
+            <!-- left: title block -->
+            <div>
+                <!-- FLOOR & ASSET COMMAND pill -->
+                <span class="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest
+                             bg-yellow-400 text-yellow-900 px-3 py-1.5 rounded-full mb-3 shadow-sm">
+                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
+                        <path d="M5.5 1L8 4H3L5.5 1z" fill="currentColor"/>
+                        <rect x="2" y="4.5" width="7" height="4.5" rx="1" fill="currentColor" opacity="0.8"/>
+                    </svg>
+                    Floor &amp; Asset Command
+                </span>
+
+                <!-- main title -->
+                <h1 class="text-2xl font-black text-gv-deep tracking-tight leading-tight">
+                    Warehouse
+                    <span class="text-gv-accent">Command Center</span>
+                </h1>
+
+                <!-- subtitle -->
+                <p class="text-sm text-slate-500 mt-1.5 font-medium max-w-xl leading-relaxed">
+                    Monitor live floor operations, real-time asset valuation, and approve stock adjustments.
+                </p>
+            </div>
+
+            <!-- right: action button -->
+            <div class="shrink-0 mt-1">
+                <button id="btn-stock-adjustment"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl
+                               bg-orange-500 text-white text-sm font-bold
+                               shadow-lg shadow-orange-400/30
+                               hover:bg-orange-600 hover:-translate-y-0.5 hover:shadow-orange-500/40
+                               transition-all duration-200
+                               focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+                    </svg>
+                    Manual Stock Adjustment
+                </button>
+            </div>
+        </div>
+
+        <!-- ┌──────────────────────────────────────────────────────
+             │  STATS CARDS (4 columns)
+             └────────────────────────────────────────────────────── -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+
+            <!-- Card 1: Total Inventory Value (green) -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100
+                        relative overflow-hidden
+                        hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gv-accent to-emerald-400 rounded-t-2xl"></div>
+                <div class="flex items-start justify-between mb-3">
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-400 leading-tight">
+                        Total Inventory Value
+                    </p>
+                    <div class="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                            <circle cx="9" cy="9" r="7" stroke="#23a476" stroke-width="1.6"/>
+                            <path d="M9 5.5v1.2M9 12.3v1M7 9.2c0 1 .9 1.8 2 1.8s2-.7 2-1.8-.9-1.8-2-1.8V6.7c1.1 0 2 .6 2 1.3" stroke="#23a476" stroke-width="1.4" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-2xl font-black text-gv-deep tracking-tight leading-none mb-1">$845,200</p>
+                <p class="text-xs text-slate-400 font-medium">.00 — Calculated via FIFO</p>
+                <div class="mt-3 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-gv-accent inline-block"></span>
+                    <span class="text-xs font-semibold text-gv-accent">Updated 4 min ago</span>
+                </div>
+            </div>
+
+            <!-- Card 2: Low Stock Alerts (yellow) -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100
+                        relative overflow-hidden
+                        hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 to-amber-400 rounded-t-2xl"></div>
+                <div class="flex items-start justify-between mb-3">
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-400 leading-tight">
+                        Low Stock Alerts
+                    </p>
+                    <div class="w-9 h-9 rounded-xl bg-yellow-50 flex items-center justify-center shrink-0">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                            <path d="M9 2.5L1.5 15h15L9 2.5z" stroke="#f59e0b" stroke-width="1.6" stroke-linejoin="round"/>
+                            <path d="M9 8v4M9 13.5v.5" stroke="#f59e0b" stroke-width="1.6" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-5xl font-black text-gv-deep tracking-tight leading-none mb-1">14</p>
+                <p class="text-xs text-slate-400 font-medium">SKUs below reorder threshold</p>
+                <div class="mt-3 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-yellow-400 inline-block"></span>
+                    <span class="text-xs font-semibold text-yellow-600">3 critical — reorder now</span>
+                </div>
+            </div>
+
+            <!-- Card 3: Pending Floor Tasks (blue) -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100
+                        relative overflow-hidden
+                        hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 to-sky-500 rounded-t-2xl"></div>
+                <div class="flex items-start justify-between mb-3">
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-400 leading-tight">
+                        Pending Floor Tasks
+                    </p>
+                    <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                            <rect x="2" y="2" width="14" height="14" rx="2.5" stroke="#3b82f6" stroke-width="1.6"/>
+                            <path d="M5.5 9l2.5 2.5 4.5-4.5" stroke="#3b82f6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-5xl font-black text-gv-deep tracking-tight leading-none mb-1">28</p>
+                <p class="text-xs text-slate-400 font-medium">Awaiting pick/pack by staff</p>
+                <div class="mt-3 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-blue-400 inline-block"></span>
+                    <span class="text-xs font-semibold text-blue-600">8 marked high priority</span>
+                </div>
+            </div>
+
+            <!-- Card 4: Active Floor Staff (purple) -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100
+                        relative overflow-hidden
+                        hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-400 to-purple-500 rounded-t-2xl"></div>
+                <div class="flex items-start justify-between mb-3">
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-400 leading-tight">
+                        Active Floor Staff
+                    </p>
+                    <div class="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                            <circle cx="7"  cy="6"  r="3"   stroke="#7c3aed" stroke-width="1.6"/>
+                            <path d="M1 17c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="#7c3aed" stroke-width="1.6" stroke-linecap="round"/>
+                            <circle cx="14" cy="6.5" r="2.2" stroke="#7c3aed" stroke-width="1.4" opacity="0.55"/>
+                            <path d="M13.2 11.8c2 .5 3.8 2 3.8 5.2" stroke="#7c3aed" stroke-width="1.4" stroke-linecap="round" opacity="0.55"/>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-5xl font-black text-gv-deep tracking-tight leading-none mb-1">6</p>
+                <p class="text-xs text-slate-400 font-medium">Currently online &amp; routing</p>
+                <div class="mt-3 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-violet-500 animate-pulse inline-block"></span>
+                    <span class="text-xs font-semibold text-violet-600">All assigned to active routes</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ┌──────────────────────────────────────────────────────
+             │  SPLIT LAYOUT — 50 / 50
+             └────────────────────────────────────────────────────── -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+            <!-- ╔══════════════════════════════════════════════════
+                 ║  LEFT — LIVE PICK-PACK-SHIP OPERATIONS
+                 ╚══════════════════════════════════════════════════ -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-100
+                            overflow-hidden flex flex-col"
+                     aria-labelledby="ops-heading">
+
+                <!-- card header -->
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-1 h-7 rounded-full bg-blue-500 shrink-0"></div>
+                        <div>
+                            <h2 id="ops-heading"
+                                class="text-sm font-extrabold text-gv-deep tracking-tight">
+                                Live Pick-Pack-Ship Operations
+                            </h2>
+                            <p class="text-xs text-slate-400 font-medium mt-0.5">Active floor tasks — real-time</p>
+                        </div>
+                    </div>
+                    <!-- live pulse indicator -->
+                    <span class="flex items-center gap-1.5 text-xs font-bold text-blue-600
+                                 bg-blue-50 border border-blue-100 px-2.5 py-1 rounded-full">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse inline-block"></span>
+                        Live Feed
+                    </span>
+                </div>
+
+                <!-- table -->
+                <div class="overflow-x-auto flex-1">
+                    <table class="w-full text-sm" aria-label="Active floor operations">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-100">
+                                <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 px-5 py-3">Task ID</th>
+                                <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 px-5 py-3">Assigned To</th>
+                                <th class="text-center text-xs font-bold uppercase tracking-wider text-slate-400 px-5 py-3">Type</th>
+                                <th class="text-center text-xs font-bold uppercase tracking-wider text-slate-400 px-5 py-3">Status</th>
+                                <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 px-5 py-3">Location</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+
+                            <!-- Row 1 — PICK / In Progress -->
+                            <tr class="hover:bg-slate-50/70 transition-colors duration-150 group">
+                                <td class="px-5 py-4">
+                                    <span class="font-bold text-gv-deep text-xs group-hover:text-gv-accent transition-colors">#TASK-0084</span>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-7 h-7 rounded-lg bg-teal-100 flex items-center justify-center shrink-0">
+                                            <span class="text-xs font-extrabold text-teal-700">AL</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-slate-700 text-xs">Ana Lim</div>
+                                            <div class="text-xs text-slate-400">Staff ID: #WS-04</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-5 py-4 text-center">
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold
+                                                 bg-violet-100 text-violet-700 border border-violet-200">
+                                        Pick
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4 text-center">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
+                                                 bg-blue-100 text-blue-700 border border-blue-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse inline-block"></span>
+                                        In Progress
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <div class="text-xs font-semibold text-slate-600">Aisle C — Rack 3</div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 2 — PACK / In Progress -->
+                            <tr class="hover:bg-slate-50/70 transition-colors duration-150 group">
+                                <td class="px-5 py-4">
+                                    <span class="font-bold text-gv-deep text-xs group-hover:text-gv-accent transition-colors">#TASK-0081</span>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center shrink-0">
+                                            <span class="text-xs font-extrabold text-indigo-700">BO</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-slate-700 text-xs">Ben Ocampo</div>
+                                            <div class="text-xs text-slate-400">Staff ID: #WS-01</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-5 py-4 text-center">
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold
+                                                 bg-amber-100 text-amber-700 border border-amber-200">
+                                        Pack
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4 text-center">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
+                                                 bg-blue-100 text-blue-700 border border-blue-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse inline-block"></span>
+                                        In Progress
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <div class="text-xs font-semibold text-slate-600">Packing Station 2</div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 3 — SHIP / Blocked -->
+                            <tr class="hover:bg-slate-50/70 transition-colors duration-150 group">
+                                <td class="px-5 py-4">
+                                    <span class="font-bold text-gv-deep text-xs group-hover:text-gv-accent transition-colors">#TASK-0079</span>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center shrink-0">
+                                            <span class="text-xs font-extrabold text-rose-700">CR</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-slate-700 text-xs">Carlo Ramos</div>
+                                            <div class="text-xs text-slate-400">Staff ID: #WS-02</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-5 py-4 text-center">
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold
+                                                 bg-gv-accent/10 text-gv-accent border border-gv-accent/25">
+                                        Ship
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4 text-center">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
+                                                 bg-red-100 text-red-700 border border-red-200">
+                                        <svg width="8" height="8" viewBox="0 0 8 8" fill="none" aria-hidden="true">
+                                            <path d="M4 1v3M4 5.5v.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                                        </svg>
+                                        Blocked
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <div class="text-xs font-semibold text-slate-600">Dispatch Bay A</div>
+                                </td>
+                            </tr>
+
+                            <!-- Row 4 — PICK / In Progress -->
+                            <tr class="hover:bg-slate-50/70 transition-colors duration-150 group">
+                                <td class="px-5 py-4">
+                                    <span class="font-bold text-gv-deep text-xs group-hover:text-gv-accent transition-colors">#TASK-0076</span>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-7 h-7 rounded-lg bg-sky-100 flex items-center justify-center shrink-0">
+                                            <span class="text-xs font-extrabold text-sky-700">DG</span>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-slate-700 text-xs">Dana Garcia</div>
+                                            <div class="text-xs text-slate-400">Staff ID: #WS-05</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-5 py-4 text-center">
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold
+                                                 bg-violet-100 text-violet-700 border border-violet-200">
+                                        Pick
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4 text-center">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
+                                                 bg-blue-100 text-blue-700 border border-blue-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse inline-block"></span>
+                                        In Progress
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <div class="text-xs font-semibold text-slate-600">Aisle A — Bin 7</div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- card footer -->
+                <div class="px-6 py-3 border-t border-slate-100 bg-slate-50/50
+                            flex items-center justify-between">
+                    <span class="text-xs text-slate-400 font-medium">Showing 4 of 28 active tasks</span>
+                    <a href="#" class="text-xs font-bold text-gv-accent hover:text-gv-mid transition-colors">
+                        View all floor tasks →
+                    </a>
+                </div>
+            </section>
+
+            <!-- ╔══════════════════════════════════════════════════
+                 ║  RIGHT — INVENTORY AUDITS & STOCK ADJUSTMENTS
+                 ╚══════════════════════════════════════════════════ -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-100
+                            overflow-hidden flex flex-col"
+                     aria-labelledby="adj-heading">
+
+                <!-- card header -->
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-1 h-7 rounded-full bg-orange-500 shrink-0"></div>
+                        <div>
+                            <h2 id="adj-heading"
+                                class="text-sm font-extrabold text-gv-deep tracking-tight">
+                                Recent Audits &amp; Stock Adjustments
+                            </h2>
+                            <p class="text-xs text-slate-400 font-medium mt-0.5">Pending approvals &amp; floor discrepancies</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold text-orange-600 bg-orange-50 border border-orange-100 px-2.5 py-1 rounded-full">
+                        2 Need Action
+                    </span>
+                </div>
+
+                <!-- adjustments feed -->
+                <div class="flex-1 divide-y divide-slate-50 overflow-y-auto">
+
+                    <!-- Item 1 — DAMAGE / Needs Approval (RED) -->
+                    <div class="px-6 py-5 flex gap-4 hover:bg-red-50/40 transition-colors duration-150">
+                        <!-- icon -->
+                        <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                                <path d="M9 2l7.5 13H1.5L9 2z" stroke="#ef4444" stroke-width="1.6" stroke-linejoin="round"/>
+                                <path d="M9 8v3M9 13v.5" stroke="#ef4444" stroke-width="1.6" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <!-- content -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                <span class="text-xs font-extrabold text-red-600 bg-red-100 border border-red-200
+                                             px-2 py-0.5 rounded-full uppercase tracking-wide">
+                                    Damage
+                                </span>
+                                <span class="text-xs font-bold text-slate-400">#ADJ-2024-0118</span>
+                            </div>
+                            <p class="text-sm font-bold text-gv-deep leading-snug">
+                                iPad Pro 12.9"
+                            </p>
+                            <p class="text-xs text-slate-500 font-medium mt-0.5 mb-3">
+                                Damaged during transit
+                                <span class="font-bold text-red-500 ml-1">Qty: −2 units</span>
+                            </p>
+                            <!-- meta row -->
+                            <div class="flex items-center justify-between flex-wrap gap-2">
+                                <span class="text-xs text-slate-400 font-medium">
+                                    Reported by Staff Ana · 12 min ago
+                                </span>
+                                <button type="button"
+                                        class="text-xs font-extrabold text-white bg-red-500
+                                               hover:bg-red-600 px-3 py-1.5 rounded-lg
+                                               transition-colors duration-200 shadow-sm">
+                                    Approve Adjustment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item 2 — DISCREPANCY / Needs Review (YELLOW) -->
+                    <div class="px-6 py-5 flex gap-4 hover:bg-yellow-50/40 transition-colors duration-150">
+                        <!-- icon -->
+                        <div class="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center shrink-0 mt-0.5">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                                <circle cx="9" cy="9" r="7" stroke="#f59e0b" stroke-width="1.6"/>
+                                <path d="M9 6v4M9 12v.5" stroke="#f59e0b" stroke-width="1.6" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <!-- content -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                <span class="text-xs font-extrabold text-yellow-700 bg-yellow-100 border border-yellow-200
+                                             px-2 py-0.5 rounded-full uppercase tracking-wide">
+                                    Discrepancy
+                                </span>
+                                <span class="text-xs font-bold text-slate-400">#ADJ-2024-0115</span>
+                            </div>
+                            <p class="text-sm font-bold text-gv-deep leading-snug">
+                                Dell XPS 15 Laptop
+                            </p>
+                            <p class="text-xs text-slate-500 font-medium mt-0.5 mb-3">
+                                Audit discrepancy found —
+                                <span class="font-bold text-yellow-600">Missing 1 unit</span>
+                                vs. system record
+                            </p>
+                            <!-- meta row -->
+                            <div class="flex items-center justify-between flex-wrap gap-2">
+                                <span class="text-xs text-slate-400 font-medium">
+                                    Audit #401 · 1 hour ago
+                                </span>
+                                <button type="button"
+                                        class="text-xs font-extrabold text-yellow-800 bg-yellow-200
+                                               hover:bg-yellow-300 px-3 py-1.5 rounded-lg
+                                               transition-colors duration-200 shadow-sm">
+                                    Review
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item 3 — COMPLETED Audit (GREEN / read-only) -->
+                    <div class="px-6 py-5 flex gap-4 hover:bg-emerald-50/30 transition-colors duration-150">
+                        <!-- icon -->
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0 mt-0.5">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                                <circle cx="9" cy="9" r="7" stroke="#23a476" stroke-width="1.6"/>
+                                <path d="M5.5 9.2L8 11.5l4.5-5" stroke="#23a476" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <!-- content -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                <span class="text-xs font-extrabold text-emerald-700 bg-emerald-100 border border-emerald-200
+                                             px-2 py-0.5 rounded-full uppercase tracking-wide">
+                                    Completed
+                                </span>
+                                <span class="text-xs font-bold text-slate-400">#AUD-402</span>
+                            </div>
+                            <p class="text-sm font-bold text-gv-deep leading-snug">
+                                Inventory Audit #402 Completed
+                            </p>
+                            <p class="text-xs text-slate-500 font-medium mt-0.5">
+                                Conducted by
+                                <span class="font-bold text-gv-deep">Staff John Dela Cruz</span>
+                                — All counts verified
+                            </p>
+                            <p class="text-xs text-slate-400 font-medium mt-2">Yesterday, 4:30 PM · No action required</p>
+                        </div>
+                    </div>
+
+                    <!-- Item 4 — RECOUNT (BLUE / info) -->
+                    <div class="px-6 py-5 flex gap-4 hover:bg-blue-50/30 transition-colors duration-150">
+                        <!-- icon -->
+                        <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0 mt-0.5">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                                <path d="M3 9a6 6 0 1112 0" stroke="#3b82f6" stroke-width="1.6" stroke-linecap="round"/>
+                                <path d="M3 9c0 3.31 2.69 6 6 6" stroke="#3b82f6" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="2 2"/>
+                                <path d="M1.5 7.5L3 9l1.5-1.5" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <!-- content -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                <span class="text-xs font-extrabold text-blue-600 bg-blue-100 border border-blue-200
+                                             px-2 py-0.5 rounded-full uppercase tracking-wide">
+                                    Recount Requested
+                                </span>
+                                <span class="text-xs font-bold text-slate-400">#ADJ-2024-0109</span>
+                            </div>
+                            <p class="text-sm font-bold text-gv-deep leading-snug">
+                                Samsung Galaxy Tab S9 — Aisle B, Bin 12
+                            </p>
+                            <p class="text-xs text-slate-500 font-medium mt-0.5 mb-3">
+                                Cycle count mismatch — system shows
+                                <span class="font-bold text-blue-600">+3 surplus</span>
+                            </p>
+                            <div class="flex items-center justify-between flex-wrap gap-2">
+                                <span class="text-xs text-slate-400 font-medium">
+                                    Flagged by system · 2 days ago
+                                </span>
+                                <button type="button"
+                                        class="text-xs font-extrabold text-blue-700 bg-blue-100
+                                               hover:bg-blue-200 px-3 py-1.5 rounded-lg
+                                               transition-colors duration-200 shadow-sm">
+                                    Review
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- /feed -->
+
+                <!-- card footer -->
+                <div class="px-6 py-3 border-t border-slate-100 bg-slate-50/50
+                            flex items-center justify-between">
+                    <span class="text-xs text-slate-400 font-medium">4 recent events shown</span>
+                    <a href="#" class="text-xs font-bold text-gv-accent hover:text-gv-mid transition-colors">
+                        View all adjustments →
+                    </a>
+                </div>
+            </section>
+
+        </div><!-- /split layout -->
+
+    </main>
+
+</div><!-- /outer flex shell -->

@@ -1,0 +1,116 @@
+
+@model GadgetVault.Models.User
+@{
+    ViewData["Title"] = "Edit User Access";
+    Layout = null; // Centered standalone view
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit User Access - GadgetVault</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'gv-dark':   '#061f17',
+                        'gv-deep':   '#0a3124',
+                        'gv-mid':    '#115740',
+                        'gv-accent': '#23a476',
+                        'gv-light':  '#f2f7f5',
+                        'gv-sage':   '#d1e8df',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+</head>
+<body class="bg-gv-light font-sans antialiased text-slate-800 min-h-screen flex items-center justify-center p-4">
+
+    <!-- Card Container -->
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden relative">
+        
+        <!-- Header -->
+        <div class="bg-gv-deep px-6 py-6 text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent pointer-events-none"></div>
+
+            <div class="relative z-10">
+                <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-4 border border-white/5 shadow-inner backdrop-blur-sm">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="text-white opacity-90">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-black text-white tracking-tight">Edit User Access</h2>
+                <p class="text-xs text-gv-sage opacity-80 mt-1.5 font-medium leading-relaxed">
+                    Modify role permissions for this team member.
+                </p>
+            </div>
+        </div>
+
+        <!-- Form Body -->
+        <div class="p-7">
+            <form method="post" asp-action="EditUser" class="space-y-5">
+                
+                <input type="hidden" name="id" value="@Model.Id" />
+
+                <!-- Email -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mt-1 mb-2">Email Address</label>
+                    <input type="email" value="@Model.Email" disabled readonly
+                           class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-sm font-semibold text-slate-400 cursor-not-allowed shadow-inner" />
+                </div>
+
+                <!-- Role Dropdown -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mt-1 mb-2">New Role</label>
+                    <div class="relative">
+                        <select name="newRoleId" required
+                                class="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gv-deep focus:ring-4 focus:ring-gv-deep/10 transition-all font-bold text-gv-deep appearance-none cursor-pointer">
+                            @if (ViewBag.Roles != null)
+                            {
+                                foreach (var role in ViewBag.Roles)
+                                {
+                                    if (Model.RoleId == role.Id)
+                                    {
+                                        <option value="@role.Id" selected>@role.Name</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@role.Id">@role.Name</option>
+                                    }
+                                }
+                            }
+                        </select>
+                        <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
+                            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="pt-4 flex items-center gap-3">
+                    <a asp-action="UserManagement" class="flex-1 text-center py-3 px-4 bg-white border border-slate-200 text-slate-500 rounded-xl text-sm font-bold hover:bg-slate-50 hover:text-slate-700 transition-colors">
+                        Cancel
+                    </a>
+                    <button type="submit" class="flex-[2] py-3 px-4 bg-gv-deep hover:bg-gv-dark text-white rounded-xl text-sm font-bold shadow-lg shadow-gv-deep/30 hover:shadow-gv-deep/40 transition-all transform hover:-translate-y-0.5">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

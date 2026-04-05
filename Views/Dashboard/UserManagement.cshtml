@@ -1,0 +1,404 @@
+@model IEnumerable<GadgetVault.Models.User>
+
+@{
+    ViewData["Title"] = "User Management";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<!-- Tailwind CSS CDN (Play CDN — UI prototype) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'gv-dark':   '#061f17',
+                    'gv-deep':   '#0a3124',
+                    'gv-mid':    '#115740',
+                    'gv-accent': '#23a476',
+                    'gv-light':  '#f2f7f5',
+                    'gv-sage':   '#d1e8df',
+                },
+                fontFamily: {
+                    sans: ['Inter', 'Segoe UI', 'Roboto', 'sans-serif'],
+                },
+            },
+        },
+    }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+<!-- ═══════════════════════════════════════════════════════
+     OUTER SHELL
+     ═══════════════════════════════════════════════════════ -->
+<div class="flex min-h-screen bg-gv-light font-sans">
+
+    <!-- ────────────────────────────────────────
+         SIDEBAR
+         ──────────────────────────────────────── -->
+    <aside class="w-72 bg-gv-dark text-white flex flex-col shrink-0" style="padding: 30px;">
+
+        <!-- brand -->
+        <div class="flex items-center gap-3 mb-8">
+            <div class="w-9 h-9 rounded-lg bg-gv-accent flex items-center justify-center shadow-lg shrink-0">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <rect x="2"  y="2"  width="7" height="7" rx="1.5" fill="white" opacity="0.95"/>
+                    <rect x="11" y="2"  width="7" height="7" rx="1.5" fill="white" opacity="0.6"/>
+                    <rect x="2"  y="11" width="7" height="7" rx="1.5" fill="white" opacity="0.6"/>
+                    <rect x="11" y="11" width="7" height="7" rx="1.5" fill="white" opacity="0.85"/>
+                </svg>
+            </div>
+            <div>
+                <div class="font-extrabold text-base leading-tight">
+                    Gadget<span class="text-gv-accent">Vault</span>
+                </div>
+                <div class="text-xs text-gv-sage opacity-70 font-medium leading-tight">System Manager</div>
+            </div>
+        </div>
+
+        <!-- nav label -->
+        <div class="text-xs font-bold uppercase tracking-widest text-gv-sage opacity-50 mb-3 px-1">
+            Administration
+        </div>
+
+        <!-- nav links -->
+        <nav class="flex flex-col gap-1" aria-label="System Manager navigation">
+
+            <!-- Overview -->
+            <a href="/Dashboard/SystemManager"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <rect x="1" y="1" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.9"/>
+                    <rect x="9" y="1" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.5"/>
+                    <rect x="1" y="9" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.5"/>
+                    <rect x="9" y="9" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.8"/>
+                </svg>
+                Overview
+            </a>
+
+            <!-- User Management (Active) -->
+            <a href="#" aria-current="page"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gv-accent text-white font-semibold text-sm transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <circle cx="6" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M1 14c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <circle cx="12" cy="5" r="2" stroke="currentColor" stroke-width="1.4" opacity="0.6"/>
+                    <path d="M11 10.5c1.5.3 3 1.5 3 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.6"/>
+                </svg>
+                User Management
+            </a>
+
+            <!-- Roles Access Control -->
+            <a href="#"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M8 1L3 3.5v4c0 3 2.5 5.5 5 6.5 2.5-1 5-3.5 5-6.5v-4L8 1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                    <path d="M5.5 8l2 2 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Roles Access Control
+            </a>
+
+            <!-- Connected Apps -->
+            <a href="#"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M6.5 9.5a3.5 3.5 0 005 0l2-2a3.5 3.5 0 00-5-5L7.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M9.5 6.5a3.5 3.5 0 00-5 0l-2 2a3.5 3.5 0 005 5L8.5 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Connected Apps
+            </a>
+
+            <!-- Security Logs -->
+            <a href="#"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M8 3C4 3 1.5 8 1.5 8S4 13 8 13s6.5-5 6.5-5S12 3 8 3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                    <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.4"/>
+                </svg>
+                Security Logs
+            </a>
+
+            <!-- System Logs -->
+            <a href="#"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M5 6l2 2-2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 10h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                </svg>
+                System Logs
+            </a>
+
+            <!-- Company Settings -->
+            <a href="#"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <rect x="2" y="7" width="12" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <circle cx="8" cy="10.5" r="1.2" fill="currentColor" opacity="0.7"/>
+                </svg>
+                Company Settings
+            </a>
+        </nav>
+
+        <!-- bottom profile + logout -->
+        <div class="mt-auto">
+            <hr class="border-white/10 my-5" />
+            <a href="#"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M2 14c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                My Profile
+            </a>
+            <a asp-controller="Home" asp-action="Index"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 font-semibold text-sm hover:bg-red-500/10 transition-all duration-200 mt-1">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M10 11l3-3-3-3M13 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Log Out
+            </a>
+        </div>
+    </aside>
+
+    <!-- ────────────────────────────────────────
+         MAIN CONTENT
+         ──────────────────────────────────────── -->
+    <main class="flex-1 p-8 overflow-auto" id="main-content">
+
+        <!-- HEADER -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-black text-gv-deep tracking-tight leading-tight">
+                User Management
+            </h1>
+            <p class="text-sm text-slate-500 mt-2 font-medium max-w-xl leading-relaxed">
+                Manage employee access and roles.
+            </p>
+        </div>
+        
+        <!-- Action Bar (Search & Button) -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <!-- Search -->
+            <form method="get" asp-action="UserManagement" class="relative w-full sm:w-80">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" name="searchString" value="@ViewBag.CurrentSearch" placeholder="Search users by email..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gv-accent focus:ring-1 focus:ring-gv-accent transition-colors" />
+                <button type="submit" class="hidden">Search</button>
+            </form>
+            <!-- Add User Button -->
+            <button onclick="openInviteModal()" class="bg-gv-accent hover:bg-gv-mid text-white font-bold py-2.5 px-5 rounded-xl text-sm transition-all duration-200 shadow-lg shadow-gv-accent/30 flex items-center justify-center gap-2 shrink-0">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+                </svg>
+                Invite New User
+            </button>
+        </div>
+        
+        <!-- Data Table -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600">
+                    <thead class="bg-slate-50 border-b border-slate-100">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">EMAIL</th>
+                            <th scope="col" class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">ROLE ID</th>
+                            <th scope="col" class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">DATE ADDED</th>
+                            <th scope="col" class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">STATUS</th>
+                            <th scope="col" class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var user in Model)
+                            {
+                                <tr class="hover:bg-slate-50/70 transition-colors duration-150 group">
+                                    <td class="px-6 py-4 font-bold text-gv-deep group-hover:text-gv-accent transition-colors">
+                                        @user.Email
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-gv-sage text-gv-deep border border-gv-sage/50 whitespace-nowrap">
+                                            @(user.Role?.Name ?? "Unassigned") (@user.RoleId)
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-slate-500 font-medium whitespace-nowrap">
+                                        @user.CreatedAt.ToString("MMM dd, yyyy")
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        @if (user.IsActive)
+                                        {
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                                                Active
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400 inline-block"></span>
+                                                Deactivated
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="px-6 py-4 font-bold">
+                                        <div class="flex items-center gap-3">
+                                            <button onclick="openEditModal('@user.Id', '@user.Email', '@user.RoleId')" class="text-blue-500 hover:text-blue-700 transition-colors">Edit</button>
+                                            <span class="text-slate-200">|</span>
+                                            <form asp-action="ToggleUserStatus" asp-route-id="@user.Id" method="post" onsubmit="return confirm('Are you sure you want to change this user\'s status?');" class="inline">
+                                                @if (user.IsActive)
+                                                {
+                                                    <button type="submit" class="text-red-500 hover:text-red-700 font-medium">Deactivate</button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="submit" class="text-emerald-500 hover:text-emerald-700 font-medium">Re-Activate</button>
+                                                }
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-slate-500 font-medium">No users found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <!-- card footer -->
+            <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <span class="text-xs text-slate-500 font-medium">
+                    Page <span class="font-bold text-gv-deep">@ViewBag.CurrentPage</span> of <span class="font-bold text-gv-deep">@(ViewBag.TotalPages > 0 ? ViewBag.TotalPages : 1)</span>
+                </span>
+                
+                <div class="flex items-center gap-2">
+                    @if (ViewBag.CurrentPage > 1)
+                    {
+                        <a asp-action="UserManagement" asp-route-searchString="@ViewBag.CurrentSearch" asp-route-pageNumber="@(ViewBag.CurrentPage - 1)" class="px-3 py-1.5 rounded-lg text-sm font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 hover:text-gv-deep transition-colors shadow-sm">
+                            Previous
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="px-3 py-1.5 rounded-lg text-sm font-bold text-slate-400 bg-slate-100 border border-slate-200 cursor-not-allowed">
+                            Previous
+                        </span>
+                    }
+
+                    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                    {
+                        <a asp-action="UserManagement" asp-route-searchString="@ViewBag.CurrentSearch" asp-route-pageNumber="@(ViewBag.CurrentPage + 1)" class="px-3 py-1.5 rounded-lg text-sm font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 hover:text-gv-deep transition-colors shadow-sm">
+                            Next
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="px-3 py-1.5 rounded-lg text-sm font-bold text-slate-400 bg-slate-100 border border-slate-200 cursor-not-allowed">
+                            Next
+                        </span>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Invite Modal -->
+    <div id="inviteModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden relative transform transition-all">
+            <div class="bg-gv-dark px-6 py-6 text-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-gv-accent/20 to-transparent"></div>
+                <div class="relative z-10">
+                    <h2 class="text-2xl font-black text-white tracking-tight">Invite New Team Member</h2>
+                    <p class="text-xs text-gv-sage opacity-80 mt-1.5 font-medium leading-relaxed">Add a new user and assign their system role.</p>
+                </div>
+            </div>
+            <div class="p-7 text-left">
+                <form method="post" asp-action="InviteUser" class="space-y-5">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mt-1 mb-2">Email Address</label>
+                        <input type="email" name="email" required placeholder="member@company.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gv-accent focus:ring-4 focus:ring-gv-accent/10 transition-all font-semibold text-gv-deep placeholder:text-slate-400" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mt-1 mb-2">System Role</label>
+                        <select name="roleId" required class="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gv-accent focus:ring-4 focus:ring-gv-accent/10 transition-all font-semibold text-gv-deep appearance-none">
+                            <option value="" disabled selected>-- Select a role --</option>
+                            @if (ViewBag.Roles != null)
+                            {
+                                foreach (var role in ViewBag.Roles)
+                                {
+                                    <option value="@role.Id">@role.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="pt-4 flex items-center gap-3">
+                        <button type="button" onclick="closeInviteModal()" class="flex-1 text-center py-3 px-4 bg-white border border-slate-200 text-slate-500 rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors">Cancel</button>
+                        <button type="submit" class="flex-[2] py-3 px-4 bg-gv-accent hover:bg-gv-mid text-white rounded-xl text-sm font-bold shadow-lg shadow-gv-accent/30 transition-all">Send Invite</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden relative transform transition-all">
+            <div class="bg-gv-deep px-6 py-6 text-center relative overflow-hidden">
+                <h2 class="text-2xl font-black text-white tracking-tight">Edit User Access</h2>
+                <p class="text-xs text-gv-sage opacity-80 mt-1.5 font-medium leading-relaxed">Modify role permissions for this team member.</p>
+            </div>
+            <div class="p-7 text-left">
+                <form method="post" asp-action="EditUser" class="space-y-5">
+                    <input type="hidden" name="id" id="editUserId" />
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mt-1 mb-2">Email Address</label>
+                        <input type="email" id="editEmail" disabled readonly class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-sm font-semibold text-slate-400 cursor-not-allowed shadow-inner" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mt-1 mb-2">New Role</label>
+                        <select name="newRoleId" id="editRoleId" required class="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gv-deep transition-all font-bold text-gv-deep appearance-none">
+                            @if (ViewBag.Roles != null)
+                            {
+                                foreach (var role in ViewBag.Roles)
+                                {
+                                    <option value="@role.Id">@role.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="pt-4 flex items-center gap-3">
+                        <button type="button" onclick="closeEditModal()" class="flex-1 text-center py-3 px-4 bg-white border border-slate-200 text-slate-500 rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors">Cancel</button>
+                        <button type="submit" class="flex-[2] py-3 px-4 bg-gv-deep hover:bg-gv-dark text-white rounded-xl text-sm font-bold shadow-lg shadow-gv-deep/30 transition-all">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function openInviteModal() {
+        document.getElementById('inviteModal').classList.remove('hidden');
+    }
+    function closeInviteModal() {
+        document.getElementById('inviteModal').classList.add('hidden');
+    }
+    function openEditModal(id, email, roleId) {
+        document.getElementById('editUserId').value = id;
+        document.getElementById('editEmail').value = email;
+        document.getElementById('editRoleId').value = roleId;
+        document.getElementById('editModal').classList.remove('hidden');
+    }
+    function closeEditModal() {
+        document.getElementById('editModal').classList.add('hidden');
+    }
+</script>

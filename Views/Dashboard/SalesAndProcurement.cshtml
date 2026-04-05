@@ -1,0 +1,495 @@
+@{
+    ViewData["Title"] = "Sales & Procurement";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<!-- Tailwind CSS CDN (Play CDN — for prototype/UI development) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'gv-dark':   '#061f17',
+                    'gv-deep':   '#0a3124',
+                    'gv-mid':    '#115740',
+                    'gv-accent': '#23a476',
+                    'gv-light':  '#f2f7f5',
+                    'gv-sage':   '#d1e8df',
+                },
+                fontFamily: {
+                    sans: ['Inter', 'Segoe UI', 'Roboto', 'sans-serif'],
+                },
+            },
+        },
+    }
+</script>
+
+<!-- Google Font -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+<!-- ═══════════════════════════════════════════════════════════════
+     OUTER SHELL — sidebar + content
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="flex min-h-screen bg-gv-light font-sans">
+
+    <!-- ──────────────────────────────────────────
+         SIDEBAR
+         ────────────────────────────────────────── -->
+    <aside class="w-72 bg-gv-dark text-white flex flex-col shrink-0" style="padding: 30px;">
+
+        <!-- brand -->
+        <div class="flex items-center gap-3 mb-8">
+            <div class="w-9 h-9 rounded-lg bg-gv-accent flex items-center justify-center shadow-lg shrink-0">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <rect x="2" y="2" width="7" height="7" rx="1.5" fill="white" opacity="0.95"/>
+                    <rect x="11" y="2" width="7" height="7" rx="1.5" fill="white" opacity="0.6"/>
+                    <rect x="2" y="11" width="7" height="7" rx="1.5" fill="white" opacity="0.6"/>
+                    <rect x="11" y="11" width="7" height="7" rx="1.5" fill="white" opacity="0.85"/>
+                </svg>
+            </div>
+            <div>
+                <div class="font-extrabold text-base leading-tight">
+                    Gadget<span class="text-gv-accent">Vault</span>
+                </div>
+                <div class="text-xs text-gv-sage opacity-70 font-medium leading-tight">Sales &amp; Procurement</div>
+            </div>
+        </div>
+
+        <!-- nav label -->
+        <div class="text-xs font-bold uppercase tracking-widest text-gv-sage opacity-50 mb-3 px-1">
+            Navigation
+        </div>
+
+        <!-- nav links -->
+        <nav class="flex flex-col gap-1">
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gv-accent text-white font-semibold text-sm transition-all duration-200" aria-current="page">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.9"/><rect x="9" y="1" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.5"/><rect x="1" y="9" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.5"/><rect x="9" y="9" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.8"/></svg>
+                Trading Hub
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="1" y="1" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M4 8h8M4 5h5M4 11h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                Purchase Orders
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 2h2l1.5 8h7l1.5-5H5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="13" r="1" fill="currentColor"/><circle cx="12" cy="13" r="1" fill="currentColor"/></svg>
+                Sales Orders
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                Order History
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1L3 4v4c0 3 2.5 5.74 5 6.5 2.5-.76 5-3.5 5-6.5V4L8 1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                Vendor Directory
+            </a>
+        </nav>
+
+        <!-- bottom links -->
+        <div class="mt-auto">
+            <hr class="border-white/10 my-5" />
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                My Profile
+            </a>
+            <a asp-controller="Home" asp-action="Index"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 font-semibold text-sm hover:bg-red-500/10 transition-all duration-200 mt-1">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M10 11l3-3-3-3M13 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Log Out
+            </a>
+        </div>
+    </aside>
+
+    <!-- ──────────────────────────────────────────
+         MAIN CONTENT AREA
+         ────────────────────────────────────────── -->
+    <main class="flex-1 p-8 overflow-auto" id="main-content">
+
+        <!-- ┌──────────────────────────────────────────────────────
+             │  PAGE HEADER
+             └────────────────────────────────────────────────────── -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+
+            <!-- title block -->
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-gv-accent bg-gv-accent/10 border border-gv-accent/25 rounded-full px-3 py-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-gv-accent animate-pulse inline-block"></span>
+                        Live Operations
+                    </span>
+                </div>
+                <h1 class="text-2xl font-black text-gv-deep tracking-tight leading-tight">
+                    Trading Hub
+                    <span class="text-gv-accent">— Sales &amp; Procurement</span>
+                </h1>
+                <p class="text-sm text-slate-500 mt-1 font-medium">
+                    Manage inbound purchase orders and outbound sales orders from one command center.
+                </p>
+            </div>
+
+            <!-- action buttons -->
+            <div class="flex items-center gap-3 shrink-0">
+                <!-- Create Purchase Order -->
+                <button id="btn-create-po"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gv-accent text-white text-sm font-bold shadow-lg shadow-gv-accent/30 hover:bg-gv-mid hover:-translate-y-0.5 hover:shadow-gv-accent/40 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gv-accent focus:ring-offset-2">
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                        <path d="M7.5 1v13M1 7.5h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Create Purchase Order
+                </button>
+
+                <!-- Create Sales Order -->
+                <button id="btn-create-so"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-transparent text-gv-accent text-sm font-bold border-2 border-gv-accent hover:bg-gv-accent hover:text-white hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gv-accent focus:ring-offset-2">
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                        <path d="M7.5 1v13M1 7.5h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Create Sales Order
+                </button>
+            </div>
+        </div>
+
+        <!-- ┌──────────────────────────────────────────────────────
+             │  STATS ROW (3 summary cards)
+             └────────────────────────────────────────────────────── -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+
+            <!-- Stat 1: POs Pending -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 relative overflow-hidden group hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 to-blue-600 rounded-t-2xl"></div>
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">
+                            Total POs Pending
+                        </p>
+                        <p class="text-4xl font-black text-gv-deep tracking-tight">4</p>
+                        <p class="text-xs text-slate-400 mt-1.5 font-medium">Awaiting supplier delivery</p>
+                    </div>
+                    <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                            <rect x="2" y="5" width="18" height="14" rx="2.5" stroke="#3b82f6" stroke-width="1.8"/>
+                            <path d="M7 5V4a4 4 0 018 0v1" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round"/>
+                            <path d="M7 12h8M7 15h5" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center gap-1.5">
+                    <span class="inline-block w-2 h-2 rounded-full bg-yellow-400"></span>
+                    <span class="text-xs font-semibold text-yellow-600">2 require approval</span>
+                </div>
+            </div>
+
+            <!-- Stat 2: SOs to Ship -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 relative overflow-hidden group hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gv-accent to-emerald-400 rounded-t-2xl"></div>
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">
+                            Total SOs to Ship
+                        </p>
+                        <p class="text-4xl font-black text-gv-deep tracking-tight">12</p>
+                        <p class="text-xs text-slate-400 mt-1.5 font-medium">Orders ready for dispatch</p>
+                    </div>
+                    <div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                            <path d="M3 9h12l3 6H3z" stroke="#23a476" stroke-width="1.8" stroke-linejoin="round"/>
+                            <path d="M3 9l2-5h8" stroke="#23a476" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="6.5"  cy="17.5" r="1.5" fill="#23a476"/>
+                            <circle cx="15.5" cy="17.5" r="1.5" fill="#23a476"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center gap-1.5">
+                    <span class="inline-block w-2 h-2 rounded-full bg-gv-accent"></span>
+                    <span class="text-xs font-semibold text-gv-accent">5 picked &amp; ready</span>
+                </div>
+            </div>
+
+            <!-- Stat 3: Monthly Revenue -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 relative overflow-hidden group hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-400 to-purple-600 rounded-t-2xl"></div>
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">
+                            Monthly Revenue
+                        </p>
+                        <p class="text-4xl font-black text-gv-deep tracking-tight">$124.5k</p>
+                        <p class="text-xs text-slate-400 mt-1.5 font-medium">March 2026</p>
+                    </div>
+                    <div class="w-11 h-11 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
+                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                            <circle cx="11" cy="11" r="8.5" stroke="#7c3aed" stroke-width="1.8"/>
+                            <path d="M11 7v1.5M11 14.5V16M8.5 12c0 1.38 1.12 2.5 2.5 2.5s2.5-.97 2.5-2.5c0-1.38-1.12-2-2.5-2V8.5c1.38 0 2.5.56 2.5 1.5" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center gap-1.5">
+                    <span class="inline-block w-2 h-2 rounded-full bg-violet-500"></span>
+                    <span class="text-xs font-semibold text-violet-600">↑ 8.2% vs last month</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ┌──────────────────────────────────────────────────────
+             │  SPLIT-SCREEN — PO (left) | SO (right)
+             └────────────────────────────────────────────────────── -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+            <!-- ╔══════════════════════════════════════════
+                 ║  LEFT — PURCHASE ORDERS (Incoming)
+                 ╚══════════════════════════════════════════ -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col" aria-labelledby="po-heading">
+
+                <!-- card header -->
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <!-- Blue accent bar -->
+                        <div class="w-1 h-7 rounded-full bg-blue-500 shrink-0"></div>
+                        <div>
+                            <h2 id="po-heading" class="text-sm font-extrabold text-gv-deep tracking-tight">
+                                Active Purchase Orders
+                                <span class="ml-1 font-medium text-slate-400">(Incoming)</span>
+                            </h2>
+                            <p class="text-xs text-slate-400 font-medium mt-0.5">Procurement — Buying</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full">
+                        4 Active
+                    </span>
+                </div>
+
+                <!-- table -->
+                <div class="overflow-x-auto flex-1">
+                    <table class="w-full text-sm" aria-label="Active Purchase Orders">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-100">
+                                <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 px-5 py-3">PO Number</th>
+                                <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 px-5 py-3">Supplier</th>
+                                <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 px-5 py-3">Expected Date</th>
+                                <th class="text-right text-xs font-bold uppercase tracking-wider text-slate-400 px-5 py-3">Total Cost</th>
+                                <th class="text-center text-xs font-bold uppercase tracking-wider text-slate-400 px-5 py-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+
+                            <!-- Row 1 — Draft -->
+                            <tr class="hover:bg-slate-50/60 transition-colors duration-150 group">
+                                <td class="px-5 py-3.5">
+                                    <span class="font-bold text-gv-deep group-hover:text-gv-accent transition-colors">#PO-2024-0031</span>
+                                </td>
+                                <td class="px-5 py-3.5">
+                                    <div class="font-semibold text-slate-700">TechParts Global</div>
+                                    <div class="text-xs text-slate-400">Singapore</div>
+                                </td>
+                                <td class="px-5 py-3.5 text-slate-500 text-xs font-medium">Apr 10, 2026</td>
+                                <td class="px-5 py-3.5 text-right font-bold text-gv-deep">$4,200.00</td>
+                                <td class="px-5 py-3.5 text-center">
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-700 border border-yellow-200">
+                                        Draft
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <!-- Row 2 — Pending Delivery -->
+                            <tr class="hover:bg-slate-50/60 transition-colors duration-150 group">
+                                <td class="px-5 py-3.5">
+                                    <span class="font-bold text-gv-deep group-hover:text-gv-accent transition-colors">#PO-2024-0028</span>
+                                </td>
+                                <td class="px-5 py-3.5">
+                                    <div class="font-semibold text-slate-700">Alpha Components Ltd.</div>
+                                    <div class="text-xs text-slate-400">Malaysia</div>
+                                </td>
+                                <td class="px-5 py-3.5 text-slate-500 text-xs font-medium">Apr 4, 2026</td>
+                                <td class="px-5 py-3.5 text-right font-bold text-gv-deep">$11,850.00</td>
+                                <td class="px-5 py-3.5 text-center">
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">
+                                        Pending Delivery
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <!-- Row 3 — Received -->
+                            <tr class="hover:bg-slate-50/60 transition-colors duration-150 group">
+                                <td class="px-5 py-3.5">
+                                    <span class="font-bold text-gv-deep group-hover:text-gv-accent transition-colors">#PO-2024-0025</span>
+                                </td>
+                                <td class="px-5 py-3.5">
+                                    <div class="font-semibold text-slate-700">NexoSupply Inc.</div>
+                                    <div class="text-xs text-slate-400">Taiwan</div>
+                                </td>
+                                <td class="px-5 py-3.5 text-slate-500 text-xs font-medium">Mar 28, 2026</td>
+                                <td class="px-5 py-3.5 text-right font-bold text-gv-deep">$7,340.00</td>
+                                <td class="px-5 py-3.5 text-center">
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                                        Received
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <!-- Row 4 — Draft -->
+                            <tr class="hover:bg-slate-50/60 transition-colors duration-150 group">
+                                <td class="px-5 py-3.5">
+                                    <span class="font-bold text-gv-deep group-hover:text-gv-accent transition-colors">#PO-2024-0022</span>
+                                </td>
+                                <td class="px-5 py-3.5">
+                                    <div class="font-semibold text-slate-700">Brightline Parts Co.</div>
+                                    <div class="text-xs text-slate-400">South Korea</div>
+                                </td>
+                                <td class="px-5 py-3.5 text-slate-500 text-xs font-medium">Apr 18, 2026</td>
+                                <td class="px-5 py-3.5 text-right font-bold text-gv-deep">$2,900.00</td>
+                                <td class="px-5 py-3.5 text-center">
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-700 border border-yellow-200">
+                                        Draft
+                                    </span>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- card footer -->
+                <div class="px-6 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                    <span class="text-xs text-slate-400 font-medium">Showing 4 of 4 active POs</span>
+                    <a href="#" class="text-xs font-bold text-gv-accent hover:text-gv-mid transition-colors">
+                        View all purchase orders →
+                    </a>
+                </div>
+            </section>
+
+            <!-- ╔══════════════════════════════════════════
+                 ║  RIGHT — SALES ORDERS (Outgoing)
+                 ╚══════════════════════════════════════════ -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col" aria-labelledby="so-heading">
+
+                <!-- card header -->
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <!-- Green accent bar -->
+                        <div class="w-1 h-7 rounded-full bg-gv-accent shrink-0"></div>
+                        <div>
+                            <h2 id="so-heading" class="text-sm font-extrabold text-gv-deep tracking-tight">
+                                Active Sales Orders
+                                <span class="ml-1 font-medium text-slate-400">(Outgoing)</span>
+                            </h2>
+                            <p class="text-xs text-slate-400 font-medium mt-0.5">Sales — Selling</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold text-gv-accent bg-gv-accent/10 border border-gv-accent/20 px-3 py-1 rounded-full">
+                        4 Active
+                    </span>
+                </div>
+
+                <!-- table -->
+                <div class="overflow-x-auto flex-1">
+                    <table class="w-full text-sm" aria-label="Active Sales Orders">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-100">
+                                <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 px-5 py-3">SO Number</th>
+                                <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 px-5 py-3">Customer</th>
+                                <th class="text-center text-xs font-bold uppercase tracking-wider text-slate-400 px-5 py-3">Items</th>
+                                <th class="text-right text-xs font-bold uppercase tracking-wider text-slate-400 px-5 py-3">Total Revenue</th>
+                                <th class="text-center text-xs font-bold uppercase tracking-wider text-slate-400 px-5 py-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+
+                            <!-- Row 1 — Pending -->
+                            <tr class="hover:bg-slate-50/60 transition-colors duration-150 group">
+                                <td class="px-5 py-3.5">
+                                    <span class="font-bold text-gv-deep group-hover:text-gv-accent transition-colors">#SO-2024-0119</span>
+                                </td>
+                                <td class="px-5 py-3.5">
+                                    <div class="font-semibold text-slate-700">RetailPro Corp.</div>
+                                    <div class="text-xs text-slate-400">Australia</div>
+                                </td>
+                                <td class="px-5 py-3.5 text-center">
+                                    <span class="font-semibold text-slate-600">24 SKUs</span>
+                                </td>
+                                <td class="px-5 py-3.5 text-right font-bold text-gv-deep">$18,400.00</td>
+                                <td class="px-5 py-3.5 text-center">
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                                        Pending
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <!-- Row 2 — Picked -->
+                            <tr class="hover:bg-slate-50/60 transition-colors duration-150 group">
+                                <td class="px-5 py-3.5">
+                                    <span class="font-bold text-gv-deep group-hover:text-gv-accent transition-colors">#SO-2024-0115</span>
+                                </td>
+                                <td class="px-5 py-3.5">
+                                    <div class="font-semibold text-slate-700">Horizon Gadgets</div>
+                                    <div class="text-xs text-slate-400">United Kingdom</div>
+                                </td>
+                                <td class="px-5 py-3.5 text-center">
+                                    <span class="font-semibold text-slate-600">8 SKUs</span>
+                                </td>
+                                <td class="px-5 py-3.5 text-right font-bold text-gv-deep">$6,750.00</td>
+                                <td class="px-5 py-3.5 text-center">
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-700 border border-orange-200">
+                                        Picked
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <!-- Row 3 — Shipped -->
+                            <tr class="hover:bg-slate-50/60 transition-colors duration-150 group">
+                                <td class="px-5 py-3.5">
+                                    <span class="font-bold text-gv-deep group-hover:text-gv-accent transition-colors">#SO-2024-0108</span>
+                                </td>
+                                <td class="px-5 py-3.5">
+                                    <div class="font-semibold text-slate-700">MegaMart Philippines</div>
+                                    <div class="text-xs text-slate-400">Philippines</div>
+                                </td>
+                                <td class="px-5 py-3.5 text-center">
+                                    <span class="font-semibold text-slate-600">67 SKUs</span>
+                                </td>
+                                <td class="px-5 py-3.5 text-right font-bold text-gv-deep">$41,200.00</td>
+                                <td class="px-5 py-3.5 text-center">
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                                        Shipped
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <!-- Row 4 — Pending -->
+                            <tr class="hover:bg-slate-50/60 transition-colors duration-150 group">
+                                <td class="px-5 py-3.5">
+                                    <span class="font-bold text-gv-deep group-hover:text-gv-accent transition-colors">#SO-2024-0101</span>
+                                </td>
+                                <td class="px-5 py-3.5">
+                                    <div class="font-semibold text-slate-700">Vortex Electronics</div>
+                                    <div class="text-xs text-slate-400">Germany</div>
+                                </td>
+                                <td class="px-5 py-3.5 text-center">
+                                    <span class="font-semibold text-slate-600">15 SKUs</span>
+                                </td>
+                                <td class="px-5 py-3.5 text-right font-bold text-gv-deep">$9,820.00</td>
+                                <td class="px-5 py-3.5 text-center">
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                                        Pending
+                                    </span>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- card footer -->
+                <div class="px-6 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                    <span class="text-xs text-slate-400 font-medium">Showing 4 of 12 active SOs</span>
+                    <a href="#" class="text-xs font-bold text-gv-accent hover:text-gv-mid transition-colors">
+                        View all sales orders →
+                    </a>
+                </div>
+            </section>
+
+        </div><!-- /split-screen grid -->
+
+    </main><!-- /main content -->
+
+</div><!-- /outer flex shell -->

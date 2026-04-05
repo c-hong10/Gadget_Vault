@@ -1,0 +1,111 @@
+@{
+    ViewData["Title"] = "Sign Up";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .auth-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 180px); /* Fill space minus header/footer */
+        background-color: var(--light-green);
+        padding: 40px 20px;
+    }
+    
+    .auth-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(11, 61, 44, 0.08);
+        padding: 50px 40px;
+        width: 100%;
+        max-width: 450px;
+        text-align: center;
+        border-top: 5px solid var(--accent-green);
+    }
+
+    .auth-title {
+        color: var(--primary-green);
+        font-weight: 800;
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+
+    .auth-subtitle {
+        color: #666;
+        margin-bottom: 35px;
+        font-size: 1rem;
+    }
+
+    .form-control-custom {
+        display: block;
+        width: 100%;
+        padding: 14px 20px;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #f8fbfa;
+        background-clip: padding-box;
+        border: 1px solid #dce8e3;
+        border-radius: 12px;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        margin-bottom: 20px;
+    }
+
+    .form-control-custom:focus {
+        border-color: var(--accent-green);
+        outline: 0;
+        box-shadow: 0 0 0 4px rgba(35, 164, 118, 0.1);
+        background-color: #fff;
+    }
+
+    .btn-auth {
+        width: 100%;
+        padding: 14px 20px;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        text-decoration: none;
+    }
+
+    .btn-auth-primary {
+        background-color: var(--accent-green);
+        color: white;
+        border: none;
+        box-shadow: 0 8px 15px rgba(35, 164, 118, 0.3);
+    }
+    .btn-auth-primary:hover {
+        background-color: var(--secondary-green);
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    /* Social Buttons — removed (B2B system, SSO not supported) */
+</style>
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <h2 class="auth-title">Create Account</h2>
+        <p class="auth-subtitle">Join GadgetVault to setup your warehouse.</p>
+
+        <form asp-controller="Account" asp-action="SignUp" method="post">
+            <input type="text" name="username" class="form-control-custom" placeholder="Full Name" required />
+            <input type="email" name="email" class="form-control-custom" placeholder="Email Address" required />
+            <input type="password" name="password" class="form-control-custom" placeholder="Create Password" required />
+            
+            <button type="submit" class="btn btn-auth btn-auth-primary">Sign Up</button>
+        </form>
+
+        <div style="margin-top: 20px; font-size: 0.9rem;">
+            Already have an account? <a asp-controller="Account" asp-action="Login" style="color: var(--accent-green); font-weight: 600;">Sign In</a>
+        </div>
+        <div style="margin-top: 15px; font-size: 0.9rem;">
+            <a asp-controller="Home" asp-action="Index" style="color: #666; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--accent-green)'" onmouseout="this.style.color='#666'">&larr; Back to Home</a>
+        </div>
+    </div>
+</div>
