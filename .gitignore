@@ -1,0 +1,28 @@
+## ASP.NET Core / .NET specific
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.userprefs
+
+## Sensitive configuration — DO NOT commit these
+appsettings.json
+appsettings.Development.json
+
+## Published output
+publish/
+**/publish/
+
+## NuGet
+*.nupkg
+packages/
+!**/packages/repositories.config
+
+## Logs
+Logs/
+*.log
+
+## OS files
+.DS_Store
+Thumbs.db
