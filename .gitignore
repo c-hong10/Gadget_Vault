@@ -9,6 +9,7 @@ obj/
 ## Sensitive configuration — DO NOT commit these
 appsettings.json
 appsettings.Development.json
+appsettings.example.json
 
 ## Published output
 publish/
