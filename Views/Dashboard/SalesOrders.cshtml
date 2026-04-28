@@ -1,0 +1,110 @@
+@{
+    ViewData["Title"] = "Sales Orders";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+<script src="https://cdn.tailwindcss.com"></script>
+
+
+<div class="flex flex-col gap-6">
+    <!-- HEADER -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Sales Orders</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Track customer orders, monitor fulfillment progress, and manage dispatch.</p>
+        </div>
+        <button id="btn-create-so" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gv-brand text-white text-sm font-bold shadow-lg hover:opacity-90 hover:-translate-y-0.5 transition-all duration-200 shrink-0 outline-none border-none">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            Create Sales Order
+        </button>
+    </div>
+
+    <!-- CARD -->
+    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+        <!-- Toolbar -->
+        <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-[#0c0c0e]/50">
+            <div class="flex flex-1 flex-col sm:flex-row gap-3">
+                <div class="relative w-full sm:w-72">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
+                    <input type="text" placeholder="Search SO # or customer..." class="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                </div>
+                <select class="w-full sm:w-44 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand transition-all cursor-pointer">
+                    <option value="">All Statuses</option>
+                    <option>Pending</option><option>Processing</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option>
+                </select>
+            </div>
+            <span class="text-xs font-medium text-slate-400 dark:text-slate-500 shrink-0">12 orders total</span>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead>
+                    <tr class="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">SO #</th>
+                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Customer</th>
+                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Date</th>
+                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Order Value</th>
+                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-center">Fulfillment</th>
+                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    @{
+                        var soRows = new[] {
+                            new { Num="SO-2026-0119", Customer="MegaMart Philippines", Location="Makati City, PH", Date="Apr 22, 2026", Amount="$12,400.00", Status="Processing" },
+                            new { Num="SO-2026-0118", Customer="Vortex Electronics", Location="Berlin, DE", Date="Apr 22, 2026", Amount="$8,750.00", Status="Pending" },
+                            new { Num="SO-2026-0117", Customer="TechNova Retail", Location="Singapore, SG", Date="Apr 21, 2026", Amount="$31,200.00", Status="Shipped" },
+                            new { Num="SO-2026-0116", Customer="Pixel Paradise", Location="Manila, PH", Date="Apr 20, 2026", Amount="$5,300.00", Status="Delivered" },
+                            new { Num="SO-2026-0115", Customer="Gadget Hub KL", Location="Kuala Lumpur, MY", Date="Apr 19, 2026", Amount="$9,900.00", Status="Pending" },
+                            new { Num="SO-2026-0114", Customer="CityTech Store", Location="Jakarta, ID", Date="Apr 18, 2026", Amount="$3,200.00", Status="Cancelled" },
+                            new { Num="SO-2026-0113", Customer="Alpha Electronics", Location="Bangkok, TH", Date="Apr 16, 2026", Amount="$18,500.00", Status="Shipped" },
+                            new { Num="SO-2026-0112", Customer="ByteStore Inc.", Location="Cebu City, PH", Date="Apr 14, 2026", Amount="$6,100.00", Status="Delivered" },
+                        };
+                    }
+                    @foreach (var row in soRows)
+                    {
+                        var (badgeCls, dotCls, pulse) = row.Status switch {
+                            "Pending"    => ("text-yellow-700 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-500/15 border-yellow-200 dark:border-yellow-500/20", "bg-yellow-500", "animate-pulse"),
+                            "Processing" => ("text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-500/15 border-blue-200 dark:border-blue-500/20", "bg-blue-500", "animate-pulse"),
+                            "Shipped"    => ("text-violet-700 dark:text-violet-400 bg-violet-100 dark:bg-violet-500/15 border-violet-200 dark:border-violet-500/20", "bg-violet-500", ""),
+                            "Delivered"  => ("text-gv-brand-dark dark:text-gv-brand-light bg-gv-brand-light dark:bg-gv-brand/15 border-gv-brand-light dark:border-gv-brand/20", "bg-gv-brand", ""),
+                            _            => ("text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-500/15 border-red-200 dark:border-red-500/20", "bg-red-500", ""),
+                        };
+                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group">
+                            <td class="px-6 py-4 font-mono text-xs font-bold text-slate-700 dark:text-slate-300">@row.Num</td>
+                            <td class="px-6 py-4">
+                                <div class="font-semibold text-slate-800 dark:text-slate-200">@row.Customer</div>
+                                <div class="text-xs text-slate-400 mt-0.5">@row.Location</div>
+                            </td>
+                            <td class="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs">@row.Date</td>
+                            <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-200 text-right">@row.Amount</td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border @badgeCls">
+                                    <span class="w-1.5 h-1.5 rounded-full @dotCls @pulse"></span> @row.Status
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <button class="text-xs font-bold text-slate-400 hover:text-gv-brand transition-colors mr-3 border-none bg-transparent outline-none">View</button>
+                                @if (row.Status != "Delivered" && row.Status != "Cancelled") {
+                                    <button class="text-xs font-bold text-slate-400 hover:text-violet-500 transition-colors border-none bg-transparent outline-none">Update</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0c0e]/50 flex items-center justify-between">
+            <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">Showing 8 of 12 sales orders</span>
+            <a href="#" class="text-xs font-bold text-gv-brand hover:text-gv-brand transition-colors">View all →</a>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+

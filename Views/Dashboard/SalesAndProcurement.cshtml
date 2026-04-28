@@ -5,25 +5,7 @@
 
 <!-- Tailwind CSS CDN (Play CDN — for prototype/UI development) -->
 <script src="https://cdn.tailwindcss.com"></script>
-<script>
-    tailwind.config = {
-        theme: {
-            extend: {
-                colors: {
-                    'gv-dark':   '#061f17',
-                    'gv-deep':   '#0a3124',
-                    'gv-mid':    '#115740',
-                    'gv-accent': '#23a476',
-                    'gv-light':  '#f2f7f5',
-                    'gv-sage':   '#d1e8df',
-                },
-                fontFamily: {
-                    sans: ['Inter', 'Segoe UI', 'Roboto', 'sans-serif'],
-                },
-            },
-        },
-    }
-</script>
+
 
 <!-- Google Font -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -41,7 +23,7 @@
 
         <!-- brand -->
         <div class="flex items-center gap-3 mb-8">
-            <div class="w-9 h-9 rounded-lg bg-gv-accent flex items-center justify-center shadow-lg shrink-0">
+            <div class="w-9 h-9 rounded-lg bg-gv-brand flex items-center justify-center shadow-lg shrink-0">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                     <rect x="2" y="2" width="7" height="7" rx="1.5" fill="white" opacity="0.95"/>
                     <rect x="11" y="2" width="7" height="7" rx="1.5" fill="white" opacity="0.6"/>
@@ -51,7 +33,7 @@
             </div>
             <div>
                 <div class="font-extrabold text-base leading-tight">
-                    Gadget<span class="text-gv-accent">Vault</span>
+                    Gadget<span class="text-gv-brand">Vault</span>
                 </div>
                 <div class="text-xs text-gv-sage opacity-70 font-medium leading-tight">Sales &amp; Procurement</div>
             </div>
@@ -64,7 +46,7 @@
 
         <!-- nav links -->
         <nav class="flex flex-col gap-1">
-            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gv-accent text-white font-semibold text-sm transition-all duration-200" aria-current="page">
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gv-brand text-white font-semibold text-sm transition-all duration-200" aria-current="page">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.9"/><rect x="9" y="1" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.5"/><rect x="1" y="9" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.5"/><rect x="9" y="9" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.8"/></svg>
                 Trading Hub
             </a>
@@ -114,14 +96,14 @@
             <!-- title block -->
             <div>
                 <div class="flex items-center gap-2 mb-1">
-                    <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-gv-accent bg-gv-accent/10 border border-gv-accent/25 rounded-full px-3 py-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-gv-accent animate-pulse inline-block"></span>
+                    <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-gv-brand bg-gv-brand/10 border border-gv-brand/25 rounded-full px-3 py-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-gv-brand animate-pulse inline-block"></span>
                         Live Operations
                     </span>
                 </div>
                 <h1 class="text-2xl font-black text-gv-deep tracking-tight leading-tight">
                     Trading Hub
-                    <span class="text-gv-accent">— Sales &amp; Procurement</span>
+                    <span class="text-gv-brand">— Sales &amp; Procurement</span>
                 </h1>
                 <p class="text-sm text-slate-500 mt-1 font-medium">
                     Manage inbound purchase orders and outbound sales orders from one command center.
@@ -132,7 +114,7 @@
             <div class="flex items-center gap-3 shrink-0">
                 <!-- Create Purchase Order -->
                 <button id="btn-create-po"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gv-accent text-white text-sm font-bold shadow-lg shadow-gv-accent/30 hover:bg-gv-mid hover:-translate-y-0.5 hover:shadow-gv-accent/40 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gv-accent focus:ring-offset-2">
+                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gv-brand text-white text-sm font-bold shadow-lg shadow-gv-accent/30 hover:bg-gv-mid hover:-translate-y-0.5 hover:shadow-gv-accent/40 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand-color)] focus:ring-offset-2">
                     <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
                         <path d="M7.5 1v13M1 7.5h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     </svg>
@@ -141,7 +123,7 @@
 
                 <!-- Create Sales Order -->
                 <button id="btn-create-so"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-transparent text-gv-accent text-sm font-bold border-2 border-gv-accent hover:bg-gv-accent hover:text-white hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gv-accent focus:ring-offset-2">
+                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-transparent text-gv-brand text-sm font-bold border-2 border-gv-brand hover:bg-gv-brand hover:text-white hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--brand-color)] focus:ring-offset-2">
                     <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
                         <path d="M7.5 1v13M1 7.5h13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     </svg>
@@ -182,7 +164,7 @@
 
             <!-- Stat 2: SOs to Ship -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 relative overflow-hidden group hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gv-accent to-emerald-400 rounded-t-2xl"></div>
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--brand-color)] to-[color-mix(in_srgb,var(--brand-color)_80%,transparent)] rounded-t-2xl"></div>
                 <div class="flex items-start justify-between">
                     <div>
                         <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">
@@ -191,7 +173,7 @@
                         <p class="text-4xl font-black text-gv-deep tracking-tight">12</p>
                         <p class="text-xs text-slate-400 mt-1.5 font-medium">Orders ready for dispatch</p>
                     </div>
-                    <div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+                    <div class="w-11 h-11 rounded-xl bg-gv-brand-light flex items-center justify-center shrink-0">
                         <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
                             <path d="M3 9h12l3 6H3z" stroke="#23a476" stroke-width="1.8" stroke-linejoin="round"/>
                             <path d="M3 9l2-5h8" stroke="#23a476" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -201,8 +183,8 @@
                     </div>
                 </div>
                 <div class="mt-4 flex items-center gap-1.5">
-                    <span class="inline-block w-2 h-2 rounded-full bg-gv-accent"></span>
-                    <span class="text-xs font-semibold text-gv-accent">5 picked &amp; ready</span>
+                    <span class="inline-block w-2 h-2 rounded-full bg-gv-brand"></span>
+                    <span class="text-xs font-semibold text-gv-brand">5 picked &amp; ready</span>
                 </div>
             </div>
 
@@ -276,7 +258,7 @@
                             <!-- Row 1 — Draft -->
                             <tr class="hover:bg-slate-50/60 transition-colors duration-150 group">
                                 <td class="px-5 py-3.5">
-                                    <span class="font-bold text-gv-deep group-hover:text-gv-accent transition-colors">#PO-2024-0031</span>
+                                    <span class="font-bold text-gv-deep group-hover:text-gv-brand transition-colors">#PO-2024-0031</span>
                                 </td>
                                 <td class="px-5 py-3.5">
                                     <div class="font-semibold text-slate-700">TechParts Global</div>
@@ -294,7 +276,7 @@
                             <!-- Row 2 — Pending Delivery -->
                             <tr class="hover:bg-slate-50/60 transition-colors duration-150 group">
                                 <td class="px-5 py-3.5">
-                                    <span class="font-bold text-gv-deep group-hover:text-gv-accent transition-colors">#PO-2024-0028</span>
+                                    <span class="font-bold text-gv-deep group-hover:text-gv-brand transition-colors">#PO-2024-0028</span>
                                 </td>
                                 <td class="px-5 py-3.5">
                                     <div class="font-semibold text-slate-700">Alpha Components Ltd.</div>
@@ -312,7 +294,7 @@
                             <!-- Row 3 — Received -->
                             <tr class="hover:bg-slate-50/60 transition-colors duration-150 group">
                                 <td class="px-5 py-3.5">
-                                    <span class="font-bold text-gv-deep group-hover:text-gv-accent transition-colors">#PO-2024-0025</span>
+                                    <span class="font-bold text-gv-deep group-hover:text-gv-brand transition-colors">#PO-2024-0025</span>
                                 </td>
                                 <td class="px-5 py-3.5">
                                     <div class="font-semibold text-slate-700">NexoSupply Inc.</div>
@@ -321,7 +303,7 @@
                                 <td class="px-5 py-3.5 text-slate-500 text-xs font-medium">Mar 28, 2026</td>
                                 <td class="px-5 py-3.5 text-right font-bold text-gv-deep">$7,340.00</td>
                                 <td class="px-5 py-3.5 text-center">
-                                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-gv-brand-light text-gv-brand-dark border border-gv-brand-light">
                                         Received
                                     </span>
                                 </td>
@@ -330,7 +312,7 @@
                             <!-- Row 4 — Draft -->
                             <tr class="hover:bg-slate-50/60 transition-colors duration-150 group">
                                 <td class="px-5 py-3.5">
-                                    <span class="font-bold text-gv-deep group-hover:text-gv-accent transition-colors">#PO-2024-0022</span>
+                                    <span class="font-bold text-gv-deep group-hover:text-gv-brand transition-colors">#PO-2024-0022</span>
                                 </td>
                                 <td class="px-5 py-3.5">
                                     <div class="font-semibold text-slate-700">Brightline Parts Co.</div>
@@ -352,7 +334,7 @@
                 <!-- card footer -->
                 <div class="px-6 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
                     <span class="text-xs text-slate-400 font-medium">Showing 4 of 4 active POs</span>
-                    <a href="#" class="text-xs font-bold text-gv-accent hover:text-gv-mid transition-colors">
+                    <a href="#" class="text-xs font-bold text-gv-brand hover:text-gv-mid transition-colors">
                         View all purchase orders →
                     </a>
                 </div>
@@ -367,7 +349,7 @@
                 <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
                     <div class="flex items-center gap-3">
                         <!-- Green accent bar -->
-                        <div class="w-1 h-7 rounded-full bg-gv-accent shrink-0"></div>
+                        <div class="w-1 h-7 rounded-full bg-gv-brand shrink-0"></div>
                         <div>
                             <h2 id="so-heading" class="text-sm font-extrabold text-gv-deep tracking-tight">
                                 Active Sales Orders
@@ -376,7 +358,7 @@
                             <p class="text-xs text-slate-400 font-medium mt-0.5">Sales — Selling</p>
                         </div>
                     </div>
-                    <span class="text-xs font-bold text-gv-accent bg-gv-accent/10 border border-gv-accent/20 px-3 py-1 rounded-full">
+                    <span class="text-xs font-bold text-gv-brand bg-gv-brand/10 border border-gv-brand/20 px-3 py-1 rounded-full">
                         4 Active
                     </span>
                 </div>
@@ -398,7 +380,7 @@
                             <!-- Row 1 — Pending -->
                             <tr class="hover:bg-slate-50/60 transition-colors duration-150 group">
                                 <td class="px-5 py-3.5">
-                                    <span class="font-bold text-gv-deep group-hover:text-gv-accent transition-colors">#SO-2024-0119</span>
+                                    <span class="font-bold text-gv-deep group-hover:text-gv-brand transition-colors">#SO-2024-0119</span>
                                 </td>
                                 <td class="px-5 py-3.5">
                                     <div class="font-semibold text-slate-700">RetailPro Corp.</div>
@@ -418,7 +400,7 @@
                             <!-- Row 2 — Picked -->
                             <tr class="hover:bg-slate-50/60 transition-colors duration-150 group">
                                 <td class="px-5 py-3.5">
-                                    <span class="font-bold text-gv-deep group-hover:text-gv-accent transition-colors">#SO-2024-0115</span>
+                                    <span class="font-bold text-gv-deep group-hover:text-gv-brand transition-colors">#SO-2024-0115</span>
                                 </td>
                                 <td class="px-5 py-3.5">
                                     <div class="font-semibold text-slate-700">Horizon Gadgets</div>
@@ -438,7 +420,7 @@
                             <!-- Row 3 — Shipped -->
                             <tr class="hover:bg-slate-50/60 transition-colors duration-150 group">
                                 <td class="px-5 py-3.5">
-                                    <span class="font-bold text-gv-deep group-hover:text-gv-accent transition-colors">#SO-2024-0108</span>
+                                    <span class="font-bold text-gv-deep group-hover:text-gv-brand transition-colors">#SO-2024-0108</span>
                                 </td>
                                 <td class="px-5 py-3.5">
                                     <div class="font-semibold text-slate-700">MegaMart Philippines</div>
@@ -449,7 +431,7 @@
                                 </td>
                                 <td class="px-5 py-3.5 text-right font-bold text-gv-deep">$41,200.00</td>
                                 <td class="px-5 py-3.5 text-center">
-                                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                                    <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold bg-gv-brand-light text-gv-brand-dark border border-gv-brand-light">
                                         Shipped
                                     </span>
                                 </td>
@@ -458,7 +440,7 @@
                             <!-- Row 4 — Pending -->
                             <tr class="hover:bg-slate-50/60 transition-colors duration-150 group">
                                 <td class="px-5 py-3.5">
-                                    <span class="font-bold text-gv-deep group-hover:text-gv-accent transition-colors">#SO-2024-0101</span>
+                                    <span class="font-bold text-gv-deep group-hover:text-gv-brand transition-colors">#SO-2024-0101</span>
                                 </td>
                                 <td class="px-5 py-3.5">
                                     <div class="font-semibold text-slate-700">Vortex Electronics</div>
@@ -482,7 +464,7 @@
                 <!-- card footer -->
                 <div class="px-6 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
                     <span class="text-xs text-slate-400 font-medium">Showing 4 of 12 active SOs</span>
-                    <a href="#" class="text-xs font-bold text-gv-accent hover:text-gv-mid transition-colors">
+                    <a href="#" class="text-xs font-bold text-gv-brand hover:text-gv-mid transition-colors">
                         View all sales orders →
                     </a>
                 </div>
@@ -493,3 +475,8 @@
     </main><!-- /main content -->
 
 </div><!-- /outer flex shell -->
+
+
+
+
+

@@ -19,6 +19,10 @@ namespace GadgetVault.Models
         public bool IsActive { get; set; } = true;
         public string FullName { get; set; } = "New User";
         public bool TwoFactorEnabled { get; set; } = false;
+        
+        // Link to BusinessPartner if the user is a Vendor
+        public int? SupplierId { get; set; }
+        public BusinessPartner? Supplier { get; set; }
     }
 
     public class Role

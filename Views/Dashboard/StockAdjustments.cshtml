@@ -1,0 +1,399 @@
+@{
+    ViewData["Title"] = "Stock Adjustments";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+
+<!-- ┌──────────────────────────────────────────────────────
+     │  PAGE HEADER
+     └────────────────────────────────────────────────────── -->
+<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
+
+    <!-- left: title block -->
+    <div>
+        <span class="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest
+                     bg-orange-500 text-white px-3 py-1.5 rounded-full mb-3 shadow-sm">
+            <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse inline-block"></span>
+            Inventory Audit
+        </span>
+        <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+            Stock Adjustments &amp;
+            <span class="text-orange-500">Inventory Audit</span>
+        </h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-medium max-w-xl leading-relaxed">
+            Review discrepancies, approve adjustments, and track shrinkage across all warehouse zones.
+        </p>
+    </div>
+
+    <!-- right: CTA button -->
+    <div class="shrink-0 mt-1">
+        <button id="btn-manual-adj"
+                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl
+                       bg-gv-brand text-white text-sm font-bold
+                       shadow-lg
+                       hover:opacity-90 hover:-translate-y-0.5
+                       transition-all duration-200
+                       outline-none border-none">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+            Manual Stock Adjustment
+        </button>
+    </div>
+</div>
+
+<!-- ┌──────────────────────────────────────────────────────
+     │  KPI STATS CARDS — 3 columns
+     └────────────────────────────────────────────────────── -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+
+    <!-- Card 1: Pending Approvals (orange) -->
+    <div class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none
+                border border-slate-200 dark:border-slate-800
+                relative overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-400 to-amber-500 rounded-t-2xl"></div>
+        <div class="flex items-start justify-between mb-3">
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-tight">
+                Pending Approvals
+            </p>
+            <div class="w-9 h-9 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center shrink-0">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                    <circle cx="9" cy="9" r="7" stroke="#f97316" stroke-width="1.6"/>
+                    <path d="M9 5.5v4l2.5 2.5" stroke="#f97316" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </div>
+        <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1">7</p>
+        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Adjustments awaiting manager sign-off</p>
+        <div class="mt-3 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-orange-400 animate-pulse inline-block"></span>
+            <span class="text-xs font-semibold text-orange-500">3 flagged as urgent</span>
+        </div>
+    </div>
+
+    <!-- Card 2: Total Shrinkage MTD (red) -->
+    <div class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none
+                border border-slate-200 dark:border-slate-800
+                relative overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-400 to-rose-500 rounded-t-2xl"></div>
+        <div class="flex items-start justify-between mb-3">
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-tight">
+                Total Shrinkage (MTD)
+            </p>
+            <div class="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-500/10 flex items-center justify-center shrink-0">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                    <path d="M9 2l7.5 13H1.5L9 2z" stroke="#ef4444" stroke-width="1.6" stroke-linejoin="round"/>
+                    <path d="M9 8v3M9 13v.5" stroke="#ef4444" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+        <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1">−$3,240</p>
+        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Across 14 SKUs this month</p>
+        <div class="mt-3 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-red-400 inline-block"></span>
+            <span class="text-xs font-semibold text-red-500">↑ 12% vs last month</span>
+        </div>
+    </div>
+
+    <!-- Card 3: Audit Completion % (green) -->
+    <div class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none
+                border border-slate-200 dark:border-slate-800
+                relative overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--brand-color)] to-[color-mix(in_srgb,var(--brand-color)_80%,transparent)] rounded-t-2xl"></div>
+        <div class="flex items-start justify-between mb-3">
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-tight">
+                Audit Completion %
+            </p>
+            <div class="w-9 h-9 rounded-xl bg-gv-brand-light dark:bg-gv-brand/10 flex items-center justify-center shrink-0">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                    <circle cx="9" cy="9" r="7" stroke="#23a476" stroke-width="1.6"/>
+                    <path d="M5.5 9.2L8 11.5l4.5-5" stroke="#23a476" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </div>
+        <p class="text-4xl font-black text-gv-brand tracking-tight leading-none mb-1">78%</p>
+        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Monthly cycle count — 39 of 50 zones done</p>
+        <div class="mt-3 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-[var(--brand-color)] to-[color-mix(in_srgb,var(--brand-color)_80%,transparent)] rounded-full" style="width:78%"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ┌──────────────────────────────────────────────────────
+     │  ADJUSTMENT TABLE
+     └────────────────────────────────────────────────────── -->
+<section class="bg-white dark:bg-[#111113] rounded-2xl shadow-sm dark:shadow-none
+                border border-slate-200 dark:border-slate-800 overflow-hidden"
+         aria-labelledby="adj-table-heading">
+
+    <!-- section header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+            <div class="w-1 h-7 rounded-full bg-orange-500 shrink-0"></div>
+            <div>
+                <h2 id="adj-table-heading"
+                    class="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight">
+                    Adjustment Log
+                </h2>
+                <p class="text-xs text-slate-400 dark:text-slate-500 font-medium mt-0.5">All stock changes — pending &amp; approved</p>
+            </div>
+        </div>
+
+        <!-- filter tabs -->
+        <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/60 p-1 rounded-xl">
+            <button class="text-xs font-bold px-3 py-1.5 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition-all duration-200">All</button>
+            <button class="text-xs font-bold px-3 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all duration-200">Pending</button>
+            <button class="text-xs font-bold px-3 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all duration-200">Approved</button>
+        </div>
+    </div>
+
+    <!-- table -->
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm" aria-label="Stock adjustment log">
+            <thead>
+                <tr class="bg-slate-50 dark:bg-black/30 border-b border-slate-200 dark:border-slate-800">
+                    <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">Date</th>
+                    <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">Product</th>
+                    <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">SKU</th>
+                    <th class="text-center text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">Qty Change</th>
+                    <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">Reason</th>
+                    <th class="text-center text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">Status</th>
+                    <th class="text-center text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+
+                <!-- Row 1 — Damaged / Pending -->
+                <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/20 transition-colors duration-150 group">
+                    <td class="px-5 py-4 text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">Apr 22, 2026</td>
+                    <td class="px-5 py-4">
+                        <div class="font-semibold text-slate-900 dark:text-white text-xs">iPad Pro 12.9"</div>
+                        <div class="text-xs text-slate-400 dark:text-slate-500">Apple</div>
+                    </td>
+                    <td class="px-5 py-4">
+                        <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">APL-IPP129</span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <span class="font-extrabold text-base text-red-500">−2</span>
+                    </td>
+                    <td class="px-5 py-4">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
+                                     bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/20">
+                            Damaged
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
+                                     bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
+                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse inline-block"></span>
+                            Pending
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <button class="text-xs font-extrabold text-white bg-gv-brand hover:opacity-90
+                                       px-3 py-1.5 rounded-lg border-none outline-none
+                                       transition-colors duration-200 shadow-sm">
+                            Approve
+                        </button>
+                    </td>
+                </tr>
+
+                <!-- Row 2 — Discrepancy / Pending -->
+                <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/20 transition-colors duration-150 group">
+                    <td class="px-5 py-4 text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">Apr 22, 2026</td>
+                    <td class="px-5 py-4">
+                        <div class="font-semibold text-slate-900 dark:text-white text-xs">Dell XPS 15 Laptop</div>
+                        <div class="text-xs text-slate-400 dark:text-slate-500">Dell</div>
+                    </td>
+                    <td class="px-5 py-4">
+                        <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">DLL-XPS15</span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <span class="font-extrabold text-base text-red-500">−1</span>
+                    </td>
+                    <td class="px-5 py-4">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
+                                     bg-yellow-100 dark:bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-500/20">
+                            Discrepancy
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
+                                     bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
+                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse inline-block"></span>
+                            Pending
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <button class="text-xs font-extrabold text-yellow-800 dark:text-yellow-300 bg-yellow-100 dark:bg-yellow-500/15
+                                       hover:bg-yellow-200 dark:hover:bg-yellow-500/25
+                                       px-3 py-1.5 rounded-lg border-none outline-none
+                                       transition-colors duration-200">
+                            Review
+                        </button>
+                    </td>
+                </tr>
+
+                <!-- Row 3 — Expired / Pending -->
+                <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/20 transition-colors duration-150 group">
+                    <td class="px-5 py-4 text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">Apr 21, 2026</td>
+                    <td class="px-5 py-4">
+                        <div class="font-semibold text-slate-900 dark:text-white text-xs">Thermal Printer Rolls</div>
+                        <div class="text-xs text-slate-400 dark:text-slate-500">Posiflex</div>
+                    </td>
+                    <td class="px-5 py-4">
+                        <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">POS-TPR50</span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <span class="font-extrabold text-base text-red-500">−50</span>
+                    </td>
+                    <td class="px-5 py-4">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
+                                     bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+                            Expired
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
+                                     bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
+                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse inline-block"></span>
+                            Pending
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <button class="text-xs font-extrabold text-orange-600 dark:text-orange-400
+                                       hover:text-orange-700 dark:hover:text-orange-300
+                                       px-3 py-1.5 rounded-lg border-none outline-none bg-transparent
+                                       transition-colors duration-200">
+                            Review
+                        </button>
+                    </td>
+                </tr>
+
+                <!-- Row 4 — Found (positive) / Approved -->
+                <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/20 transition-colors duration-150 group">
+                    <td class="px-5 py-4 text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">Apr 21, 2026</td>
+                    <td class="px-5 py-4">
+                        <div class="font-semibold text-slate-900 dark:text-white text-xs">Samsung Galaxy Tab S9</div>
+                        <div class="text-xs text-slate-400 dark:text-slate-500">Samsung</div>
+                    </td>
+                    <td class="px-5 py-4">
+                        <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">SAM-GTS9</span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <span class="font-extrabold text-base text-gv-brand">+3</span>
+                    </td>
+                    <td class="px-5 py-4">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
+                                     bg-gv-brand-light dark:bg-gv-brand/10 text-gv-brand-dark dark:text-gv-brand-light border border-gv-brand-light dark:border-gv-brand/20">
+                            Found
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
+                                     bg-gv-brand-light dark:bg-gv-brand/10 text-gv-brand-dark dark:text-gv-brand-light border border-gv-brand-light dark:border-gv-brand/20">
+                            ✓ Approved
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <button class="text-xs font-bold text-slate-400 dark:text-slate-500
+                                       hover:text-slate-600 dark:hover:text-slate-300
+                                       px-3 py-1.5 rounded-lg border-none outline-none bg-transparent
+                                       transition-colors duration-200">
+                            View
+                        </button>
+                    </td>
+                </tr>
+
+                <!-- Row 5 — Damaged / Approved -->
+                <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/20 transition-colors duration-150 group">
+                    <td class="px-5 py-4 text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">Apr 20, 2026</td>
+                    <td class="px-5 py-4">
+                        <div class="font-semibold text-slate-900 dark:text-white text-xs">USB-C Hub 7-Port</div>
+                        <div class="text-xs text-slate-400 dark:text-slate-500">Anker</div>
+                    </td>
+                    <td class="px-5 py-4">
+                        <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">ANK-HUB7C</span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <span class="font-extrabold text-base text-red-500">−5</span>
+                    </td>
+                    <td class="px-5 py-4">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
+                                     bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/20">
+                            Damaged
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
+                                     bg-gv-brand-light dark:bg-gv-brand/10 text-gv-brand-dark dark:text-gv-brand-light border border-gv-brand-light dark:border-gv-brand/20">
+                            ✓ Approved
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <button class="text-xs font-bold text-slate-400 dark:text-slate-500
+                                       hover:text-slate-600 dark:hover:text-slate-300
+                                       px-3 py-1.5 rounded-lg border-none outline-none bg-transparent
+                                       transition-colors duration-200">
+                            View
+                        </button>
+                    </td>
+                </tr>
+
+                <!-- Row 6 — Recount / Pending -->
+                <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/20 transition-colors duration-150 group">
+                    <td class="px-5 py-4 text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">Apr 20, 2026</td>
+                    <td class="px-5 py-4">
+                        <div class="font-semibold text-slate-900 dark:text-white text-xs">Logitech MX Keys Keyboard</div>
+                        <div class="text-xs text-slate-400 dark:text-slate-500">Logitech</div>
+                    </td>
+                    <td class="px-5 py-4">
+                        <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">LOG-MXKEYS</span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <span class="font-extrabold text-base text-gv-brand">+1</span>
+                    </td>
+                    <td class="px-5 py-4">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
+                                     bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20">
+                            Recount
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
+                                     bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
+                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse inline-block"></span>
+                            Pending
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <button class="text-xs font-extrabold text-orange-600 dark:text-orange-400
+                                       hover:text-orange-700 dark:hover:text-orange-300
+                                       px-3 py-1.5 rounded-lg border-none outline-none bg-transparent
+                                       transition-colors duration-200">
+                            Review
+                        </button>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- table footer -->
+    <div class="px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0c0e]/50
+                flex items-center justify-between">
+        <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">Showing 6 of 31 adjustments this month</span>
+        <a href="#" class="text-xs font-bold text-gv-brand hover:text-gv-mid transition-colors">
+            View full audit log →
+        </a>
+    </div>
+</section>
+
+
+
+
+
+

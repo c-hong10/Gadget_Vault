@@ -10,25 +10,7 @@
     <title>Invite User - GadgetVault</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'gv-dark':   '#061f17',
-                        'gv-deep':   '#0a3124',
-                        'gv-mid':    '#115740',
-                        'gv-accent': '#23a476',
-                        'gv-light':  '#f2f7f5',
-                        'gv-sage':   '#d1e8df',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'Segoe UI', 'Roboto', 'sans-serif'],
-                    },
-                },
-            },
-        }
-    </script>
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -41,11 +23,11 @@
         <!-- Header -->
         <div class="bg-gv-dark px-6 py-6 text-center relative overflow-hidden">
             <!-- decorative gradient -->
-            <div class="absolute inset-0 bg-gradient-to-br from-gv-accent/20 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-br from-[var(--brand-color)]/20 to-transparent"></div>
             
             <div class="relative z-10">
                 <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-4 border border-white/5 shadow-inner">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" class="text-gv-accent">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" class="text-gv-brand">
                         <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <circle cx="8.5" cy="7" r="4" stroke="currentColor" stroke-width="2.5"/>
                         <path d="M20 8v6M23 11h-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
@@ -66,7 +48,7 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mt-1 mb-2">Email Address</label>
                     <input type="email" name="email" required placeholder="member@company.com" 
-                           class="w-full px-4 py-3bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gv-accent focus:ring-4 focus:ring-gv-accent/10 transition-all font-semibold text-gv-deep placeholder:text-slate-400" />
+                           class="w-full px-4 py-3bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gv-brand focus:ring-4 focus:ring-[var(--brand-color)]/10 transition-all font-semibold text-gv-deep placeholder:text-slate-400" />
                 </div>
 
                 <!-- Role Dropdown -->
@@ -74,7 +56,7 @@
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mt-1 mb-2">System Role</label>
                     <div class="relative">
                         <select name="roleId" required
-                                class="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gv-accent focus:ring-4 focus:ring-gv-accent/10 transition-all font-semibold text-gv-deep appearance-none cursor-pointer">
+                                class="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gv-brand focus:ring-4 focus:ring-[var(--brand-color)]/10 transition-all font-semibold text-gv-deep appearance-none cursor-pointer">
                             <option value="" disabled selected>-- Select a role --</option>
                             @if (ViewBag.Roles != null)
                             {
@@ -97,7 +79,7 @@
                     <a asp-action="UserManagement" class="flex-1 text-center py-3 px-4 bg-white border border-slate-200 text-slate-500 rounded-xl text-sm font-bold hover:bg-slate-50 hover:text-slate-700 transition-colors">
                         Cancel
                     </a>
-                    <button type="submit" class="flex-[2] py-3 px-4 bg-gv-accent hover:bg-gv-mid text-white rounded-xl text-sm font-bold shadow-lg shadow-gv-accent/30 hover:shadow-gv-accent/40 transition-all transform hover:-translate-y-0.5">
+                    <button type="submit" class="flex-[2] py-3 px-4 bg-gv-brand hover:bg-gv-mid text-white rounded-xl text-sm font-bold shadow-lg shadow-gv-accent/30 hover:shadow-gv-accent/40 transition-all transform hover:-translate-y-0.5">
                         Send Invite
                     </button>
                 </div>
@@ -107,3 +89,9 @@
 
 </body>
 </html>
+
+
+
+
+
+

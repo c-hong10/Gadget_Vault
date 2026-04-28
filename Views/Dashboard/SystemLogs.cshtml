@@ -1,0 +1,36 @@
+@{
+    ViewData["Title"] = "System Logs";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<!-- Tailwind CDN for UI prototype -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+
+<div class="flex flex-col gap-6 h-full">
+    <div>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">System Logs</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Real-time application telemetry and diagnostic output.</p>
+    </div>
+
+    <!-- Terminal Output -->
+    <div class="bg-black rounded-lg border border-slate-800 p-4 overflow-y-auto font-mono text-sm leading-relaxed min-h-[400px]">
+        <div class="text-slate-400 mb-2">GadgetVault SysLogger v1.0.4 initialized...</div>
+        <div class="text-green-400">[INFO] 2026-04-11 14:00:01 - Database connection established efficiently.</div>
+        <div class="text-green-400">[INFO] 2026-04-11 14:02:15 - Cache generated for ProductCatalog routes (1.2ms).</div>
+        <div class="text-amber-400">[WARN] 2026-04-11 14:15:32 - Memory usage exceeding 75% on Node 03. Garbage collection triggered.</div>
+        <div class="text-green-400">[INFO] 2026-04-11 14:15:35 - GC complete. Memory usage stabilized at 45%.</div>
+        <div class="text-green-400">[INFO] 2026-04-11 14:26:12 - MasterData entity 'Warehouse Zones' accessed by user 42.</div>
+        <div class="text-red-400">[ERROR] 2026-04-11 14:46:01 - External API timeout (payment gateway). Retrying in 5s...</div>
+        <div class="text-green-400">[INFO] 2026-04-11 14:46:06 - External API reconnected successfully.</div>
+        <div class="text-slate-500 mt-4 flex items-center gap-2">
+            <span class="w-2 h-4 bg-slate-400 animate-pulse block"></span> Waiting for input stream...
+        </div>
+    </div>
+</div>
+
+
+
+
+
+

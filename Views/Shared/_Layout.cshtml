@@ -1,9 +1,16 @@
+@using GadgetVault.Data
+@inject ApplicationDbContext DbContext
+@{
+    var settings = DbContext.SystemSettings.FirstOrDefault();
+    var brandName = settings?.CompanyName ?? "GadgetVault";
+    var brandColor = settings?.PrimaryColorHex ?? "#23a476";
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - GadgetVault</title>
+    <title>@ViewData["Title"] - @brandName</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -11,16 +18,33 @@
 </head>
 <style>
     :root {
-        --primary-green: #0a3124;
-        --secondary-green: #115740;
-        --accent-green: #23a476;
-        --light-green: #f2f7f5;
-        --dark-green: #061f17;
+        --brand-color: @brandColor;
+        --primary-green: color-mix(in srgb, var(--brand-color) 40%, #000);
+        --secondary-green: color-mix(in srgb, var(--brand-color) 20%, #000);
+        --accent-green: var(--brand-color);
+        --light-green: color-mix(in srgb, var(--brand-color) 10%, #fff);
+        --dark-green: color-mix(in srgb, var(--brand-color) 60%, #000);
         --text-dark: #121c19;
         --white: #ffffff;
     }
+        /* Light mode base */
+        .hover-brand:hover { color: color-mix(in srgb, var(--brand-color) 75%, black) !important; }
+        .bg-gv-brand { background-color: var(--brand-color) !important; }
+        .text-gv-brand { color: color-mix(in srgb, var(--brand-color) 85%, black) !important; }
+        .border-gv-brand { border-color: var(--brand-color) !important; }
+        .bg-gv-brand-light { background-color: color-mix(in srgb, var(--brand-color) 12%, transparent) !important; }
+        .border-gv-brand-light { border-color: color-mix(in srgb, var(--brand-color) 25%, transparent) !important; }
+        .text-gv-brand-dark { color: color-mix(in srgb, var(--brand-color) 60%, black) !important; }
+        .text-gv-brand-light { color: color-mix(in srgb, var(--brand-color) 90%, white) !important; }
+
+        /* Dark mode overrides */
+        .dark .text-gv-brand { color: color-mix(in srgb, var(--brand-color) 85%, white) !important; }
+        .dark .text-gv-brand-dark { color: color-mix(in srgb, var(--brand-color) 75%, white) !important; }
+        .dark .hover-brand:hover { color: color-mix(in srgb, var(--brand-color) 85%, white) !important; }
+        .dark .bg-gv-brand-light { background-color: color-mix(in srgb, var(--brand-color) 15%, transparent) !important; }
+        .dark .border-gv-brand-light { border-color: color-mix(in srgb, var(--brand-color) 30%, transparent) !important; }
         .navbar-custom {
-            background-color: #0b3d2c !important;
+            background-color: var(--primary-green) !important;
         }
         .navbar-custom .navbar-brand,
         .navbar-custom .nav-link {
@@ -28,17 +52,17 @@
             font-weight: 500;
         }
         .navbar-custom .nav-link:hover {
-            color: #23a476 !important;
+            color: var(--brand-color) !important;
         }
         .footer-custom {
-            background-color: #0b3d2c;
-            color: #d1e8df;
+            background-color: var(--primary-green);
+            color: var(--light-green);
             border-top: none;
             padding: 20px 0;
             margin-top: auto;
         }
         .footer-custom a {
-            color: #23a476;
+            color: var(--brand-color);
             text-decoration: none;
         }
         .footer-custom a:hover {
@@ -55,17 +79,17 @@
             flex: 1;
         }
         .nav-btn-started {
-            background-color: #23a476; 
+            background-color: var(--brand-color); 
             color: #ffffff !important; 
             font-weight: 600; 
             border-radius: 30px; 
             padding: 8px 24px; 
-            box-shadow: 0 4px 10px rgba(35, 164, 118, 0.3); 
+            box-shadow: 0 4px 10px @(brandColor)4D; 
             transition: all 0.3s ease;
         }
         .nav-btn-started:hover {
             background-color: #ffffff;
-            color: #23a476 !important;
+            color: var(--brand-color) !important;
             transform: translateY(-2px);
         }
     </style>
@@ -78,7 +102,7 @@
 
     <footer class="footer-custom text-center">
         <div class="container">
-            &copy; 2026 - GadgetVault IWMS - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
+            &copy; 2026 - @brandName IWMS - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -87,3 +111,9 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+
+
+
+
+

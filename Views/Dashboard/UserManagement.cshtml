@@ -5,400 +5,516 @@
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
 }
 
-<!-- Tailwind CSS CDN (Play CDN — UI prototype) -->
+<!-- Tailwind CDN — consistent with other dashboard views -->
 <script src="https://cdn.tailwindcss.com"></script>
-<script>
-    tailwind.config = {
-        theme: {
-            extend: {
-                colors: {
-                    'gv-dark':   '#061f17',
-                    'gv-deep':   '#0a3124',
-                    'gv-mid':    '#115740',
-                    'gv-accent': '#23a476',
-                    'gv-light':  '#f2f7f5',
-                    'gv-sage':   '#d1e8df',
-                },
-                fontFamily: {
-                    sans: ['Inter', 'Segoe UI', 'Roboto', 'sans-serif'],
-                },
-            },
-        },
-    }
-</script>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
-<!-- ═══════════════════════════════════════════════════════
-     OUTER SHELL
-     ═══════════════════════════════════════════════════════ -->
-<div class="flex min-h-screen bg-gv-light font-sans">
+<!-- ═══════════════════════════════════════
+     PAGE HEADER
+     ═══════════════════════════════════════ -->
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-7">
+    <div>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">User Management</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage system access, roles, and user permissions.</p>
+    </div>
+    <!-- Live badge -->
+    <div class="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm shrink-0">
+        <span class="w-2 h-2 rounded-full bg-gv-brand animate-pulse"></span>
+        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">@(Model?.Count() ?? 6) Users Total</span>
+    </div>
+</div>
 
-    <!-- ────────────────────────────────────────
-         SIDEBAR
-         ──────────────────────────────────────── -->
-    <aside class="w-72 bg-gv-dark text-white flex flex-col shrink-0" style="padding: 30px;">
+<!-- ═══════════════════════════════════════
+     TOOLBAR
+     ═══════════════════════════════════════ -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
 
-        <!-- brand -->
-        <div class="flex items-center gap-3 mb-8">
-            <div class="w-9 h-9 rounded-lg bg-gv-accent flex items-center justify-center shadow-lg shrink-0">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                    <rect x="2"  y="2"  width="7" height="7" rx="1.5" fill="white" opacity="0.95"/>
-                    <rect x="11" y="2"  width="7" height="7" rx="1.5" fill="white" opacity="0.6"/>
-                    <rect x="2"  y="11" width="7" height="7" rx="1.5" fill="white" opacity="0.6"/>
-                    <rect x="11" y="11" width="7" height="7" rx="1.5" fill="white" opacity="0.85"/>
-                </svg>
-            </div>
+    <!-- Search -->
+    <form method="get" asp-action="UserManagement" class="relative w-full sm:w-80">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none"
+             width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" /><path stroke-linecap="round" d="M21 21l-4.35-4.35" />
+        </svg>
+        <input type="text" name="searchString" value="@ViewBag.CurrentSearch"
+               id="user-search-input"
+               placeholder="Search users by name or email..."
+               class="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:border-gv-brand focus:ring-2 focus:ring-[var(--brand-color)] transition-all" />
+    </form>
+
+    <!-- Right side controls -->
+    <div class="flex items-center gap-2 shrink-0">
+        <!-- Filter chip (placeholder) -->
+        <button class="flex items-center gap-2 px-3 py-2.5 bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 text-sm font-medium text-slate-600 dark:text-slate-400 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+            </svg>
+            Filter
+        </button>
+        <!-- Add New User -->
+        <button onclick="openInviteModal()" id="btn-add-user"
+            class="flex items-center gap-2 px-4 py-2.5 bg-gv-brand hover:bg-gv-mid text-white text-sm font-bold rounded-xl shadow-lg  hover: transition-all">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            Add New User
+        </button>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TABLE CARD
+     ═══════════════════════════════════════ -->
+<div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+
+    <!-- Tab strip -->
+    <div class="flex items-center gap-0 border-b border-slate-200 dark:border-slate-800 px-6">
+        <button class="py-4 text-sm font-bold text-gv-brand dark:text-gv-brand-light border-b-2 border-gv-brand -mb-px pr-4 transition-colors">All Users</button>
+        <button class="py-4 text-sm font-medium text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border-b-2 border-transparent -mb-px px-4 transition-colors">Active</button>
+        <button class="py-4 text-sm font-medium text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border-b-2 border-transparent -mb-px px-4 transition-colors">Inactive</button>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm" id="users-table">
+            <thead>
+                <tr class="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+                    <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 w-8">
+                        <input type="checkbox" class="rounded border-slate-300 dark:border-slate-700 cursor-pointer" style="accent-color: var(--brand-color);" />>
+                    </th>
+                    <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">User</th>
+                    <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Role</th>
+                    <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Status</th>
+                    <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Last Login</th>
+                    <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800/70" id="users-tbody">
+
+                @* ─── Real data rows (when DB is populated) ─── *@
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var user in Model)
+                    {
+                        var initials = string.Join("", (user.FullName ?? user.Username ?? "?").Split(' ').Take(2).Select(w => w.FirstOrDefault().ToString().ToUpper()));
+                        var roleName = user.Role?.Name ?? "Unassigned";
+                        var (roleClass, roleDot) = roleName switch {
+                            "SystemManager"        => ("text-gv-brand-dark dark:text-gv-brand-light bg-gv-brand-light dark:bg-gv-brand/15 border-gv-brand-light dark:border-gv-brand/20", "bg-gv-brand"),
+                            "WarehouseManager"     => ("text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-500/15 border-blue-200 dark:border-blue-500/20", "bg-blue-500"),
+                            "WarehouseStaff"       => ("text-orange-700 dark:text-orange-400 bg-orange-100 dark:bg-orange-500/15 border-orange-200 dark:border-orange-500/20", "bg-orange-500"),
+                            "SalesAndProcurement"  => ("text-purple-700 dark:text-purple-400 bg-purple-100 dark:bg-purple-500/15 border-purple-200 dark:border-purple-500/20", "bg-purple-500"),
+                            _                      => ("text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700", "bg-slate-400"),
+                        };
+                        var roleLabel = roleName switch {
+                            "SystemManager"       => "System Manager",
+                            "WarehouseManager"    => "Warehouse Mgr",
+                            "WarehouseStaff"      => "Warehouse Staff",
+                            "SalesAndProcurement" => "Sales & Procure",
+                            _                     => roleName,
+                        };
+                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group">
+                            <td class="px-6 py-4">
+                                <input type="checkbox" class="rounded border-slate-300 dark:border-slate-700 cursor-pointer" style="accent-color: var(--brand-color);" />>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold text-xs text-slate-600 dark:text-slate-300 shrink-0">
+                                        @initials
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="font-semibold text-slate-800 dark:text-slate-200 truncate">@(user.FullName ?? user.Username)</p>
+                                        <p class="text-xs text-slate-400 truncate mt-0.5">@user.Email</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border @roleClass">
+                                    <span class="w-1.5 h-1.5 rounded-full @roleDot inline-block"></span>
+                                    @roleLabel
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                @if (user.IsActive)
+                                {
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold text-gv-brand-dark dark:text-gv-brand-light bg-gv-brand-light dark:bg-gv-brand/15 border border-gv-brand-light dark:border-gv-brand/20">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-gv-brand animate-pulse inline-block"></span>
+                                        Active
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400 inline-block"></span>
+                                        Inactive
+                                    </span>
+                                }
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-sm text-slate-500 dark:text-slate-400">@user.CreatedAt.ToString("MMM dd, yyyy")</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-end gap-3">
+                                    <button onclick="openEditModal('@user.Id', '@user.Email', '@user.RoleId')"
+                                        class="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
+                                        Edit
+                                    </button>
+                                    <span class="text-slate-200 dark:text-slate-700">|</span>
+                                    <button onclick="confirmDeactivate(@user.Id, '@(user.FullName ?? user.Email)')"
+                                        class="text-xs font-semibold text-red-500 hover:text-red-400 transition-colors">
+                                        @(user.IsActive ? "Deactivate" : "Activate")
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    @* ─── Mock data rows (design/demo mode) ─── *@
+
+                    <!-- Row 1 — Alex Ray / System Manager / Active -->
+                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-slate-300 dark:border-slate-700 cursor-pointer" style="accent-color: var(--brand-color);" />></td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-gv-brand-light dark:bg-gv-brand-light flex items-center justify-center font-bold text-xs text-gv-brand-dark dark:text-gv-brand-light shrink-0">AR</div>
+                                <div>
+                                    <p class="font-semibold text-slate-800 dark:text-slate-200">Alex Ray</p>
+                                    <p class="text-xs text-slate-400 mt-0.5">alex.ray@gadgetvault.com</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold text-gv-brand-dark dark:text-gv-brand-light bg-gv-brand-light dark:bg-gv-brand/15 border border-gv-brand-light dark:border-gv-brand/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-gv-brand inline-block"></span> System Manager
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold text-gv-brand-dark dark:text-gv-brand-light bg-gv-brand-light dark:bg-gv-brand/15 border border-gv-brand-light dark:border-gv-brand/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-gv-brand animate-pulse inline-block"></span> Active
+                            </span>
+                        </td>
+                        <td class="px-6 py-4"><span class="text-sm text-slate-500 dark:text-slate-400">Today, 9:14 AM</span></td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-end gap-3">
+                                <button class="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Edit</button>
+                                <span class="text-slate-200 dark:text-slate-700">|</span>
+                                <button onclick="confirmDeactivate(1, 'Alex Ray')" class="text-xs font-semibold text-red-500 hover:text-red-400 transition-colors">Deactivate</button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Row 2 — Maria Santos / Warehouse Manager / Active -->
+                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-slate-300 dark:border-slate-700 cursor-pointer" style="accent-color: var(--brand-color);" />></td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center font-bold text-xs text-blue-700 dark:text-blue-400 shrink-0">MS</div>
+                                <div>
+                                    <p class="font-semibold text-slate-800 dark:text-slate-200">Maria Santos</p>
+                                    <p class="text-xs text-slate-400 mt-0.5">m.santos@gadgetvault.com</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-500/15 border border-blue-200 dark:border-blue-500/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span> Warehouse Mgr
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold text-gv-brand-dark dark:text-gv-brand-light bg-gv-brand-light dark:bg-gv-brand/15 border border-gv-brand-light dark:border-gv-brand/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-gv-brand animate-pulse inline-block"></span> Active
+                            </span>
+                        </td>
+                        <td class="px-6 py-4"><span class="text-sm text-slate-500 dark:text-slate-400">Today, 8:02 AM</span></td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-end gap-3">
+                                <button class="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Edit</button>
+                                <span class="text-slate-200 dark:text-slate-700">|</span>
+                                <button onclick="confirmDeactivate(2, 'Maria Santos')" class="text-xs font-semibold text-red-500 hover:text-red-400 transition-colors">Deactivate</button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Row 3 — Jake Reyes / Warehouse Staff / Active -->
+                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-slate-300 dark:border-slate-700 cursor-pointer" style="accent-color: var(--brand-color);" />></td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center font-bold text-xs text-orange-700 dark:text-orange-400 shrink-0">JR</div>
+                                <div>
+                                    <p class="font-semibold text-slate-800 dark:text-slate-200">Jake Reyes</p>
+                                    <p class="text-xs text-slate-400 mt-0.5">j.reyes@gadgetvault.com</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold text-orange-700 dark:text-orange-400 bg-orange-100 dark:bg-orange-500/15 border border-orange-200 dark:border-orange-500/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-orange-500 inline-block"></span> Warehouse Staff
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold text-gv-brand-dark dark:text-gv-brand-light bg-gv-brand-light dark:bg-gv-brand/15 border border-gv-brand-light dark:border-gv-brand/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-gv-brand animate-pulse inline-block"></span> Active
+                            </span>
+                        </td>
+                        <td class="px-6 py-4"><span class="text-sm text-slate-500 dark:text-slate-400">Yesterday, 4:55 PM</span></td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-end gap-3">
+                                <button class="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Edit</button>
+                                <span class="text-slate-200 dark:text-slate-700">|</span>
+                                <button onclick="confirmDeactivate(3, 'Jake Reyes')" class="text-xs font-semibold text-red-500 hover:text-red-400 transition-colors">Deactivate</button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Row 4 — Laura Cruz / Sales & Procurement / Active -->
+                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-slate-300 dark:border-slate-700 cursor-pointer" style="accent-color: var(--brand-color);" />></td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center font-bold text-xs text-purple-700 dark:text-purple-400 shrink-0">LC</div>
+                                <div>
+                                    <p class="font-semibold text-slate-800 dark:text-slate-200">Laura Cruz</p>
+                                    <p class="text-xs text-slate-400 mt-0.5">l.cruz@gadgetvault.com</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold text-purple-700 dark:text-purple-400 bg-purple-100 dark:bg-purple-500/15 border border-purple-200 dark:border-purple-500/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-purple-500 inline-block"></span> Sales & Procure
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold text-gv-brand-dark dark:text-gv-brand-light bg-gv-brand-light dark:bg-gv-brand/15 border border-gv-brand-light dark:border-gv-brand/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-gv-brand animate-pulse inline-block"></span> Active
+                            </span>
+                        </td>
+                        <td class="px-6 py-4"><span class="text-sm text-slate-500 dark:text-slate-400">Apr 9, 2026</span></td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-end gap-3">
+                                <button class="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Edit</button>
+                                <span class="text-slate-200 dark:text-slate-700">|</span>
+                                <button onclick="confirmDeactivate(4, 'Laura Cruz')" class="text-xs font-semibold text-red-500 hover:text-red-400 transition-colors">Deactivate</button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Row 5 — Ben Alvarez / Warehouse Staff / Inactive -->
+                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-slate-300 dark:border-slate-700 cursor-pointer" style="accent-color: var(--brand-color);" />></td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-xs text-slate-500 dark:text-slate-400 shrink-0">BA</div>
+                                <div>
+                                    <p class="font-semibold text-slate-500 dark:text-slate-500">Ben Alvarez</p>
+                                    <p class="text-xs text-slate-400 mt-0.5">b.alvarez@gadgetvault.com</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold text-orange-700 dark:text-orange-400 bg-orange-100 dark:bg-orange-500/15 border border-orange-200 dark:border-orange-500/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-orange-500 inline-block"></span> Warehouse Staff
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400 inline-block"></span> Inactive
+                            </span>
+                        </td>
+                        <td class="px-6 py-4"><span class="text-sm text-slate-400 dark:text-slate-500">Mar 28, 2026</span></td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-end gap-3">
+                                <button class="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Edit</button>
+                                <span class="text-slate-200 dark:text-slate-700">|</span>
+                                <button onclick="confirmActivate(5, 'Ben Alvarez')" class="text-xs font-semibold text-gv-brand hover:text-gv-brand transition-colors">Re-Activate</button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Row 6 — Sofia Lim / Warehouse Manager / Active -->
+                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-slate-300 dark:border-slate-700 cursor-pointer" style="accent-color: var(--brand-color);" />></td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center font-bold text-xs text-blue-700 dark:text-blue-400 shrink-0">SL</div>
+                                <div>
+                                    <p class="font-semibold text-slate-800 dark:text-slate-200">Sofia Lim</p>
+                                    <p class="text-xs text-slate-400 mt-0.5">s.lim@gadgetvault.com</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-500/15 border border-blue-200 dark:border-blue-500/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block"></span> Warehouse Mgr
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold text-gv-brand-dark dark:text-gv-brand-light bg-gv-brand-light dark:bg-gv-brand/15 border border-gv-brand-light dark:border-gv-brand/20">
+                                <span class="w-1.5 h-1.5 rounded-full bg-gv-brand animate-pulse inline-block"></span> Active
+                            </span>
+                        </td>
+                        <td class="px-6 py-4"><span class="text-sm text-slate-500 dark:text-slate-400">Today, 11:30 AM</span></td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-end gap-3">
+                                <button class="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Edit</button>
+                                <span class="text-slate-200 dark:text-slate-700">|</span>
+                                <button onclick="confirmDeactivate(6, 'Sofia Lim')" class="text-xs font-semibold text-red-500 hover:text-red-400 transition-colors">Deactivate</button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Table Footer / Pagination -->
+    <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-xs text-slate-500 dark:text-slate-500 font-medium">
+            Showing <span class="font-bold text-slate-700 dark:text-slate-300">@(Model?.Count() ?? 6)</span> of <span class="font-bold text-slate-700 dark:text-slate-300">@(ViewBag.TotalUsers ?? 6)</span> users
+        </p>
+        <div class="flex items-center gap-2">
+            @if (ViewBag.CurrentPage > 1)
+            {
+                <a asp-action="UserManagement" asp-route-searchString="@ViewBag.CurrentSearch" asp-route-pageNumber="@(ViewBag.CurrentPage - 1)"
+                   class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-400 bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors shadow-sm">
+                    ← Prev
+                </a>
+            }
+            else
+            {
+                <span class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 dark:text-slate-600 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 cursor-not-allowed">← Prev</span>
+            }
+            <span class="px-3 py-1.5 text-xs font-bold text-white bg-gv-brand rounded-lg shadow-sm ">@(ViewBag.CurrentPage ?? 1)</span>
+            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+            {
+                <a asp-action="UserManagement" asp-route-searchString="@ViewBag.CurrentSearch" asp-route-pageNumber="@(ViewBag.CurrentPage + 1)"
+                   class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-400 bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors shadow-sm">
+                    Next →
+                </a>
+            }
+            else
+            {
+                <span class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 dark:text-slate-600 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 cursor-not-allowed">Next →</span>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     INVITE MODAL
+     ═══════════════════════════════════════ -->
+<div id="inviteModal" class="hidden fixed inset-0 bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="w-full max-w-md bg-white dark:bg-[#18181b] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden">
+        <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <div>
-                <div class="font-extrabold text-base leading-tight">
-                    Gadget<span class="text-gv-accent">Vault</span>
-                </div>
-                <div class="text-xs text-gv-sage opacity-70 font-medium leading-tight">System Manager</div>
+                <h2 class="text-base font-bold text-slate-900 dark:text-white">Invite New User</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Add a user and assign their system role.</p>
             </div>
-        </div>
-
-        <!-- nav label -->
-        <div class="text-xs font-bold uppercase tracking-widest text-gv-sage opacity-50 mb-3 px-1">
-            Administration
-        </div>
-
-        <!-- nav links -->
-        <nav class="flex flex-col gap-1" aria-label="System Manager navigation">
-
-            <!-- Overview -->
-            <a href="/Dashboard/SystemManager"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <rect x="1" y="1" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.9"/>
-                    <rect x="9" y="1" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.5"/>
-                    <rect x="1" y="9" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.5"/>
-                    <rect x="9" y="9" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.8"/>
-                </svg>
-                Overview
-            </a>
-
-            <!-- User Management (Active) -->
-            <a href="#" aria-current="page"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gv-accent text-white font-semibold text-sm transition-all duration-200">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <circle cx="6" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M1 14c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    <circle cx="12" cy="5" r="2" stroke="currentColor" stroke-width="1.4" opacity="0.6"/>
-                    <path d="M11 10.5c1.5.3 3 1.5 3 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.6"/>
-                </svg>
-                User Management
-            </a>
-
-            <!-- Roles Access Control -->
-            <a href="#"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path d="M8 1L3 3.5v4c0 3 2.5 5.5 5 6.5 2.5-1 5-3.5 5-6.5v-4L8 1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-                    <path d="M5.5 8l2 2 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Roles Access Control
-            </a>
-
-            <!-- Connected Apps -->
-            <a href="#"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path d="M6.5 9.5a3.5 3.5 0 005 0l2-2a3.5 3.5 0 00-5-5L7.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M9.5 6.5a3.5 3.5 0 00-5 0l-2 2a3.5 3.5 0 005 5L8.5 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                Connected Apps
-            </a>
-
-            <!-- Security Logs -->
-            <a href="#"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path d="M8 3C4 3 1.5 8 1.5 8S4 13 8 13s6.5-5 6.5-5S12 3 8 3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
-                    <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.4"/>
-                </svg>
-                Security Logs
-            </a>
-
-            <!-- System Logs -->
-            <a href="#"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M5 6l2 2-2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M9 10h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-                </svg>
-                System Logs
-            </a>
-
-            <!-- Company Settings -->
-            <a href="#"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <rect x="2" y="7" width="12" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    <circle cx="8" cy="10.5" r="1.2" fill="currentColor" opacity="0.7"/>
-                </svg>
-                Company Settings
-            </a>
-        </nav>
-
-        <!-- bottom profile + logout -->
-        <div class="mt-auto">
-            <hr class="border-white/10 my-5" />
-            <a href="#"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M2 14c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                My Profile
-            </a>
-            <a asp-controller="Home" asp-action="Index"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 font-semibold text-sm hover:bg-red-500/10 transition-all duration-200 mt-1">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M10 11l3-3-3-3M13 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Log Out
-            </a>
-        </div>
-    </aside>
-
-    <!-- ────────────────────────────────────────
-         MAIN CONTENT
-         ──────────────────────────────────────── -->
-    <main class="flex-1 p-8 overflow-auto" id="main-content">
-
-        <!-- HEADER -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-black text-gv-deep tracking-tight leading-tight">
-                User Management
-            </h1>
-            <p class="text-sm text-slate-500 mt-2 font-medium max-w-xl leading-relaxed">
-                Manage employee access and roles.
-            </p>
-        </div>
-        
-        <!-- Action Bar (Search & Button) -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <!-- Search -->
-            <form method="get" asp-action="UserManagement" class="relative w-full sm:w-80">
-                <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <input type="text" name="searchString" value="@ViewBag.CurrentSearch" placeholder="Search users by email..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gv-accent focus:ring-1 focus:ring-gv-accent transition-colors" />
-                <button type="submit" class="hidden">Search</button>
-            </form>
-            <!-- Add User Button -->
-            <button onclick="openInviteModal()" class="bg-gv-accent hover:bg-gv-mid text-white font-bold py-2.5 px-5 rounded-xl text-sm transition-all duration-200 shadow-lg shadow-gv-accent/30 flex items-center justify-center gap-2 shrink-0">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                    <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-                </svg>
-                Invite New User
+            <button onclick="closeInviteModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
         </div>
-        
-        <!-- Data Table -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm text-slate-600">
-                    <thead class="bg-slate-50 border-b border-slate-100">
-                        <tr>
-                            <th scope="col" class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">EMAIL</th>
-                            <th scope="col" class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">ROLE ID</th>
-                            <th scope="col" class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">DATE ADDED</th>
-                            <th scope="col" class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">STATUS</th>
-                            <th scope="col" class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">ACTIONS</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-50">
-                        @if (Model != null && Model.Any())
+        <div class="p-6">
+            <form method="post" asp-action="InviteUser" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Email Address</label>
+                    <input type="email" name="email" required placeholder="member@company.com"
+                        class="w-full bg-slate-50 dark:bg-[#0e0e10] border border-slate-200 dark:border-slate-700/60 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-2 focus:ring-[var(--brand-color)] transition-all" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">System Role</label>
+                    <select name="roleId" required
+                        class="w-full bg-slate-50 dark:bg-[#0e0e10] border border-slate-200 dark:border-slate-700/60 rounded-xl px-4 py-2.5 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-2 focus:ring-[var(--brand-color)] transition-all appearance-none">
+                        <option value="" disabled selected>— Select a role —</option>
+                        @if (ViewBag.Roles != null)
                         {
-                            foreach (var user in Model)
+                            foreach (var role in ViewBag.Roles)
                             {
-                                <tr class="hover:bg-slate-50/70 transition-colors duration-150 group">
-                                    <td class="px-6 py-4 font-bold text-gv-deep group-hover:text-gv-accent transition-colors">
-                                        @user.Email
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-gv-sage text-gv-deep border border-gv-sage/50 whitespace-nowrap">
-                                            @(user.Role?.Name ?? "Unassigned") (@user.RoleId)
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-slate-500 font-medium whitespace-nowrap">
-                                        @user.CreatedAt.ToString("MMM dd, yyyy")
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        @if (user.IsActive)
-                                        {
-                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
-                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
-                                                Active
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
-                                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400 inline-block"></span>
-                                                Deactivated
-                                            </span>
-                                        }
-                                    </td>
-                                    <td class="px-6 py-4 font-bold">
-                                        <div class="flex items-center gap-3">
-                                            <button onclick="openEditModal('@user.Id', '@user.Email', '@user.RoleId')" class="text-blue-500 hover:text-blue-700 transition-colors">Edit</button>
-                                            <span class="text-slate-200">|</span>
-                                            <form asp-action="ToggleUserStatus" asp-route-id="@user.Id" method="post" onsubmit="return confirm('Are you sure you want to change this user\'s status?');" class="inline">
-                                                @if (user.IsActive)
-                                                {
-                                                    <button type="submit" class="text-red-500 hover:text-red-700 font-medium">Deactivate</button>
-                                                }
-                                                else
-                                                {
-                                                    <button type="submit" class="text-emerald-500 hover:text-emerald-700 font-medium">Re-Activate</button>
-                                                }
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
+                                <option value="@role.Id">@role.Name</option>
                             }
                         }
                         else
                         {
-                            <tr>
-                                <td colspan="5" class="px-6 py-8 text-center text-slate-500 font-medium">No users found.</td>
-                            </tr>
+                            <option value="1">System Manager</option>
+                            <option value="2">Warehouse Manager</option>
+                            <option value="3">Warehouse Staff</option>
+                            <option value="4">Sales & Procurement</option>
                         }
-                    </tbody>
-                </table>
-            </div>
-            <!-- card footer -->
-            <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <span class="text-xs text-slate-500 font-medium">
-                    Page <span class="font-bold text-gv-deep">@ViewBag.CurrentPage</span> of <span class="font-bold text-gv-deep">@(ViewBag.TotalPages > 0 ? ViewBag.TotalPages : 1)</span>
-                </span>
-                
-                <div class="flex items-center gap-2">
-                    @if (ViewBag.CurrentPage > 1)
-                    {
-                        <a asp-action="UserManagement" asp-route-searchString="@ViewBag.CurrentSearch" asp-route-pageNumber="@(ViewBag.CurrentPage - 1)" class="px-3 py-1.5 rounded-lg text-sm font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 hover:text-gv-deep transition-colors shadow-sm">
-                            Previous
-                        </a>
-                    }
-                    else
-                    {
-                        <span class="px-3 py-1.5 rounded-lg text-sm font-bold text-slate-400 bg-slate-100 border border-slate-200 cursor-not-allowed">
-                            Previous
-                        </span>
-                    }
-
-                    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
-                    {
-                        <a asp-action="UserManagement" asp-route-searchString="@ViewBag.CurrentSearch" asp-route-pageNumber="@(ViewBag.CurrentPage + 1)" class="px-3 py-1.5 rounded-lg text-sm font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 hover:text-gv-deep transition-colors shadow-sm">
-                            Next
-                        </a>
-                    }
-                    else
-                    {
-                        <span class="px-3 py-1.5 rounded-lg text-sm font-bold text-slate-400 bg-slate-100 border border-slate-200 cursor-not-allowed">
-                            Next
-                        </span>
-                    }
+                    </select>
                 </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Invite Modal -->
-    <div id="inviteModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
-        <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden relative transform transition-all">
-            <div class="bg-gv-dark px-6 py-6 text-center relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-gv-accent/20 to-transparent"></div>
-                <div class="relative z-10">
-                    <h2 class="text-2xl font-black text-white tracking-tight">Invite New Team Member</h2>
-                    <p class="text-xs text-gv-sage opacity-80 mt-1.5 font-medium leading-relaxed">Add a new user and assign their system role.</p>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="closeInviteModal()"
+                        class="flex-1 py-2.5 px-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="flex-[2] py-2.5 px-4 bg-gv-brand hover:bg-gv-mid text-white text-sm font-bold rounded-xl shadow-lg  transition-all">
+                        Send Invite
+                    </button>
                 </div>
-            </div>
-            <div class="p-7 text-left">
-                <form method="post" asp-action="InviteUser" class="space-y-5">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mt-1 mb-2">Email Address</label>
-                        <input type="email" name="email" required placeholder="member@company.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gv-accent focus:ring-4 focus:ring-gv-accent/10 transition-all font-semibold text-gv-deep placeholder:text-slate-400" />
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mt-1 mb-2">System Role</label>
-                        <select name="roleId" required class="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gv-accent focus:ring-4 focus:ring-gv-accent/10 transition-all font-semibold text-gv-deep appearance-none">
-                            <option value="" disabled selected>-- Select a role --</option>
-                            @if (ViewBag.Roles != null)
-                            {
-                                foreach (var role in ViewBag.Roles)
-                                {
-                                    <option value="@role.Id">@role.Name</option>
-                                }
-                            }
-                        </select>
-                    </div>
-                    <div class="pt-4 flex items-center gap-3">
-                        <button type="button" onclick="closeInviteModal()" class="flex-1 text-center py-3 px-4 bg-white border border-slate-200 text-slate-500 rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors">Cancel</button>
-                        <button type="submit" class="flex-[2] py-3 px-4 bg-gv-accent hover:bg-gv-mid text-white rounded-xl text-sm font-bold shadow-lg shadow-gv-accent/30 transition-all">Send Invite</button>
-                    </div>
-                </form>
-            </div>
+            </form>
         </div>
     </div>
-
-    <!-- Edit Modal -->
-    <div id="editModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
-        <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden relative transform transition-all">
-            <div class="bg-gv-deep px-6 py-6 text-center relative overflow-hidden">
-                <h2 class="text-2xl font-black text-white tracking-tight">Edit User Access</h2>
-                <p class="text-xs text-gv-sage opacity-80 mt-1.5 font-medium leading-relaxed">Modify role permissions for this team member.</p>
-            </div>
-            <div class="p-7 text-left">
-                <form method="post" asp-action="EditUser" class="space-y-5">
-                    <input type="hidden" name="id" id="editUserId" />
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mt-1 mb-2">Email Address</label>
-                        <input type="email" id="editEmail" disabled readonly class="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-sm font-semibold text-slate-400 cursor-not-allowed shadow-inner" />
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mt-1 mb-2">New Role</label>
-                        <select name="newRoleId" id="editRoleId" required class="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-gv-deep transition-all font-bold text-gv-deep appearance-none">
-                            @if (ViewBag.Roles != null)
-                            {
-                                foreach (var role in ViewBag.Roles)
-                                {
-                                    <option value="@role.Id">@role.Name</option>
-                                }
-                            }
-                        </select>
-                    </div>
-                    <div class="pt-4 flex items-center gap-3">
-                        <button type="button" onclick="closeEditModal()" class="flex-1 text-center py-3 px-4 bg-white border border-slate-200 text-slate-500 rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors">Cancel</button>
-                        <button type="submit" class="flex-[2] py-3 px-4 bg-gv-deep hover:bg-gv-dark text-white rounded-xl text-sm font-bold shadow-lg shadow-gv-deep/30 transition-all">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
 </div>
 
+<!-- ═══════════════════════════════════════
+     PAGE SCRIPTS
+     ═══════════════════════════════════════ -->
 <script>
-    function openInviteModal() {
-        document.getElementById('inviteModal').classList.remove('hidden');
+    // ── Invite Modal ──
+    function openInviteModal()  { document.getElementById('inviteModal').classList.remove('hidden'); }
+    function closeInviteModal() { document.getElementById('inviteModal').classList.add('hidden'); }
+
+    // ── Deactivate Confirmation (wires to Global Modal from _DashboardLayout) ──
+    function confirmDeactivate(userId, userName) {
+        showConfirm(
+            'Deactivate User',
+            `Are you sure you want to deactivate "${userName}"? They will lose system access immediately.`,
+            function() {
+                // POST to ToggleUserStatus action
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/Dashboard/ToggleUserStatus?id=' + userId;
+                const csrf = document.createElement('input');
+                csrf.type = 'hidden';
+                csrf.name = '__RequestVerificationToken';
+                csrf.value = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+                form.appendChild(csrf);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        );
     }
-    function closeInviteModal() {
-        document.getElementById('inviteModal').classList.add('hidden');
+
+    // ── Re-activate Confirmation ──
+    function confirmActivate(userId, userName) {
+        showConfirm(
+            'Re-Activate User',
+            `Re-activate "${userName}" and restore their system access?`,
+            function() {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/Dashboard/ToggleUserStatus?id=' + userId;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        );
     }
-    function openEditModal(id, email, roleId) {
-        document.getElementById('editUserId').value = id;
-        document.getElementById('editEmail').value = email;
-        document.getElementById('editRoleId').value = roleId;
-        document.getElementById('editModal').classList.remove('hidden');
-    }
-    function closeEditModal() {
-        document.getElementById('editModal').classList.add('hidden');
-    }
+
+    // ── Client-side search filter (instant, no page reload) ──
+    document.getElementById('user-search-input')?.addEventListener('input', function() {
+        const q = this.value.toLowerCase();
+        document.querySelectorAll('#users-tbody tr').forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(q) ? '' : 'none';
+        });
+    });
 </script>
+
+
+
+
+
+

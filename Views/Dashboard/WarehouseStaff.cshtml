@@ -5,25 +5,7 @@
 
 <!-- Tailwind CSS CDN (Play CDN — UI prototype) -->
 <script src="https://cdn.tailwindcss.com"></script>
-<script>
-    tailwind.config = {
-        theme: {
-            extend: {
-                colors: {
-                    'gv-dark':   '#061f17',
-                    'gv-deep':   '#0a3124',
-                    'gv-mid':    '#115740',
-                    'gv-accent': '#23a476',
-                    'gv-light':  '#f2f7f5',
-                    'gv-sage':   '#d1e8df',
-                },
-                fontFamily: {
-                    sans: ['Inter', 'Segoe UI', 'Roboto', 'sans-serif'],
-                },
-            },
-        },
-    }
-</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
@@ -39,7 +21,7 @@
 
         <!-- brand -->
         <div class="flex items-center gap-3 mb-8">
-            <div class="w-9 h-9 rounded-lg bg-gv-accent flex items-center justify-center shadow-lg shrink-0">
+            <div class="w-9 h-9 rounded-lg bg-gv-brand flex items-center justify-center shadow-lg shrink-0">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                     <rect x="2"  y="2"  width="7" height="7" rx="1.5" fill="white" opacity="0.95"/>
                     <rect x="11" y="2"  width="7" height="7" rx="1.5" fill="white" opacity="0.6"/>
@@ -49,7 +31,7 @@
             </div>
             <div>
                 <div class="font-extrabold text-base leading-tight">
-                    Gadget<span class="text-gv-accent">Vault</span>
+                    Gadget<span class="text-gv-brand">Vault</span>
                 </div>
                 <div class="text-xs text-gv-sage opacity-70 font-medium leading-tight">Warehouse Staff</div>
             </div>
@@ -64,7 +46,7 @@
         <nav class="flex flex-col gap-1">
             <!-- Task Queue (active) -->
             <a href="#" aria-current="page"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gv-accent text-white font-semibold text-sm transition-all duration-200">
+               class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gv-brand text-white font-semibold text-sm transition-all duration-200">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                     <rect x="1" y="1" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.9"/>
                     <rect x="9" y="1" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.5"/>
@@ -73,7 +55,7 @@
                 </svg>
                 My Task Queue
                 <!-- active task count -->
-                <span class="ml-auto text-xs font-extrabold bg-white text-gv-accent px-2 py-0.5 rounded-full">3</span>
+                <span class="ml-auto text-xs font-extrabold bg-white text-gv-brand px-2 py-0.5 rounded-full">3</span>
             </a>
             <!-- Scan Barcode -->
             <a href="#"
@@ -124,7 +106,7 @@
             <div class="text-sm font-extrabold text-white">Morning — 06:00–14:00</div>
             <div class="text-xs text-gv-sage mt-1 font-medium">3 hrs 22 min remaining</div>
             <div class="mt-2.5 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                <div class="h-full bg-gv-accent rounded-full" style="width: 58%"></div>
+                <div class="h-full bg-gv-brand rounded-full" style="width: 58%"></div>
             </div>
         </div>
 
@@ -163,14 +145,14 @@
             <div>
                 <!-- FLOOR OPERATIONS pill -->
                 <span class="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest
-                             bg-gv-accent text-white px-3 py-1.5 rounded-full mb-3 shadow-md shadow-gv-accent/30">
+                             bg-gv-brand text-white px-3 py-1.5 rounded-full mb-3 shadow-md shadow-gv-accent/30">
                     <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse inline-block"></span>
                     Floor Operations
                 </span>
 
                 <!-- main title -->
                 <h1 class="text-2xl font-black text-gv-deep tracking-tight leading-tight">
-                    <span class="text-gv-accent">My Task Queue</span>
+                    <span class="text-gv-brand">My Task Queue</span>
                     — Pick, Pack, Ship
                 </h1>
 
@@ -184,11 +166,11 @@
             <div class="shrink-0 mt-1">
                 <button id="btn-scan-barcode"
                         class="inline-flex items-center gap-3 px-6 py-3.5 rounded-xl
-                               bg-gv-accent text-white text-sm font-bold
+                               bg-gv-brand text-white text-sm font-bold
                                shadow-lg shadow-gv-accent/35
                                hover:bg-gv-mid hover:-translate-y-0.5 hover:shadow-gv-accent/45
                                transition-all duration-200
-                               focus:outline-none focus:ring-2 focus:ring-gv-accent focus:ring-offset-2">
+                               focus:outline-none focus:ring-2 focus:ring-[var(--brand-color)] focus:ring-offset-2">
                     <!-- barcode icon -->
                     <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
                         <path d="M2 6V3h4M16 3h4v3M2 16v3h4M16 19h4v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -212,15 +194,15 @@
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100
                         relative overflow-hidden
                         hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-gv-accent to-emerald-400 rounded-t-2xl"></div>
+                <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[var(--brand-color)] to-[color-mix(in_srgb,var(--brand-color)_80%,transparent)] rounded-t-2xl"></div>
                 <div class="flex items-start justify-between mb-4">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center">
+                    <div class="w-12 h-12 rounded-xl bg-gv-brand-light flex items-center justify-center">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <rect x="3" y="3" width="18" height="18" rx="3" stroke="#23a476" stroke-width="1.8"/>
                             <path d="M8 12l3 3 5-5" stroke="#23a476" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </div>
-                    <span class="text-xs font-bold text-gv-accent bg-gv-accent/10 border border-gv-accent/20
+                    <span class="text-xs font-bold text-gv-brand bg-gv-brand/10 border border-gv-brand/20
                                  px-2.5 py-1 rounded-full">Active</span>
                 </div>
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">My Active Tasks</p>
@@ -253,17 +235,17 @@
                         hover:-translate-y-1 hover:shadow-md transition-all duration-300">
                 <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-t-2xl"></div>
                 <div class="flex items-start justify-between mb-4">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center">
+                    <div class="w-12 h-12 rounded-xl bg-gv-brand-light flex items-center justify-center">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <path d="M12 3l9 4.5v5c0 5-3.6 9.7-9 11.5C6.6 22.2 3 17.5 3 12.5v-5L12 3z" stroke="#23a476" stroke-width="1.8" stroke-linejoin="round"/>
                             <path d="M8.5 12.5l2.5 2.5 4.5-5" stroke="#23a476" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </div>
-                    <span class="text-xs font-bold text-emerald-700 bg-emerald-100 border border-emerald-200
+                    <span class="text-xs font-bold text-gv-brand-dark bg-gv-brand-light border border-gv-brand-light
                                  px-2.5 py-1 rounded-full">Perfect</span>
                 </div>
                 <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Accuracy Rate</p>
-                <p class="text-6xl font-black text-gv-accent tracking-tight leading-none mb-1">100%</p>
+                <p class="text-6xl font-black text-gv-brand tracking-tight leading-none mb-1">100%</p>
                 <p class="text-xs text-slate-400 font-medium mt-2">0 errors this shift</p>
             </div>
         </div>
@@ -437,9 +419,9 @@
                         <!-- order header -->
                         <div class="flex items-center justify-between mb-3">
                             <span class="text-xs font-extrabold text-gv-deep">#SO-2024-0108</span>
-                            <span class="inline-flex items-center gap-1 text-xs font-bold text-gv-accent
-                                         bg-gv-accent/10 border border-gv-accent/20 px-2 py-0.5 rounded-full">
-                                <span class="w-1.5 h-1.5 rounded-full bg-gv-accent animate-pulse inline-block"></span>
+                            <span class="inline-flex items-center gap-1 text-xs font-bold text-gv-brand
+                                         bg-gv-brand/10 border border-gv-brand/20 px-2 py-0.5 rounded-full">
+                                <span class="w-1.5 h-1.5 rounded-full bg-gv-brand animate-pulse inline-block"></span>
                                 Ready to Pack
                             </span>
                         </div>
@@ -501,11 +483,11 @@
 
                 <!-- column header -->
                 <div class="relative px-5 pt-5 pb-4">
-                    <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-gv-accent to-emerald-400 rounded-t-2xl"></div>
+                    <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[var(--brand-color)] to-[color-mix(in_srgb,var(--brand-color)_80%,transparent)] rounded-t-2xl"></div>
 
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center">
+                            <div class="w-8 h-8 rounded-xl bg-gv-brand-light flex items-center justify-center">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                     <path d="M2 9h9l3 5H2z" stroke="#23a476" stroke-width="1.5" stroke-linejoin="round"/>
                                     <path d="M2 9l2-5h6" stroke="#23a476" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -518,7 +500,7 @@
                                 <p class="text-xs text-slate-400 font-medium">Dispatch to courier</p>
                             </div>
                         </div>
-                        <span class="w-7 h-7 rounded-full bg-gv-accent text-white text-xs font-extrabold
+                        <span class="w-7 h-7 rounded-full bg-gv-brand text-white text-xs font-extrabold
                                      flex items-center justify-center shadow-sm">
                             1
                         </span>
@@ -535,13 +517,13 @@
                         <!-- order header -->
                         <div class="flex items-center justify-between mb-3">
                             <span class="text-xs font-extrabold text-gv-deep">#SO-2024-0101</span>
-                            <span class="text-xs font-bold text-gv-accent bg-gv-accent/10 border border-gv-accent/25
+                            <span class="text-xs font-bold text-gv-brand bg-gv-brand/10 border border-gv-brand/25
                                          px-2 py-0.5 rounded-full">Packed ✓</span>
                         </div>
 
                         <!-- customer destination -->
                         <div class="flex items-center gap-2 mb-3">
-                            <div class="w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
+                            <div class="w-6 h-6 rounded-lg bg-gv-brand-light flex items-center justify-center shrink-0">
                                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                                     <path d="M6 1C4.07 1 2.5 2.57 2.5 4.5c0 2.625 3.5 6.5 3.5 6.5s3.5-3.875 3.5-6.5C9.5 2.57 7.93 1 6 1z" stroke="#23a476" stroke-width="1.2" stroke-linejoin="round"/>
                                     <circle cx="6" cy="4.5" r="1.2" fill="#23a476"/>
@@ -554,7 +536,7 @@
                         </div>
 
                         <!-- tracking info -->
-                        <div class="bg-gv-light rounded-xl p-3.5 mb-4 border border-gv-accent/15">
+                        <div class="bg-gv-light rounded-xl p-3.5 mb-4 border border-gv-brand/15">
                             <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
                                 Tracking Details
                             </div>
@@ -572,17 +554,17 @@
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-xs text-slate-500 font-medium">Est. Delivery</span>
-                                <span class="text-xs font-bold text-gv-accent">Apr 1–3, 2026</span>
+                                <span class="text-xs font-bold text-gv-brand">Apr 1–3, 2026</span>
                             </div>
                         </div>
 
                         <!-- CTA button — large, green solid -->
                         <button type="button"
                                 class="w-full py-3.5 rounded-xl text-sm font-extrabold
-                                       text-white bg-gv-accent border-2 border-gv-accent
+                                       text-white bg-gv-brand border-2 border-gv-brand
                                        hover:bg-gv-mid hover:border-gv-mid
                                        transition-all duration-200 shadow-md shadow-gv-accent/35
-                                       focus:outline-none focus:ring-2 focus:ring-gv-accent focus:ring-offset-2">
+                                       focus:outline-none focus:ring-2 focus:ring-[var(--brand-color)] focus:ring-offset-2">
                             ✓&nbsp; Mark as Shipped
                         </button>
                     </div>
@@ -599,7 +581,7 @@
                     flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-gv-accent/10 flex items-center justify-center shrink-0">
+                <div class="w-9 h-9 rounded-xl bg-gv-brand/10 flex items-center justify-center shrink-0">
                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
                         <circle cx="9" cy="9" r="7" stroke="#23a476" stroke-width="1.6"/>
                         <path d="M9 5.5v3.5l2.5 2.5" stroke="#23a476" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
@@ -615,10 +597,10 @@
             <div class="flex-1 max-w-sm">
                 <div class="flex items-center justify-between mb-1.5">
                     <span class="text-xs font-bold text-slate-400">Daily Completion</span>
-                    <span class="text-xs font-extrabold text-gv-accent">86%</span>
+                    <span class="text-xs font-extrabold text-gv-brand">86%</span>
                 </div>
                 <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div class="h-full bg-gradient-to-r from-gv-accent to-emerald-400 rounded-full transition-all duration-700"
+                    <div class="h-full bg-gradient-to-r from-[var(--brand-color)] to-[color-mix(in_srgb,var(--brand-color)_80%,transparent)] rounded-full transition-all duration-700"
                          style="width: 86%"></div>
                 </div>
             </div>
@@ -633,3 +615,9 @@
     </main>
 
 </div><!-- /outer flex shell -->
+
+
+
+
+
+

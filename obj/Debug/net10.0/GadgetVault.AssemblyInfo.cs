@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GadgetVault")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4fef66646c8827fe8fa726588a90ba08a2c6d8e1")]
 [assembly: System.Reflection.AssemblyProductAttribute("GadgetVault")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GadgetVault")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

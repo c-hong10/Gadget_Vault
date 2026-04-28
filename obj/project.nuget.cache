@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "9ABgi0N13ms=",
+  "dgSpecHash": "ejyJ2R1BHgw=",
   "success": true,
   "projectFilePath": "C:\\Users\\Cherylou\\GadgetVault\\GadgetVault.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Cherylou\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\Cherylou\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
+    "C:\\Users\\Cherylou\\.nuget\\packages\\cloudinarydotnet\\1.28.0\\cloudinarydotnet.1.28.0.nupkg.sha512",
     "C:\\Users\\Cherylou\\.nuget\\packages\\humanizer\\2.14.1\\humanizer.2.14.1.nupkg.sha512",
     "C:\\Users\\Cherylou\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\Cherylou\\.nuget\\packages\\humanizer.core.af\\2.14.1\\humanizer.core.af.2.14.1.nupkg.sha512",
@@ -147,6 +148,30 @@
       "warningLevel": 1,
       "filePath": "C:\\Users\\Cherylou\\GadgetVault\\GadgetVault.csproj",
       "libraryId": "Microsoft.Build",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1901",
+      "level": "Warning",
+      "message": "Package 'NuGet.Packaging' 6.11.0 has a known low severity vulnerability, https://github.com/advisories/GHSA-g4vj-cjjj-v7hg",
+      "projectPath": "C:\\Users\\Cherylou\\GadgetVault\\GadgetVault.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\Cherylou\\GadgetVault\\GadgetVault.csproj",
+      "libraryId": "NuGet.Packaging",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1901",
+      "level": "Warning",
+      "message": "Package 'NuGet.Protocol' 6.11.0 has a known low severity vulnerability, https://github.com/advisories/GHSA-g4vj-cjjj-v7hg",
+      "projectPath": "C:\\Users\\Cherylou\\GadgetVault\\GadgetVault.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\Cherylou\\GadgetVault\\GadgetVault.csproj",
+      "libraryId": "NuGet.Protocol",
       "targetGraphs": [
         "net10.0"
       ]

@@ -1,118 +1,282 @@
 @{
     ViewData["Title"] = "Sign In";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = null; // Standalone — no header/footer from _Layout
 }
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In — GadgetVault</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; font-family: 'Inter', 'Segoe UI', sans-serif; }
 
-<style>
-    .auth-wrapper {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: calc(100vh - 180px); /* Fill space minus header/footer */
-        background-color: var(--light-green);
-        padding: 40px 20px;
-    }
-    
-    .auth-card {
-        background: var(--white);
-        border-radius: 20px;
-        box-shadow: 0 15px 40px rgba(11, 61, 44, 0.08);
-        padding: 50px 40px;
-        width: 100%;
-        max-width: 450px;
-        text-align: center;
-        border-top: 5px solid var(--accent-green);
-    }
-
-    .auth-title {
-        color: var(--primary-green);
-        font-weight: 800;
-        font-size: 2rem;
-        margin-bottom: 10px;
-    }
-
-    .auth-subtitle {
-        color: #666;
-        margin-bottom: 35px;
-        font-size: 1rem;
-    }
-
-    .form-control-custom {
-        display: block;
-        width: 100%;
-        padding: 14px 20px;
-        font-size: 1rem;
-        line-height: 1.5;
-        color: #495057;
-        background-color: #f8fbfa;
-        background-clip: padding-box;
-        border: 1px solid #dce8e3;
-        border-radius: 12px;
-        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        margin-bottom: 20px;
-    }
-
-    .form-control-custom:focus {
-        border-color: var(--accent-green);
-        outline: 0;
-        box-shadow: 0 0 0 4px rgba(35, 164, 118, 0.1);
-        background-color: #fff;
-    }
-
-    .btn-auth {
-        width: 100%;
-        padding: 14px 20px;
-        font-weight: 600;
-        border-radius: 12px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        text-decoration: none;
-    }
-
-    .btn-auth-primary {
-        background-color: var(--accent-green);
-        color: white;
-        border: none;
-        box-shadow: 0 8px 15px rgba(35, 164, 118, 0.3);
-    }
-    .btn-auth-primary:hover {
-        background-color: var(--secondary-green);
-        transform: translateY(-2px);
-        color: white;
-    }
-
-    /* Social Buttons — removed (B2B system, SSO not supported) */
-
-</style>
-
-<div class="auth-wrapper">
-    <div class="auth-card">
-        <h2 class="auth-title">Welcome Back</h2>
-        <p class="auth-subtitle">Sign in to your GadgetVault IWMS Dashboard.</p>
-
-        @if (ViewBag.Error != null)
-        {
-            <div class="alert alert-danger" style="border-radius: 12px; font-weight: 600; font-size: 0.9rem; text-align: left; background-color: #fcebeb; color: #cc444b; border: 1px solid #f5c2c4;">
-                @ViewBag.Error
-            </div>
+        body {
+            background-color: #09090b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
         }
 
-        <form asp-controller="Account" asp-action="Login" method="post">
-            <input type="email" name="email" class="form-control-custom" placeholder="Email Address" required />
-            <input type="password" name="password" class="form-control-custom" placeholder="Password" required />
-            
-            <button type="submit" class="btn btn-auth btn-auth-primary">Sign In</button>
-        </form>
+        /* Subtle grid pattern background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+        }
 
-        <div style="margin-top: 20px; font-size: 0.9rem;">
-            Don't have an account? <a asp-controller="Account" asp-action="SignUp" style="color: var(--accent-green); font-weight: 600;">Sign Up</a>
+        .login-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        /* Logo area */
+        .logo-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background-color: #23a476;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(35,164,118,0.35);
+        }
+        .logo-text {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.03em;
+        }
+        .logo-text span { color: #23a476; }
+
+        /* Card */
+        .login-card {
+            background: #111113;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 20px;
+            padding: 36px 36px 32px;
+        }
+
+        .card-heading {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+        }
+        .card-sub {
+            font-size: 0.82rem;
+            color: #64748b;
+            margin-bottom: 28px;
+        }
+
+        /* Error alert */
+        .error-alert {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.25);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 20px;
+        }
+        .error-alert p {
+            font-size: 0.82rem;
+            color: #f87171;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        /* Labels */
+        label.field-label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #475569;
+            margin-bottom: 7px;
+        }
+
+        /* Inputs */
+        .auth-input {
+            display: block;
+            width: 100%;
+            background: #0e0e10;
+            border: 1px solid #1e1e24;
+            border-radius: 10px;
+            padding: 11px 14px;
+            font-size: 0.875rem;
+            font-family: 'Inter', sans-serif;
+            color: #e2e8f0;
+            outline: none;
+            transition: border-color 0.18s, box-shadow 0.18s;
+            margin-bottom: 18px;
+        }
+        .auth-input::placeholder { color: #334155; }
+        .auth-input:focus {
+            border-color: #23a476;
+            box-shadow: 0 0 0 3px rgba(35,164,118,0.15);
+        }
+
+        .field-row-end {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: -10px;
+            margin-bottom: 24px;
+        }
+        .forgot-link {
+            font-size: 0.78rem;
+            color: #23a476;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .forgot-link:hover { color: #2dd480; }
+
+        /* Primary button */
+        .btn-signin {
+            width: 100%;
+            padding: 12px 20px;
+            background: #23a476;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.18s, box-shadow 0.18s, transform 0.15s;
+            box-shadow: 0 4px 14px rgba(35,164,118,0.3);
+            letter-spacing: 0.01em;
+        }
+        .btn-signin:hover {
+            background: #1e8f66;
+            box-shadow: 0 6px 20px rgba(35,164,118,0.4);
+            transform: translateY(-1px);
+        }
+        .btn-signin:active { transform: translateY(0); }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 22px 0;
+        }
+        .divider hr { flex: 1; border: none; border-top: 1px solid #1e1e24; }
+        .divider span { font-size: 0.72rem; color: #334155; font-weight: 500; }
+
+        /* Footer links */
+        .card-footer-links {
+            text-align: center;
+            margin-top: 24px;
+        }
+        .card-footer-links p {
+            font-size: 0.82rem;
+            color: #475569;
+        }
+        .card-footer-links a {
+            color: #23a476;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .card-footer-links a:hover { color: #2dd480; }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 28px;
+            font-size: 0.8rem;
+            color: #334155;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.18s;
+        }
+        .back-link:hover { color: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Logo -->
+        <div class="logo-area">
+            <div class="logo-icon">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="white">
+                    <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+            </div>
+            <p class="logo-text">Gadget<span>Vault</span></p>
         </div>
-        <div style="margin-top: 15px; font-size: 0.9rem;">
-            <a asp-controller="Home" asp-action="Index" style="color: #666; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='var(--accent-green)'" onmouseout="this.style.color='#666'">&larr; Back to Home</a>
+
+        <!-- Card -->
+        <div class="login-card">
+            <h1 class="card-heading">Welcome back</h1>
+            <p class="card-sub">Sign in to your GadgetVault workspace.</p>
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="error-alert">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#f87171" stroke-width="2" style="margin-top:1px;flex-shrink:0">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <p>@ViewBag.Error</p>
+                </div>
+            }
+
+            <form asp-controller="Account" asp-action="Login" method="post">
+                <label class="field-label" for="login-email">Email Address</label>
+                <input id="login-email" class="auth-input" type="email" name="email" placeholder="you@company.com" required autocomplete="email" />
+
+                <label class="field-label" for="login-password">Password</label>
+                <input id="login-password" class="auth-input" type="password" name="password" placeholder="••••••••••" required autocomplete="current-password" style="margin-bottom:10px;" />
+
+                <div class="field-row-end">
+                    <a href="#" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn-signin">Sign In</button>
+            </form>
+
+            <div class="card-footer-links">
+                <p>Don't have an account? <a asp-controller="Account" asp-action="SignUp">Sign Up</a></p>
+            </div>
         </div>
+
+        <a href="/" class="back-link">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Home
+        </a>
     </div>
-</div>
+</body>
+</html>
+
+
+
+
+
+

@@ -258,7 +258,6 @@ C:\Users\Cherylou\GadgetVault\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
 C:\Users\Cherylou\GadgetVault\obj\Debug\net10.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\Users\Cherylou\GadgetVault\obj\Debug\net10.0\scopedcss\bundle\GadgetVault.styles.css
 C:\Users\Cherylou\GadgetVault\obj\Debug\net10.0\scopedcss\projectbundle\GadgetVault.bundle.scp.css
-C:\Users\Cherylou\GadgetVault\obj\Debug\net10.0\compressed\7nahaz2zpl-{0}-b9sayid5wm-b9sayid5wm.gz
 C:\Users\Cherylou\GadgetVault\obj\Debug\net10.0\compressed\gkas88hiy8-{0}-61n19gt1b8-61n19gt1b8.gz
 C:\Users\Cherylou\GadgetVault\obj\Debug\net10.0\compressed\oia0mzxt44-{0}-bqjiyaj88i-bqjiyaj88i.gz
 C:\Users\Cherylou\GadgetVault\obj\Debug\net10.0\compressed\73ildh3ixi-{0}-c2jlpeoesf-c2jlpeoesf.gz
@@ -333,4 +332,9 @@ C:\Users\Cherylou\GadgetVault\obj\Debug\net10.0\GadgetVault.pdb
 C:\Users\Cherylou\GadgetVault\obj\Debug\net10.0\GadgetVault.genruntimeconfig.cache
 C:\Users\Cherylou\GadgetVault\obj\Debug\net10.0\ref\GadgetVault.dll
 C:\Users\Cherylou\GadgetVault\obj\Debug\net10.0\GadgetVault.sourcelink.json
-C:\Users\Cherylou\GadgetVault\obj\Debug\net10.0\compressed\ikbnkykqtx-{0}-e710dyq4bi-e710dyq4bi.gz
+C:\Users\Cherylou\GadgetVault\bin\Debug\net10.0\package-lock.json
+C:\Users\Cherylou\GadgetVault\bin\Debug\net10.0\package.json
+C:\Users\Cherylou\GadgetVault\obj\Debug\net10.0\compressed\8q4htf2xxp-{0}-g7y402ldrd-g7y402ldrd.gz
+C:\Users\Cherylou\GadgetVault\obj\Debug\net10.0\compressed\ikbnkykqtx-{0}-2xny1wms88-2xny1wms88.gz
+C:\Users\Cherylou\GadgetVault\obj\Debug\net10.0\compressed\7nahaz2zpl-{0}-yh2qnd1kwy-yh2qnd1kwy.gz
+C:\Users\Cherylou\GadgetVault\bin\Debug\net10.0\CloudinaryDotNet.dll

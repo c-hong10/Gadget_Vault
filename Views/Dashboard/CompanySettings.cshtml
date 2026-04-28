@@ -1,0 +1,110 @@
+@model GadgetVault.Models.SystemSettings
+@{
+    ViewData["Title"] = "Company Settings";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<!-- Tailwind CDN for UI prototype -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+
+<div class="flex flex-col gap-6 max-w-3xl">
+    <div>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Company Settings</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Update global organizational details and branding.</p>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="px-4 py-3 rounded relative" role="alert"
+             style="background-color: color-mix(in srgb, var(--brand-color) 10%, transparent); border: 1px solid color-mix(in srgb, var(--brand-color) 30%, transparent); color: var(--brand-color);">
+            <span class="block sm:inline">@TempData["SuccessMessage"]</span>
+        </div>
+    }
+
+    <form asp-controller="Settings" asp-action="Index" method="post" enctype="multipart/form-data" onsubmit="this.querySelector('button[type=submit]').innerHTML = 'Processing...'; this.querySelector('button[type=submit]').disabled = true;">
+        <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-sm flex flex-col gap-8">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Company Name</label>
+                    <input type="text" asp-for="CompanyName" class="px-4 py-2 bg-slate-50 dark:bg-[#09090b] border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-[var(--brand-color)] focus:ring-1 focus:ring-[var(--brand-color)] transition-all" />
+                    <span asp-validation-for="CompanyName" class="text-red-500 text-xs"></span>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Primary Color (Hex)</label>
+                    <div class="flex items-center gap-2">
+                        <input type="color" asp-for="PrimaryColorHex" class="h-10 w-14 rounded cursor-pointer border-0 bg-transparent" />
+                        <input type="text" asp-for="PrimaryColorHex" class="flex-1 px-4 py-2 bg-slate-50 dark:bg-[#09090b] border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-[var(--brand-color)] focus:ring-1 focus:ring-[var(--brand-color)] transition-all uppercase" placeholder="#FFFFFF" />
+                    </div>
+                    <span asp-validation-for="PrimaryColorHex" class="text-red-500 text-xs"></span>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Upload Custom Logo (Optional)</label>
+                <input type="file" id="logoUpload" name="LogoFile" accept="image/*" class="hidden" style="display:none;" />
+                <div id="logoUploadTrigger" class="w-full flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl hover:border-[var(--brand-color)] hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all cursor-pointer group">
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="text-slate-400 group-hover:text-[var(--brand-color)] mb-2 transition-colors">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p id="logoUploadText" class="text-sm text-slate-500 dark:text-slate-400 font-medium">Click to upload or drag and drop</p>
+                    <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">SVG, PNG, JPG or GIF (max. 800x400px)</p>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button type="submit" class="px-6 py-2.5 text-white text-sm font-bold rounded-xl shadow-lg transition-all" style="background-color: var(--brand-color); box-shadow: 0 4px 14px var(--brand-color);">
+                    Save Changes
+                </button>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Sync color picker and text input
+        const colorPicker = document.querySelector('input[type="color"]');
+        const colorText = document.querySelector('input[type="text"][name="PrimaryColorHex"]');
+        
+        colorPicker.addEventListener('input', (e) => {
+            colorText.value = e.target.value.toUpperCase();
+        });
+        
+        colorText.addEventListener('input', (e) => {
+            if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                colorPicker.value = e.target.value;
+            }
+        });
+
+        // Handle file upload trigger
+        const logoUploadTrigger = document.getElementById('logoUploadTrigger');
+        const logoUploadInput = document.getElementById('logoUpload');
+        const logoUploadText = document.getElementById('logoUploadText');
+
+        logoUploadTrigger.addEventListener('click', () => {
+            logoUploadInput.click();
+        });
+
+        logoUploadInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                logoUploadText.textContent = `Selected: ${e.target.files[0].name}`;
+                logoUploadText.classList.add('font-bold');
+                logoUploadText.style.color = 'var(--brand-color)';
+            } else {
+                logoUploadText.textContent = 'Click to upload or drag and drop';
+                logoUploadText.classList.remove('font-bold');
+                logoUploadText.style.color = '';
+            }
+        });
+    </script>
+}
+
+
+
+
+
+

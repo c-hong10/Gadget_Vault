@@ -1,13 +1,36 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace GadgetVault.Models
 {
     public class Product
     {
+        [Key]
         public int Id { get; set; }
-        public string SKU { get; set; } = string.Empty;
+
+        [Required, MaxLength(200)]
         public string Name { get; set; } = string.Empty;
+
+        [Required, MaxLength(100)]
+        public string SKU { get; set; } = string.Empty;
+
+        [MaxLength(100)]
+        public string? Barcode { get; set; }
+
+        [MaxLength(1000)]
         public string? Description { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
-        public int ReorderThreshold { get; set; }
-        public string? Location { get; set; } // E.g. Aisle-1/Rack-2/Bin-3
+
+        [MaxLength(500)]
+        public string? ImageUrl { get; set; }
+
+        // Foreign Key → Category
+        public int CategoryId { get; set; }
+
+        [ForeignKey(nameof(CategoryId))]
+        public Category? Category { get; set; }
     }
 }
