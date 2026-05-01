@@ -1,0 +1,101 @@
+@using GadgetVault.Models
+@model SalesOrder
+@{
+    var transactions = (ViewBag.Transactions as IEnumerable<InventoryTransaction>) ?? Enumerable.Empty<InventoryTransaction>();
+    var dispatchDate = transactions.OrderByDescending(t => t.Timestamp).FirstOrDefault()?.Timestamp ?? Model.OrderDate;
+}
+
+<div class="flex flex-col gap-6">
+
+    <!-- HEADER -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Shipment Summary</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Dispatched on @dispatchDate.ToString("MMM dd, yyyy HH:mm")</p>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-widest">
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" class="mr-1"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            Shipped
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- INFO & TIMELINE -->
+        <div class="md:col-span-1 flex flex-col gap-5">
+            <div class="bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-slate-800 rounded-xl p-4">
+                <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Order Info</h3>
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase">SO #</p>
+                        <p class="text-xs font-mono font-bold text-slate-900 dark:text-white">@Model.SONumber</p>
+                    </div>
+                    <div>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase">Customer</p>
+                        <p class="text-xs font-bold text-slate-700 dark:text-slate-300">@(Model.Customer?.CompanyName ?? "N/A")</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-slate-800 rounded-xl p-4">
+                <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Workflow</h3>
+                <div class="relative space-y-4 before:absolute before:left-[9px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200 dark:before:bg-slate-800">
+                    <div class="relative flex items-start gap-3">
+                        <div class="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-white z-10">
+                            <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-bold text-slate-900 dark:text-white">Dispatched</p>
+                            <p class="text-[9px] text-slate-500 mt-0.5">@dispatchDate.ToString("MMM dd, HH:mm")</p>
+                        </div>
+                    </div>
+                    <div class="relative flex items-start gap-3">
+                        <div class="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-400 z-10">
+                            <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-bold text-slate-400">Packed</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MANIFEST -->
+        <div class="md:col-span-2">
+            <div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-50 dark:bg-black/40 border-b border-slate-200 dark:border-slate-800">
+                        <tr>
+                            <th class="px-4 py-2 font-bold text-slate-500 uppercase text-[9px]">Product</th>
+                            <th class="px-4 py-2 font-bold text-slate-500 uppercase text-[9px]">Location</th>
+                            <th class="px-4 py-2 font-bold text-slate-500 uppercase text-[9px] text-center">Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                        @foreach (var item in Model.Items)
+                        {
+                            var itemTransactions = transactions.Where(t => t.ProductId == item.ProductId).ToList();
+                            <tr>
+                                <td class="px-4 py-3">
+                                    <p class="font-bold text-slate-800 dark:text-slate-200">@item.Product?.Name</p>
+                                    <p class="text-[9px] font-mono text-slate-400 mt-0.5">@item.Product?.SKU</p>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex flex-col gap-0.5">
+                                        @foreach (var tx in itemTransactions)
+                                        {
+                                            <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400">@tx.Location?.Zone-@tx.Location?.Bin</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-center font-black text-slate-700 dark:text-slate-300">@item.Quantity</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-[9px] text-slate-400 italic mt-3">* Verified shipment archive. Inventory has been deducted.</p>
+        </div>
+    </div>
+</div>

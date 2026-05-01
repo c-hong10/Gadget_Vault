@@ -1,0 +1,36 @@
+@{
+    ViewData["Title"] = "Access Denied";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#09090b] px-4">
+    <div class="max-w-md w-full text-center">
+        <div class="mb-8 flex justify-center">
+            <div class="w-20 h-20 bg-red-100 dark:bg-red-500/10 rounded-full flex items-center justify-center border border-red-200 dark:border-red-500/20 shadow-lg shadow-red-500/10">
+                <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="#ef4444" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+        </div>
+        
+        <h1 class="text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-3">403: Restricted Area</h1>
+        <p class="text-slate-500 dark:text-slate-400 font-medium mb-8 leading-relaxed">
+            Oops! It looks like you don't have the required permissions to access this module. If you believe this is an error, please contact your System Administrator.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <a href="/Dashboard" class="px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl shadow-lg hover:opacity-90 transition-all no-underline">
+                Return to Dashboard
+            </a>
+            <a href="mailto:support@gadgetvault.com" class="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all no-underline">
+                Contact Support
+            </a>
+        </div>
+        
+        <div class="mt-12 text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest">
+            GadgetVault Security Protocol Enforcement
+        </div>
+    </div>
+</div>

@@ -58,22 +58,38 @@
               <span class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold border @bg @text @border">@po.Status</span>
             </td>
             <td class="px-6 py-4 text-right">
-              @if (po.Status == POStatus.Ordered) {
-              <form asp-action="AcknowledgePO" method="post" class="inline">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="id" value="@po.Id" />
-                <button type="submit" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold rounded-lg transition-all shadow-sm active:scale-95">
-                  Acknowledge
-                </button>
-              </form>
-              } else {
-                <span class="text-[10px] text-slate-400 font-medium italic">Confirmed</span>
-              }
+              <div class="flex items-center justify-end gap-3">
+                <a asp-action="PODetails" asp-route-id="@po.Id" class="text-[10px] font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+                  View
+                </a>
+                @if (po.Status == POStatus.Ordered || po.Status == POStatus.Draft) {
+                <form asp-action="AcknowledgePO" method="post" class="inline">
+                  @Html.AntiForgeryToken()
+                  <input type="hidden" name="id" value="@po.Id" />
+                  <button type="submit" class="px-3 py-1.5 bg-gv-brand hover:bg-gv-brand-dark text-white text-[10px] font-bold rounded-lg transition-all shadow-sm active:scale-95">
+                    Acknowledge
+                  </button>
+                </form>
+                } else if (po.Status == POStatus.Acknowledged) {
+                  <span class="text-[10px] text-amber-600 dark:text-amber-400 font-bold italic bg-amber-50 dark:bg-amber-500/10 px-2 py-1 rounded-md border border-amber-100 dark:border-amber-500/20">Acknowledged</span>
+                } else {
+                  <span class="text-[10px] text-slate-400 font-medium italic">Completed</span>
+                }
+              </div>
             </td>
           </tr>
           }
           @if (!orders.Any()) {
-          <tr><td colspan="5" class="px-6 py-16 text-center text-slate-400 italic">No purchase orders assigned to your account.</td></tr>
+          <tr>
+            <td colspan="5" class="px-6 py-20 text-center">
+              <div class="flex flex-col items-center gap-3">
+                <div class="w-12 h-12 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center text-slate-300 dark:text-slate-600">
+                  <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+                <p class="text-slate-400 dark:text-slate-500 font-medium italic">No active purchase orders found.</p>
+              </div>
+            </td>
+          </tr>
           }
         </tbody>
       </table>

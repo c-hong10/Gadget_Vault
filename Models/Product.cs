@@ -22,7 +22,11 @@ namespace GadgetVault.Models
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]
-        public decimal Price { get; set; }
+        public decimal CostPrice { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal SellingPrice { get; set; }
 
         [MaxLength(500)]
         public string? ImageUrl { get; set; }
@@ -32,5 +36,14 @@ namespace GadgetVault.Models
 
         [ForeignKey(nameof(CategoryId))]
         public Category? Category { get; set; }
+
+        // Foreign Key → Supplier (BusinessPartner)
+        [Required]
+        public int SupplierId { get; set; }
+
+        [ForeignKey(nameof(SupplierId))]
+        public BusinessPartner? Supplier { get; set; }
+
+        public bool IsActive { get; set; } = true;
     }
 }

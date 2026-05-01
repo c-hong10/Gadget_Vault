@@ -1,6 +1,9 @@
+@using GadgetVault.Models
+@model IEnumerable<InventoryTransaction>
 @{
     ViewData["Title"] = "Stock Adjustments";
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var transactions = Model ?? Enumerable.Empty<InventoryTransaction>();
 }
 
 <script src="https://cdn.tailwindcss.com"></script>
@@ -29,7 +32,7 @@
 
     <!-- right: CTA button -->
     <div class="shrink-0 mt-1">
-        <button id="btn-manual-adj"
+        <button id="btn-manual-adj" onclick="openAdjustmentModal()"
                 class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl
                        bg-gv-brand text-white text-sm font-bold
                        shadow-lg
@@ -65,11 +68,11 @@
                 </svg>
             </div>
         </div>
-        <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1">7</p>
-        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Adjustments awaiting manager sign-off</p>
-        <div class="mt-3 flex items-center gap-1.5">
+        <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1 text-right">@ViewBag.PendingCount</p>
+        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium text-right">Adjustments awaiting manager sign-off</p>
+        <div class="mt-3 flex items-center justify-end gap-1.5">
             <span class="w-2 h-2 rounded-full bg-orange-400 animate-pulse inline-block"></span>
-            <span class="text-xs font-semibold text-orange-500">3 flagged as urgent</span>
+            <span class="text-xs font-semibold text-orange-500">Live Audit Sync</span>
         </div>
     </div>
 
@@ -89,11 +92,11 @@
                 </svg>
             </div>
         </div>
-        <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1">−$3,240</p>
-        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Across 14 SKUs this month</p>
-        <div class="mt-3 flex items-center gap-1.5">
+        <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1 text-right">@ViewBag.TotalShrinkage.ToString("C0")</p>
+        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium text-right">From manual & system corrections</p>
+        <div class="mt-3 flex items-center justify-end gap-1.5">
             <span class="w-2 h-2 rounded-full bg-red-400 inline-block"></span>
-            <span class="text-xs font-semibold text-red-500">↑ 12% vs last month</span>
+            <span class="text-xs font-semibold text-red-500">Updated @DateTime.Now.ToString("HH:mm")</span>
         </div>
     </div>
 
@@ -113,10 +116,10 @@
                 </svg>
             </div>
         </div>
-        <p class="text-4xl font-black text-gv-brand tracking-tight leading-none mb-1">78%</p>
-        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Monthly cycle count — 39 of 50 zones done</p>
+        <p class="text-4xl font-black text-gv-brand tracking-tight leading-none mb-1 text-right">@ViewBag.AuditCompletion%</p>
+        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium text-right">Monthly cycle count progress</p>
         <div class="mt-3 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-            <div class="h-full bg-gradient-to-r from-[var(--brand-color)] to-[color-mix(in_srgb,var(--brand-color)_80%,transparent)] rounded-full" style="width:78%"></div>
+            <div class="h-full bg-gradient-to-r from-[var(--brand-color)] to-[color-mix(in_srgb,var(--brand-color)_80%,transparent)] rounded-full" style="width:@ViewBag.AuditCompletion%"></div>
         </div>
     </div>
 </div>
@@ -164,220 +167,57 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                @foreach (var t in transactions)
+                {
+                    var qtyColor = t.Quantity > 0 ? "text-gv-brand" : "text-red-500";
+                    var qtySign = t.Quantity > 0 ? "+" : "";
+                    
+                    var typeLabel = t.Type.ToString();
+                    var typeClass = t.Type switch {
+                        TransactionType.StockIn => "bg-gv-brand-light dark:bg-gv-brand/10 text-gv-brand-dark dark:text-gv-brand-light border-gv-brand-light dark:border-gv-brand/20",
+                        TransactionType.StockOut => "bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/20",
+                        _ => "bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/20"
+                    };
 
-                <!-- Row 1 — Damaged / Pending -->
-                <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/20 transition-colors duration-150 group">
-                    <td class="px-5 py-4 text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">Apr 22, 2026</td>
-                    <td class="px-5 py-4">
-                        <div class="font-semibold text-slate-900 dark:text-white text-xs">iPad Pro 12.9"</div>
-                        <div class="text-xs text-slate-400 dark:text-slate-500">Apple</div>
-                    </td>
-                    <td class="px-5 py-4">
-                        <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">APL-IPP129</span>
-                    </td>
-                    <td class="px-5 py-4 text-center">
-                        <span class="font-extrabold text-base text-red-500">−2</span>
-                    </td>
-                    <td class="px-5 py-4">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
-                                     bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/20">
-                            Damaged
-                        </span>
-                    </td>
-                    <td class="px-5 py-4 text-center">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
-                                     bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse inline-block"></span>
-                            Pending
-                        </span>
-                    </td>
-                    <td class="px-5 py-4 text-center">
-                        <button class="text-xs font-extrabold text-white bg-gv-brand hover:opacity-90
-                                       px-3 py-1.5 rounded-lg border-none outline-none
-                                       transition-colors duration-200 shadow-sm">
-                            Approve
-                        </button>
-                    </td>
-                </tr>
+                    <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/20 transition-colors duration-150 group">
+                        <td class="px-5 py-4 text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">
+                            @t.Timestamp.ToString("MMM dd, yyyy HH:mm")
+                        </td>
+                        <td class="px-5 py-4">
+                            <div class="font-semibold text-slate-900 dark:text-white text-xs">@(t.Product?.Name ?? "Unknown Product")</div>
+                        </td>
+                        <td class="px-5 py-4">
+                            <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">@(t.Product?.SKU ?? "N/A")</span>
+                        </td>
+                        <td class="px-5 py-4 text-center">
+                            <span class="font-extrabold text-base @qtyColor">@qtySign@t.Quantity</span>
+                        </td>
+                        <td class="px-5 py-4">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border @typeClass">
+                                @typeLabel
+                            </span>
+                        </td>
+                        <td class="px-5 py-4 text-center">
+                            <span class="font-mono text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight">
+                                @(t.ReferenceId ?? "SYSTEM")
+                            </span>
+                        </td>
+                        <td class="px-5 py-4 text-center">
+                            <button class="text-xs font-bold text-slate-400 dark:text-slate-500 hover:text-gv-brand transition-colors border-none bg-transparent">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                }
 
-                <!-- Row 2 — Discrepancy / Pending -->
-                <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/20 transition-colors duration-150 group">
-                    <td class="px-5 py-4 text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">Apr 22, 2026</td>
-                    <td class="px-5 py-4">
-                        <div class="font-semibold text-slate-900 dark:text-white text-xs">Dell XPS 15 Laptop</div>
-                        <div class="text-xs text-slate-400 dark:text-slate-500">Dell</div>
-                    </td>
-                    <td class="px-5 py-4">
-                        <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">DLL-XPS15</span>
-                    </td>
-                    <td class="px-5 py-4 text-center">
-                        <span class="font-extrabold text-base text-red-500">−1</span>
-                    </td>
-                    <td class="px-5 py-4">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
-                                     bg-yellow-100 dark:bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-500/20">
-                            Discrepancy
-                        </span>
-                    </td>
-                    <td class="px-5 py-4 text-center">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
-                                     bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse inline-block"></span>
-                            Pending
-                        </span>
-                    </td>
-                    <td class="px-5 py-4 text-center">
-                        <button class="text-xs font-extrabold text-yellow-800 dark:text-yellow-300 bg-yellow-100 dark:bg-yellow-500/15
-                                       hover:bg-yellow-200 dark:hover:bg-yellow-500/25
-                                       px-3 py-1.5 rounded-lg border-none outline-none
-                                       transition-colors duration-200">
-                            Review
-                        </button>
-                    </td>
-                </tr>
-
-                <!-- Row 3 — Expired / Pending -->
-                <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/20 transition-colors duration-150 group">
-                    <td class="px-5 py-4 text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">Apr 21, 2026</td>
-                    <td class="px-5 py-4">
-                        <div class="font-semibold text-slate-900 dark:text-white text-xs">Thermal Printer Rolls</div>
-                        <div class="text-xs text-slate-400 dark:text-slate-500">Posiflex</div>
-                    </td>
-                    <td class="px-5 py-4">
-                        <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">POS-TPR50</span>
-                    </td>
-                    <td class="px-5 py-4 text-center">
-                        <span class="font-extrabold text-base text-red-500">−50</span>
-                    </td>
-                    <td class="px-5 py-4">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
-                                     bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
-                            Expired
-                        </span>
-                    </td>
-                    <td class="px-5 py-4 text-center">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
-                                     bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse inline-block"></span>
-                            Pending
-                        </span>
-                    </td>
-                    <td class="px-5 py-4 text-center">
-                        <button class="text-xs font-extrabold text-orange-600 dark:text-orange-400
-                                       hover:text-orange-700 dark:hover:text-orange-300
-                                       px-3 py-1.5 rounded-lg border-none outline-none bg-transparent
-                                       transition-colors duration-200">
-                            Review
-                        </button>
-                    </td>
-                </tr>
-
-                <!-- Row 4 — Found (positive) / Approved -->
-                <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/20 transition-colors duration-150 group">
-                    <td class="px-5 py-4 text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">Apr 21, 2026</td>
-                    <td class="px-5 py-4">
-                        <div class="font-semibold text-slate-900 dark:text-white text-xs">Samsung Galaxy Tab S9</div>
-                        <div class="text-xs text-slate-400 dark:text-slate-500">Samsung</div>
-                    </td>
-                    <td class="px-5 py-4">
-                        <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">SAM-GTS9</span>
-                    </td>
-                    <td class="px-5 py-4 text-center">
-                        <span class="font-extrabold text-base text-gv-brand">+3</span>
-                    </td>
-                    <td class="px-5 py-4">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
-                                     bg-gv-brand-light dark:bg-gv-brand/10 text-gv-brand-dark dark:text-gv-brand-light border border-gv-brand-light dark:border-gv-brand/20">
-                            Found
-                        </span>
-                    </td>
-                    <td class="px-5 py-4 text-center">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
-                                     bg-gv-brand-light dark:bg-gv-brand/10 text-gv-brand-dark dark:text-gv-brand-light border border-gv-brand-light dark:border-gv-brand/20">
-                            ✓ Approved
-                        </span>
-                    </td>
-                    <td class="px-5 py-4 text-center">
-                        <button class="text-xs font-bold text-slate-400 dark:text-slate-500
-                                       hover:text-slate-600 dark:hover:text-slate-300
-                                       px-3 py-1.5 rounded-lg border-none outline-none bg-transparent
-                                       transition-colors duration-200">
-                            View
-                        </button>
-                    </td>
-                </tr>
-
-                <!-- Row 5 — Damaged / Approved -->
-                <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/20 transition-colors duration-150 group">
-                    <td class="px-5 py-4 text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">Apr 20, 2026</td>
-                    <td class="px-5 py-4">
-                        <div class="font-semibold text-slate-900 dark:text-white text-xs">USB-C Hub 7-Port</div>
-                        <div class="text-xs text-slate-400 dark:text-slate-500">Anker</div>
-                    </td>
-                    <td class="px-5 py-4">
-                        <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">ANK-HUB7C</span>
-                    </td>
-                    <td class="px-5 py-4 text-center">
-                        <span class="font-extrabold text-base text-red-500">−5</span>
-                    </td>
-                    <td class="px-5 py-4">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
-                                     bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/20">
-                            Damaged
-                        </span>
-                    </td>
-                    <td class="px-5 py-4 text-center">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
-                                     bg-gv-brand-light dark:bg-gv-brand/10 text-gv-brand-dark dark:text-gv-brand-light border border-gv-brand-light dark:border-gv-brand/20">
-                            ✓ Approved
-                        </span>
-                    </td>
-                    <td class="px-5 py-4 text-center">
-                        <button class="text-xs font-bold text-slate-400 dark:text-slate-500
-                                       hover:text-slate-600 dark:hover:text-slate-300
-                                       px-3 py-1.5 rounded-lg border-none outline-none bg-transparent
-                                       transition-colors duration-200">
-                            View
-                        </button>
-                    </td>
-                </tr>
-
-                <!-- Row 6 — Recount / Pending -->
-                <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/20 transition-colors duration-150 group">
-                    <td class="px-5 py-4 text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">Apr 20, 2026</td>
-                    <td class="px-5 py-4">
-                        <div class="font-semibold text-slate-900 dark:text-white text-xs">Logitech MX Keys Keyboard</div>
-                        <div class="text-xs text-slate-400 dark:text-slate-500">Logitech</div>
-                    </td>
-                    <td class="px-5 py-4">
-                        <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">LOG-MXKEYS</span>
-                    </td>
-                    <td class="px-5 py-4 text-center">
-                        <span class="font-extrabold text-base text-gv-brand">+1</span>
-                    </td>
-                    <td class="px-5 py-4">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
-                                     bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20">
-                            Recount
-                        </span>
-                    </td>
-                    <td class="px-5 py-4 text-center">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
-                                     bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse inline-block"></span>
-                            Pending
-                        </span>
-                    </td>
-                    <td class="px-5 py-4 text-center">
-                        <button class="text-xs font-extrabold text-orange-600 dark:text-orange-400
-                                       hover:text-orange-700 dark:hover:text-orange-300
-                                       px-3 py-1.5 rounded-lg border-none outline-none bg-transparent
-                                       transition-colors duration-200">
-                            Review
-                        </button>
-                    </td>
-                </tr>
-
+                @if (!transactions.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="px-5 py-12 text-center text-slate-400 font-medium italic">
+                            No inventory transactions recorded yet.
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>
@@ -385,12 +225,100 @@
     <!-- table footer -->
     <div class="px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0c0e]/50
                 flex items-center justify-between">
-        <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">Showing 6 of 31 adjustments this month</span>
+        <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">Showing @transactions.Count() entries in the audit ledger</span>
         <a href="#" class="text-xs font-bold text-gv-brand hover:text-gv-mid transition-colors">
             View full audit log →
         </a>
     </div>
 </section>
+
+<!-- MANUAL ADJUSTMENT MODAL -->
+<div id="modal-adjustment" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all duration-300">
+    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all">
+        <!-- Header -->
+        <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-white/5">
+            <div>
+                <h3 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Manual Stock Adjustment</h3>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">Record shrinkage, damage, or found items.</p>
+            </div>
+            <button onclick="closeAdjustmentModal()" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border-none outline-none">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <form asp-action="SubmitStockAdjustment" method="post" class="p-8">
+            @Html.AntiForgeryToken()
+            <div class="space-y-5">
+                <!-- Product -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Product</label>
+                    <select name="productId" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-gv-brand outline-none transition-all dark:text-white">
+                        <option value="">Select Product...</option>
+                        @foreach (var p in (ViewBag.Products as List<Product>) ?? new List<Product>())
+                        {
+                            <option value="@p.Id">@p.Name (@p.SKU)</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Location -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Location</label>
+                    <select name="locationId" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-gv-brand outline-none transition-all dark:text-white">
+                        <option value="">Select Location...</option>
+                        @foreach (var l in (ViewBag.Locations as List<WarehouseLocation>) ?? new List<WarehouseLocation>())
+                        {
+                            <option value="@l.Id">@l.Zone - @l.Aisle (@l.Rack)</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-5">
+                    <!-- Qty Change -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Qty Change</label>
+                        <input type="number" name="quantityChange" required placeholder="e.g. -5 or 10" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-gv-brand outline-none transition-all dark:text-white" />
+                    </div>
+                    <!-- Reason -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Reason</label>
+                        <select name="reason" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-gv-brand outline-none transition-all dark:text-white">
+                            <option value="Damaged">Damaged</option>
+                            <option value="Lost">Lost</option>
+                            <option value="Expired">Expired</option>
+                            <option value="Found Discrepancy">Found Discrepancy</option>
+                            <option value="Cycle Count">Cycle Count</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Notes / Audit Details</label>
+                    <textarea name="notes" rows="3" placeholder="Explain the reason for adjustment..." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-gv-brand outline-none transition-all dark:text-white resize-none"></textarea>
+                </div>
+            </div>
+
+            <div class="mt-8 flex gap-3">
+                <button type="submit" class="flex-1 bg-gv-brand text-white py-4 rounded-2xl font-black text-sm shadow-xl shadow-gv-brand/20 hover:opacity-90 hover:-translate-y-1 transition-all border-none outline-none">
+                    Confirm & Update Stock
+                </button>
+                <button type="button" onclick="closeAdjustmentModal()" class="px-6 py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openAdjustmentModal() {
+        document.getElementById('modal-adjustment').classList.remove('hidden');
+    }
+    function closeAdjustmentModal() {
+        document.getElementById('modal-adjustment').classList.add('hidden');
+    }
+</script>
 
 
 

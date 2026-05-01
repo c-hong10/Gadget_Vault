@@ -1,0 +1,150 @@
+@model GadgetVault.Models.PurchaseOrder
+@{
+    ViewData["Title"] = "Purchase Order Details";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="flex flex-col gap-6">
+    <!-- TOAST -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-semibold bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+            @TempData["Success"]
+        </div>
+    }
+
+    <!-- HEADER -->
+    <div class="flex items-center justify-between">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <a asp-action="SupplierPortal" class="text-xs font-bold text-blue-600 hover:underline">Supplier Portal</a>
+                <span class="text-slate-400 text-xs">/</span>
+                <span class="text-slate-500 text-xs font-medium">@Model.PONumber</span>
+            </div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Purchase Order Details</h1>
+        </div>
+        <div class="flex items-center gap-3">
+            @if (Model.Status == POStatus.Ordered)
+            {
+                <form asp-action="AcknowledgePO" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-all shadow-md active:scale-95">
+                        Acknowledge Order
+                    </button>
+                </form>
+            }
+            <button onclick="window.print()" class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm">
+                Print PO
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- LEFT: INFO -->
+        <div class="lg:col-span-2 flex flex-col gap-6">
+            <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm p-6">
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-6">Order Items</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-100 dark:border-slate-800">
+                                <th class="pb-4 font-bold text-slate-400">Product</th>
+                                <th class="pb-4 font-bold text-slate-400 text-center">Qty</th>
+                                <th class="pb-4 font-bold text-slate-400 text-right">Unit Price</th>
+                                <th class="pb-4 font-bold text-slate-400 text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50 dark:divide-slate-800/50">
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td class="py-4">
+                                        <div class="font-bold text-slate-800 dark:text-slate-200">@item.Product?.Name</div>
+                                        <div class="text-xs text-slate-400">SKU: @(item.Product?.Id ?? 0)</div>
+                                    </td>
+                                    <td class="py-4 text-center font-medium text-slate-600 dark:text-slate-400">@item.Quantity</td>
+                                    <td class="py-4 text-right font-mono text-slate-600 dark:text-slate-400">$@item.UnitPrice.ToString("N2")</td>
+                                    <td class="py-4 text-right font-bold text-slate-800 dark:text-slate-200 font-mono">$@( (item.Quantity * item.UnitPrice).ToString("N2") )</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="border-t-2 border-slate-100 dark:border-slate-800">
+                                <td colspan="3" class="pt-6 text-right font-bold text-slate-400 uppercase text-xs tracking-widest">Grand Total</td>
+                                <td class="pt-6 text-right font-black text-2xl text-slate-900 dark:text-white font-mono">$@Model.TotalAmount.ToString("N2")</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Notes))
+            {
+                <div class="bg-amber-50 dark:bg-amber-500/5 border border-amber-100 dark:border-amber-500/10 rounded-2xl p-6">
+                    <h3 class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-2">Order Notes</h3>
+                    <p class="text-sm text-amber-800 dark:text-amber-200/80 leading-relaxed">@Model.Notes</p>
+                </div>
+            }
+        </div>
+
+        <!-- RIGHT: SUMMARY & STATUS -->
+        <div class="flex flex-col gap-6">
+            <!-- STATUS CARD -->
+            <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Order Status</h3>
+                @{
+                    var (bg, text, border, icon) = Model.Status switch {
+                        POStatus.Ordered => ("bg-blue-50 dark:bg-blue-500/10", "text-blue-600 dark:text-blue-400", "border-blue-100 dark:border-blue-500/20", "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"),
+                        POStatus.Acknowledged => ("bg-amber-50 dark:bg-amber-500/10", "text-amber-600 dark:text-amber-400", "border-amber-100 dark:border-amber-500/20", "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"),
+                        POStatus.Received => ("bg-emerald-50 dark:bg-emerald-500/10", "text-emerald-600 dark:text-emerald-400", "border-emerald-100 dark:border-emerald-500/20", "M5 13l4 4L19 7"),
+                        _ => ("bg-slate-50 dark:bg-slate-500/10", "text-slate-600 dark:text-slate-400", "border-slate-100 dark:border-slate-500/20", "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z")
+                    };
+                }
+                <div class="flex items-center gap-4 p-4 rounded-xl border @bg @text @border">
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="@icon"/></svg>
+                    <div>
+                        <div class="text-lg font-black uppercase tracking-tight">@Model.Status</div>
+                        <div class="text-[10px] font-bold opacity-70">Updated @DateTime.Now.ToString("MMM dd, HH:mm")</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DETAILS CARD -->
+            <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col gap-4">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Order Info</h3>
+                
+                <div class="flex flex-col gap-1">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">PO Number</span>
+                    <span class="text-sm font-bold text-slate-800 dark:text-slate-200 font-mono">@Model.PONumber</span>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Order Date</span>
+                    <span class="text-sm font-bold text-slate-800 dark:text-slate-200">@Model.OrderDate.ToString("MMMM dd, yyyy")</span>
+                </div>
+
+                <div class="h-px bg-slate-100 dark:bg-slate-800 my-2"></div>
+
+                <div class="flex flex-col gap-1">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Supplier</span>
+                    <span class="text-sm font-bold text-blue-600">@Model.Supplier?.CompanyName</span>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Contact Person</span>
+                    <span class="text-sm font-bold text-slate-800 dark:text-slate-200">@Model.Supplier?.ContactPerson</span>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email</span>
+                    <span class="text-sm font-medium text-slate-600 dark:text-slate-400">@Model.Supplier?.Email</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,623 +1,129 @@
+@using GadgetVault.Models
+@model IEnumerable<StockLevel>
 @{
-    ViewData["Title"] = "Warehouse Staff";
+    ViewData["Title"] = "Live Inventory";
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var inventory = Model ?? Enumerable.Empty<StockLevel>();
 }
 
-<!-- Tailwind CSS CDN (Play CDN — UI prototype) -->
 <script src="https://cdn.tailwindcss.com"></script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<div class="flex flex-col gap-6">
 
-<!-- ═══════════════════════════════════════════════════════
-     OUTER SHELL
-     ═══════════════════════════════════════════════════════ -->
-<div class="flex min-h-screen bg-gv-light font-sans">
-
-    <!-- ────────────────────────────────────────
-         SIDEBAR
-         ──────────────────────────────────────── -->
-    <aside class="w-72 bg-gv-dark text-white flex flex-col shrink-0" style="padding: 30px;">
-
-        <!-- brand -->
-        <div class="flex items-center gap-3 mb-8">
-            <div class="w-9 h-9 rounded-lg bg-gv-brand flex items-center justify-center shadow-lg shrink-0">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                    <rect x="2"  y="2"  width="7" height="7" rx="1.5" fill="white" opacity="0.95"/>
-                    <rect x="11" y="2"  width="7" height="7" rx="1.5" fill="white" opacity="0.6"/>
-                    <rect x="2"  y="11" width="7" height="7" rx="1.5" fill="white" opacity="0.6"/>
-                    <rect x="11" y="11" width="7" height="7" rx="1.5" fill="white" opacity="0.85"/>
-                </svg>
-            </div>
-            <div>
-                <div class="font-extrabold text-base leading-tight">
-                    Gadget<span class="text-gv-brand">Vault</span>
-                </div>
-                <div class="text-xs text-gv-sage opacity-70 font-medium leading-tight">Warehouse Staff</div>
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Live Inventory</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Real-time monitoring of physical stock across all warehouse zones.</p>
+        </div>
+        <div class="flex items-center gap-3">
+             <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Live Updates Enabled
             </div>
         </div>
+    </div>
 
-        <!-- nav label -->
-        <div class="text-xs font-bold uppercase tracking-widest text-gv-sage opacity-50 mb-3 px-1">
-            My Workflow
-        </div>
+    <!-- MAIN CARD -->
+    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm flex flex-col">
 
-        <!-- nav links -->
-        <nav class="flex flex-col gap-1">
-            <!-- Task Queue (active) -->
-            <a href="#" aria-current="page"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gv-brand text-white font-semibold text-sm transition-all duration-200">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <rect x="1" y="1" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.9"/>
-                    <rect x="9" y="1" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.5"/>
-                    <rect x="1" y="9" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.5"/>
-                    <rect x="9" y="9" width="6" height="6" rx="1.2" fill="currentColor" opacity="0.8"/>
-                </svg>
-                My Task Queue
-                <!-- active task count -->
-                <span class="ml-auto text-xs font-extrabold bg-white text-gv-brand px-2 py-0.5 rounded-full">3</span>
-            </a>
-            <!-- Scan Barcode -->
-            <a href="#"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path d="M1 4V2h3M12 2h3v2M1 12v2h3M12 14h3v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <rect x="3" y="4"  width="1.5" height="8" rx="0.5" fill="currentColor"/>
-                    <rect x="5.5" y="4" width="1"   height="8" rx="0.5" fill="currentColor" opacity="0.7"/>
-                    <rect x="7.5" y="4" width="2"   height="8" rx="0.5" fill="currentColor"/>
-                    <rect x="10.5" y="4" width="1.5" height="8" rx="0.5" fill="currentColor" opacity="0.7"/>
-                </svg>
-                Scan Item
-            </a>
-            <!-- Completed Tasks -->
-            <a href="#"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M5 8.2L7.2 10.5L11 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Completed Tasks
-            </a>
-            <!-- My Picks Today -->
-            <a href="#"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <rect x="1" y="9"  width="3" height="6" rx="1" fill="currentColor" opacity="0.6"/>
-                    <rect x="6" y="6"  width="3" height="9" rx="1" fill="currentColor"/>
-                    <rect x="11" y="3" width="3" height="12" rx="1" fill="currentColor" opacity="0.75"/>
-                </svg>
-                My Performance
-            </a>
-            <!-- Help / Instructions -->
-            <a href="#"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M6.5 6C6.5 5.17 7.17 4.5 8 4.5s1.5.67 1.5 1.5c0 1-1.5 1.5-1.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-                    <circle cx="8" cy="11.5" r="0.75" fill="currentColor"/>
-                </svg>
-                Help &amp; Instructions
-            </a>
-        </nav>
-
-        <!-- shift info chip -->
-        <div class="mt-6 bg-gv-mid/60 rounded-xl p-4 border border-white/10">
-            <div class="text-xs font-bold text-gv-sage opacity-60 uppercase tracking-widest mb-1">Current Shift</div>
-            <div class="text-sm font-extrabold text-white">Morning — 06:00–14:00</div>
-            <div class="text-xs text-gv-sage mt-1 font-medium">3 hrs 22 min remaining</div>
-            <div class="mt-2.5 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                <div class="h-full bg-gv-brand rounded-full" style="width: 58%"></div>
-            </div>
-        </div>
-
-        <!-- bottom -->
-        <div class="mt-auto">
-            <hr class="border-white/10 my-5" />
-            <a href="#"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl text-gv-sage font-medium text-sm hover:bg-gv-mid hover:text-white transition-all duration-200">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M2 14c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                My Profile
-            </a>
-            <a asp-controller="Home" asp-action="Index"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 font-semibold text-sm hover:bg-red-500/10 transition-all duration-200 mt-1">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M10 11l3-3-3-3M13 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                End Shift &amp; Log Out
-            </a>
-        </div>
-    </aside>
-
-    <!-- ────────────────────────────────────────
-         MAIN CONTENT
-         ──────────────────────────────────────── -->
-    <main class="flex-1 p-8 overflow-auto" id="main-content">
-
-        <!-- ┌──────────────────────────────────────────────────────
-             │  PAGE HEADER
-             └────────────────────────────────────────────────────── -->
-        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
-
-            <!-- left: title block -->
-            <div>
-                <!-- FLOOR OPERATIONS pill -->
-                <span class="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest
-                             bg-gv-brand text-white px-3 py-1.5 rounded-full mb-3 shadow-md shadow-gv-accent/30">
-                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse inline-block"></span>
-                    Floor Operations
-                </span>
-
-                <!-- main title -->
-                <h1 class="text-2xl font-black text-gv-deep tracking-tight leading-tight">
-                    <span class="text-gv-brand">My Task Queue</span>
-                    — Pick, Pack, Ship
-                </h1>
-
-                <!-- subtitle -->
-                <p class="text-sm text-slate-500 mt-1.5 font-medium leading-relaxed">
-                    Scan items, fulfill orders, and track your daily performance.
-                </p>
-            </div>
-
-            <!-- right: scan barcode button (large — tablet friendly) -->
-            <div class="shrink-0 mt-1">
-                <button id="btn-scan-barcode"
-                        class="inline-flex items-center gap-3 px-6 py-3.5 rounded-xl
-                               bg-gv-brand text-white text-sm font-bold
-                               shadow-lg shadow-gv-accent/35
-                               hover:bg-gv-mid hover:-translate-y-0.5 hover:shadow-gv-accent/45
-                               transition-all duration-200
-                               focus:outline-none focus:ring-2 focus:ring-[var(--brand-color)] focus:ring-offset-2">
-                    <!-- barcode icon -->
-                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
-                        <path d="M2 6V3h4M16 3h4v3M2 16v3h4M16 19h4v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                        <rect x="4"  y="6"  width="2"   height="10" rx="0.8" fill="currentColor"/>
-                        <rect x="7.5" y="6" width="1.5" height="10" rx="0.8" fill="currentColor" opacity="0.75"/>
-                        <rect x="10" y="6" width="2.5" height="10" rx="0.8" fill="currentColor"/>
-                        <rect x="14" y="6" width="1.5" height="10" rx="0.8" fill="currentColor" opacity="0.75"/>
-                        <rect x="17" y="6" width="1.5" height="10" rx="0.8" fill="currentColor"/>
+        <!-- Toolbar -->
+        <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-[#0c0c0e]/50">
+            <div class="flex flex-1 flex-col sm:flex-row gap-3">
+                <!-- Search -->
+                <div class="relative w-full sm:w-80">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                         width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
                     </svg>
-                    Scan Barcode
-                </button>
+                    <input type="text" id="inventory-search" oninput="filterInventory()" placeholder="Search by SKU, name or zone..."
+                           class="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                </div>
+            </div>
+            <div class="text-xs font-medium text-slate-400 dark:text-slate-500">
+                Displaying @inventory.Count() stock points
             </div>
         </div>
 
-        <!-- ┌──────────────────────────────────────────────────────
-             │  STATS CARDS — 3 columns, tablet-friendly large nums
-             └────────────────────────────────────────────────────── -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+        <!-- INVENTORY TABLE -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap" id="inventory-table">
+                <thead>
+                    <tr class="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 w-16">Image</th>
+                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">SKU</th>
+                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Product Name</th>
+                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Category</th>
+                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Location</th>
+                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Qty on Hand</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    @foreach (var item in inventory)
+                    {
+                        var (statusBg, statusText, statusBorder, dotColor) = item.Quantity switch
+                        {
+                            >= 50 => ("bg-emerald-50 dark:bg-emerald-500/10", "text-emerald-700 dark:text-emerald-400", "border-emerald-200 dark:border-emerald-500/20", "bg-emerald-500"),
+                            > 10  => ("bg-amber-50 dark:bg-amber-500/10", "text-amber-700 dark:text-amber-400", "border-amber-200 dark:border-amber-500/20", "bg-amber-500"),
+                            _      => ("bg-rose-50 dark:bg-rose-500/10", "text-rose-700 dark:text-rose-400", "border-rose-200 dark:border-rose-500/20", "bg-rose-500")
+                        };
 
-            <!-- Card 1: My Active Tasks -->
-            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100
-                        relative overflow-hidden
-                        hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[var(--brand-color)] to-[color-mix(in_srgb,var(--brand-color)_80%,transparent)] rounded-t-2xl"></div>
-                <div class="flex items-start justify-between mb-4">
-                    <div class="w-12 h-12 rounded-xl bg-gv-brand-light flex items-center justify-center">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <rect x="3" y="3" width="18" height="18" rx="3" stroke="#23a476" stroke-width="1.8"/>
-                            <path d="M8 12l3 3 5-5" stroke="#23a476" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-bold text-gv-brand bg-gv-brand/10 border border-gv-brand/20
-                                 px-2.5 py-1 rounded-full">Active</span>
-                </div>
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">My Active Tasks</p>
-                <p class="text-6xl font-black text-gv-deep tracking-tight leading-none mb-1">3</p>
-                <p class="text-xs text-slate-400 font-medium mt-2">2 picking · 1 packing</p>
-            </div>
-
-            <!-- Card 2: Items Picked Today -->
-            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100
-                        relative overflow-hidden
-                        hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-400 to-sky-500 rounded-t-2xl"></div>
-                <div class="flex items-start justify-between mb-4">
-                    <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M4 7l8-4 8 4M4 7v10l8 4M4 7l8 4M20 7v10l-8 4M12 11v10" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-bold text-blue-600 bg-blue-50 border border-blue-100
-                                 px-2.5 py-1 rounded-full">Today</span>
-                </div>
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Items Picked Today</p>
-                <p class="text-6xl font-black text-gv-deep tracking-tight leading-none mb-1">142</p>
-                <p class="text-xs text-slate-400 font-medium mt-2">Across 18 completed orders</p>
-            </div>
-
-            <!-- Card 3: Accuracy Rate -->
-            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100
-                        relative overflow-hidden
-                        hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-t-2xl"></div>
-                <div class="flex items-start justify-between mb-4">
-                    <div class="w-12 h-12 rounded-xl bg-gv-brand-light flex items-center justify-center">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M12 3l9 4.5v5c0 5-3.6 9.7-9 11.5C6.6 22.2 3 17.5 3 12.5v-5L12 3z" stroke="#23a476" stroke-width="1.8" stroke-linejoin="round"/>
-                            <path d="M8.5 12.5l2.5 2.5 4.5-5" stroke="#23a476" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-bold text-gv-brand-dark bg-gv-brand-light border border-gv-brand-light
-                                 px-2.5 py-1 rounded-full">Perfect</span>
-                </div>
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Accuracy Rate</p>
-                <p class="text-6xl font-black text-gv-brand tracking-tight leading-none mb-1">100%</p>
-                <p class="text-xs text-slate-400 font-medium mt-2">0 errors this shift</p>
-            </div>
+                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group inventory-row">
+                            <td class="px-6 py-4">
+                                <div class="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden flex items-center justify-center">
+                                    @if (!string.IsNullOrEmpty(item.Product?.ImageUrl))
+                                    {
+                                        <img src="@item.Product.ImageUrl" alt="" class="w-full h-full object-cover"/>
+                                    }
+                                    else
+                                    {
+                                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="text-slate-400">
+                                            <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    }
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 font-mono text-xs font-bold text-slate-500 dark:text-slate-400">@item.Product?.SKU</td>
+                            <td class="px-6 py-4">
+                                <div class="font-semibold text-slate-800 dark:text-slate-200">@item.Product?.Name</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs font-medium text-slate-500 dark:text-slate-400 px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800">
+                                    @(item.Product?.Category?.Name ?? "General")
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                                        @item.Location?.Zone - @item.Location?.Aisle
+                                    </span>
+                                    <span class="text-[10px] text-slate-400 uppercase tracking-tighter">
+                                        Rack: @item.Location?.Rack | Bin: @item.Location?.Bin
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border @statusBg @statusText @statusBorder">
+                                    <span class="w-1.5 h-1.5 rounded-full @dotColor"></span>
+                                    @item.Quantity
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
+    </div>
+</div>
 
-        <!-- ┌──────────────────────────────────────────────────────
-             │  KANBAN WORKFLOW COLUMNS — 3-column grid
-             └────────────────────────────────────────────────────── -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-
-            <!-- ╔══════════════════════════════════════════
-                 ║  COL 1 — TO PICK (Yellow theme)
-                 ╚══════════════════════════════════════════ -->
-            <div class="bg-slate-100/80 rounded-2xl overflow-hidden border border-slate-200/70">
-
-                <!-- column header -->
-                <div class="relative px-5 pt-5 pb-4">
-                    <!-- yellow top border bar -->
-                    <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-yellow-400 to-amber-400 rounded-t-2xl"></div>
-
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-xl bg-yellow-100 flex items-center justify-center">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                    <path d="M8 2l5.5 3v4c0 3-2.2 5.8-5.5 7C5.2 14.8 3 12 3 9V5L8 2z" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h2 class="text-sm font-extrabold text-slate-700 tracking-tight">To Pick</h2>
-                                <p class="text-xs text-slate-400 font-medium">Locate &amp; collect items</p>
-                            </div>
-                        </div>
-                        <!-- count bubble -->
-                        <span class="w-7 h-7 rounded-full bg-yellow-400 text-yellow-900 text-xs font-extrabold
-                                     flex items-center justify-center shadow-sm">
-                            2
-                        </span>
-                    </div>
-                </div>
-
-                <!-- task cards -->
-                <div class="px-4 pb-5 space-y-4">
-
-                    <!-- Pick Card 1 -->
-                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100
-                                hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-                        <!-- order + priority -->
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-xs font-extrabold text-gv-deep">#SO-2024-0119</span>
-                            <span class="text-xs font-bold text-orange-600 bg-orange-100 border border-orange-200
-                                         px-2 py-0.5 rounded-full">High Priority</span>
-                        </div>
-
-                        <!-- location -->
-                        <div class="flex items-center gap-2 mb-2">
-                            <div class="w-6 h-6 rounded-lg bg-yellow-100 flex items-center justify-center shrink-0">
-                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                                    <path d="M6 1C4.07 1 2.5 2.57 2.5 4.5c0 2.625 3.5 6.5 3.5 6.5s3.5-3.875 3.5-6.5C9.5 2.57 7.93 1 6 1z" stroke="#f59e0b" stroke-width="1.2" stroke-linejoin="round"/>
-                                    <circle cx="6" cy="4.5" r="1.2" fill="#f59e0b"/>
-                                </svg>
-                            </div>
-                            <span class="text-xs font-bold text-slate-600">Aisle 4, Rack B — Bin 3</span>
-                        </div>
-
-                        <!-- item -->
-                        <div class="flex items-center gap-2 mb-4">
-                            <div class="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
-                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                                    <path d="M2 4l4-2 4 2v4l-4 2-4-2V4z" stroke="#64748b" stroke-width="1.2" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <span class="text-sm font-extrabold text-gv-deep">3× iPad Pro 12.9"</span>
-                                <span class="ml-2 text-xs text-slate-400 font-medium">SKU: APL-IPP129</span>
-                            </div>
-                        </div>
-
-                        <!-- CTA button — large, tablet-friendly -->
-                        <button type="button"
-                                class="w-full py-3.5 rounded-xl text-sm font-extrabold
-                                       text-yellow-700 bg-yellow-50 border-2 border-yellow-400
-                                       hover:bg-yellow-400 hover:text-yellow-900
-                                       transition-all duration-200 shadow-sm
-                                       focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2">
-                            Start Picking →
-                        </button>
-                    </div>
-
-                    <!-- Pick Card 2 -->
-                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100
-                                hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-                        <!-- order + priority -->
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-xs font-extrabold text-gv-deep">#SO-2024-0115</span>
-                            <span class="text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200
-                                         px-2 py-0.5 rounded-full">Normal</span>
-                        </div>
-
-                        <!-- location -->
-                        <div class="flex items-center gap-2 mb-2">
-                            <div class="w-6 h-6 rounded-lg bg-yellow-100 flex items-center justify-center shrink-0">
-                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                                    <path d="M6 1C4.07 1 2.5 2.57 2.5 4.5c0 2.625 3.5 6.5 3.5 6.5s3.5-3.875 3.5-6.5C9.5 2.57 7.93 1 6 1z" stroke="#f59e0b" stroke-width="1.2" stroke-linejoin="round"/>
-                                    <circle cx="6" cy="4.5" r="1.2" fill="#f59e0b"/>
-                                </svg>
-                            </div>
-                            <span class="text-xs font-bold text-slate-600">Aisle 2, Rack D — Bin 9</span>
-                        </div>
-
-                        <!-- item -->
-                        <div class="flex items-center gap-2 mb-4">
-                            <div class="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
-                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                                    <path d="M2 4l4-2 4 2v4l-4 2-4-2V4z" stroke="#64748b" stroke-width="1.2" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <span class="text-sm font-extrabold text-gv-deep">8× Dell XPS 15</span>
-                                <span class="ml-2 text-xs text-slate-400 font-medium">SKU: DLL-XPS15</span>
-                            </div>
-                        </div>
-
-                        <!-- CTA button -->
-                        <button type="button"
-                                class="w-full py-3.5 rounded-xl text-sm font-extrabold
-                                       text-yellow-700 bg-yellow-50 border-2 border-yellow-400
-                                       hover:bg-yellow-400 hover:text-yellow-900
-                                       transition-all duration-200 shadow-sm
-                                       focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2">
-                            Start Picking →
-                        </button>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- ╔══════════════════════════════════════════
-                 ║  COL 2 — TO PACK (Blue theme)
-                 ╚══════════════════════════════════════════ -->
-            <div class="bg-slate-100/80 rounded-2xl overflow-hidden border border-slate-200/70">
-
-                <!-- column header -->
-                <div class="relative px-5 pt-5 pb-4">
-                    <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-400 to-sky-500 rounded-t-2xl"></div>
-
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                    <path d="M2 6l6-3 6 3M2 6v6l6 3M2 6l6 3M14 6v6l-6 3M8 9v7" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h2 class="text-sm font-extrabold text-slate-700 tracking-tight">To Pack</h2>
-                                <p class="text-xs text-slate-400 font-medium">Label &amp; secure items</p>
-                            </div>
-                        </div>
-                        <span class="w-7 h-7 rounded-full bg-blue-500 text-white text-xs font-extrabold
-                                     flex items-center justify-center shadow-sm">
-                            1
-                        </span>
-                    </div>
-                </div>
-
-                <!-- task card -->
-                <div class="px-4 pb-5">
-
-                    <!-- Pack Card -->
-                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100
-                                hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-
-                        <!-- order header -->
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-xs font-extrabold text-gv-deep">#SO-2024-0108</span>
-                            <span class="inline-flex items-center gap-1 text-xs font-bold text-gv-brand
-                                         bg-gv-brand/10 border border-gv-brand/20 px-2 py-0.5 rounded-full">
-                                <span class="w-1.5 h-1.5 rounded-full bg-gv-brand animate-pulse inline-block"></span>
-                                Ready to Pack
-                            </span>
-                        </div>
-
-                        <!-- picked items summary -->
-                        <div class="bg-slate-50 rounded-xl p-3.5 mb-4 border border-slate-100">
-                            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-                                Items Picked ✓
-                            </div>
-                            <div class="space-y-1.5">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-xs font-semibold text-slate-700">Samsung Galaxy Tab S9</span>
-                                    <span class="text-xs font-extrabold text-gv-deep">×5</span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-xs font-semibold text-slate-700">USB-C Hub (7-port)</span>
-                                    <span class="text-xs font-extrabold text-gv-deep">×5</span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-xs font-semibold text-slate-700">Keyboard Cover</span>
-                                    <span class="text-xs font-extrabold text-gv-deep">×5</span>
-                                </div>
-                            </div>
-                            <div class="mt-2.5 pt-2.5 border-t border-slate-200 flex items-center justify-between">
-                                <span class="text-xs text-slate-400 font-medium">Total items</span>
-                                <span class="text-xs font-extrabold text-gv-deep">15 units</span>
-                            </div>
-                        </div>
-
-                        <!-- destination -->
-                        <div class="flex items-center gap-2 mb-4">
-                            <div class="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
-                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                                    <path d="M2 9l3-6 3 6" stroke="#3b82f6" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M5 9h5V3" stroke="#3b82f6" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
-                                </svg>
-                            </div>
-                            <span class="text-xs font-bold text-slate-600">Ship to: Vortex Electronics, Germany</span>
-                        </div>
-
-                        <!-- CTA button — large, blue solid -->
-                        <button type="button"
-                                class="w-full py-3.5 rounded-xl text-sm font-extrabold
-                                       text-white bg-blue-500 border-2 border-blue-500
-                                       hover:bg-blue-600 hover:border-blue-600
-                                       transition-all duration-200 shadow-md shadow-blue-400/30
-                                       focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2">
-                            🖨️&nbsp; Print Label &amp; Pack
-                        </button>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- ╔══════════════════════════════════════════
-                 ║  COL 3 — TO SHIP (Green theme)
-                 ╚══════════════════════════════════════════ -->
-            <div class="bg-slate-100/80 rounded-2xl overflow-hidden border border-slate-200/70">
-
-                <!-- column header -->
-                <div class="relative px-5 pt-5 pb-4">
-                    <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[var(--brand-color)] to-[color-mix(in_srgb,var(--brand-color)_80%,transparent)] rounded-t-2xl"></div>
-
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-xl bg-gv-brand-light flex items-center justify-center">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                    <path d="M2 9h9l3 5H2z" stroke="#23a476" stroke-width="1.5" stroke-linejoin="round"/>
-                                    <path d="M2 9l2-5h6" stroke="#23a476" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <circle cx="5"  cy="15" r="1.2" fill="#23a476"/>
-                                    <circle cx="12" cy="15" r="1.2" fill="#23a476"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h2 class="text-sm font-extrabold text-slate-700 tracking-tight">To Ship</h2>
-                                <p class="text-xs text-slate-400 font-medium">Dispatch to courier</p>
-                            </div>
-                        </div>
-                        <span class="w-7 h-7 rounded-full bg-gv-brand text-white text-xs font-extrabold
-                                     flex items-center justify-center shadow-sm">
-                            1
-                        </span>
-                    </div>
-                </div>
-
-                <!-- task card -->
-                <div class="px-4 pb-5">
-
-                    <!-- Ship Card -->
-                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100
-                                hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-
-                        <!-- order header -->
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-xs font-extrabold text-gv-deep">#SO-2024-0101</span>
-                            <span class="text-xs font-bold text-gv-brand bg-gv-brand/10 border border-gv-brand/25
-                                         px-2 py-0.5 rounded-full">Packed ✓</span>
-                        </div>
-
-                        <!-- customer destination -->
-                        <div class="flex items-center gap-2 mb-3">
-                            <div class="w-6 h-6 rounded-lg bg-gv-brand-light flex items-center justify-center shrink-0">
-                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                                    <path d="M6 1C4.07 1 2.5 2.57 2.5 4.5c0 2.625 3.5 6.5 3.5 6.5s3.5-3.875 3.5-6.5C9.5 2.57 7.93 1 6 1z" stroke="#23a476" stroke-width="1.2" stroke-linejoin="round"/>
-                                    <circle cx="6" cy="4.5" r="1.2" fill="#23a476"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="text-xs font-bold text-slate-600">MegaMart Philippines</div>
-                                <div class="text-xs text-slate-400 font-medium">Makati City, PH</div>
-                            </div>
-                        </div>
-
-                        <!-- tracking info -->
-                        <div class="bg-gv-light rounded-xl p-3.5 mb-4 border border-gv-brand/15">
-                            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-                                Tracking Details
-                            </div>
-                            <div class="flex items-center justify-between mb-1.5">
-                                <span class="text-xs text-slate-500 font-medium">Tracking #</span>
-                                <span class="text-xs font-extrabold text-gv-deep font-mono">JNT-PH-20240328-9921</span>
-                            </div>
-                            <div class="flex items-center justify-between mb-1.5">
-                                <span class="text-xs text-slate-500 font-medium">Courier</span>
-                                <span class="text-xs font-bold text-slate-700">J&amp;T Express Philippines</span>
-                            </div>
-                            <div class="flex items-center justify-between mb-1.5">
-                                <span class="text-xs text-slate-500 font-medium">Items</span>
-                                <span class="text-xs font-bold text-slate-700">67 SKUs · 3 cartons</span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs text-slate-500 font-medium">Est. Delivery</span>
-                                <span class="text-xs font-bold text-gv-brand">Apr 1–3, 2026</span>
-                            </div>
-                        </div>
-
-                        <!-- CTA button — large, green solid -->
-                        <button type="button"
-                                class="w-full py-3.5 rounded-xl text-sm font-extrabold
-                                       text-white bg-gv-brand border-2 border-gv-brand
-                                       hover:bg-gv-mid hover:border-gv-mid
-                                       transition-all duration-200 shadow-md shadow-gv-accent/35
-                                       focus:outline-none focus:ring-2 focus:ring-[var(--brand-color)] focus:ring-offset-2">
-                            ✓&nbsp; Mark as Shipped
-                        </button>
-                    </div>
-
-                </div>
-            </div>
-
-        </div><!-- /kanban columns -->
-
-        <!-- ┌──────────────────────────────────────────────────────
-             │  DAILY PROGRESS FOOTER STRIP
-             └────────────────────────────────────────────────────── -->
-        <div class="mt-6 bg-white rounded-2xl px-6 py-4 shadow-sm border border-slate-100
-                    flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-gv-brand/10 flex items-center justify-center shrink-0">
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                        <circle cx="9" cy="9" r="7" stroke="#23a476" stroke-width="1.6"/>
-                        <path d="M9 5.5v3.5l2.5 2.5" stroke="#23a476" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-                <div>
-                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Shift Progress</div>
-                    <div class="text-sm font-extrabold text-gv-deep mt-0.5">18 of 21 tasks completed today</div>
-                </div>
-            </div>
-
-            <!-- progress bar -->
-            <div class="flex-1 max-w-sm">
-                <div class="flex items-center justify-between mb-1.5">
-                    <span class="text-xs font-bold text-slate-400">Daily Completion</span>
-                    <span class="text-xs font-extrabold text-gv-brand">86%</span>
-                </div>
-                <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div class="h-full bg-gradient-to-r from-[var(--brand-color)] to-[color-mix(in_srgb,var(--brand-color)_80%,transparent)] rounded-full transition-all duration-700"
-                         style="width: 86%"></div>
-                </div>
-            </div>
-
-            <!-- shift end time -->
-            <div class="text-right shrink-0">
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Shift Ends</div>
-                <div class="text-sm font-extrabold text-gv-deep mt-0.5">14:00 · 3 hrs left</div>
-            </div>
-        </div>
-
-    </main>
-
-</div><!-- /outer flex shell -->
-
-
-
-
-
-
+<script>
+function filterInventory() {
+    const search = document.getElementById('inventory-search').value.toLowerCase();
+    const rows = document.querySelectorAll('.inventory-row');
+    
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(search) ? '' : 'none';
+    });
+}
+</script>

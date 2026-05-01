@@ -72,10 +72,36 @@ namespace GadgetVault.Controllers
                 return Json(new { success = false, message = "Zone not found." });
             }
 
-            _context.WarehouseLocations.Remove(location);
+            location.IsActive = false;
             await _context.SaveChangesAsync();
 
             TempData["Success"] = $"Zone \"{location.Zone}\" archived successfully.";
+            return Json(new { success = true });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetArchived()
+        {
+            var archived = await _context.WarehouseLocations
+                .Where(l => !l.IsActive)
+                .OrderBy(l => l.Zone)
+                .ToListAsync();
+            return Json(archived);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Restore(int id)
+        {
+            var location = await _context.WarehouseLocations.FindAsync(id);
+            if (location == null)
+            {
+                return Json(new { success = false, message = "Zone not found." });
+            }
+
+            location.IsActive = true;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Zone \"{location.Zone}\" restored successfully.";
             return Json(new { success = true });
         }
     }

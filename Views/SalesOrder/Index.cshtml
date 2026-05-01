@@ -1,0 +1,526 @@
+@using GadgetVault.Models
+@{
+    ViewData["Title"] = "Sales Orders";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var orders   = (Model as IEnumerable<SalesOrder>) ?? Enumerable.Empty<SalesOrder>();
+    var customers = (ViewBag.Customers as IEnumerable<BusinessPartner>) ?? Enumerable.Empty<BusinessPartner>();
+    var products  = (ViewBag.Products as IEnumerable<Product>) ?? Enumerable.Empty<Product>();
+    var stockMap  = (ViewBag.StockMap as Dictionary<int, int>) ?? new Dictionary<int, int>();
+    var totalCount = (int)(ViewBag.TotalCount ?? 0);
+    string? curSearch = ViewBag.CurrentSearch;
+    string? curStatus = ViewBag.CurrentStatus;
+}
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="flex flex-col gap-6">
+
+  <!-- HEADER -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Sales Orders</h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage customer orders, track fulfillment status, and handle shipments.</p>
+    </div>
+    <button onclick="openCreateModal()"
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold shadow-lg transition-all shrink-0 border-none outline-none"
+            style="background-color:var(--brand-color)!important;box-shadow:0 4px 14px color-mix(in srgb,var(--brand-color) 30%,transparent)!important;">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+      Create New Sales Order
+    </button>
+  </div>
+
+  <!-- TOAST -->
+  @if (TempData["Success"] != null) {
+  <div id="toast-success" class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-semibold shadow-sm transition-opacity duration-500"
+       style="background-color:color-mix(in srgb,var(--brand-color) 10%,transparent);border:1px solid color-mix(in srgb,var(--brand-color) 30%,transparent);color:var(--brand-color);">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+    @TempData["Success"]
+  </div>
+  }
+  @if (TempData["Error"] != null) {
+  <div class="flex items-center gap-3 px-5 py-3.5 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400 text-sm font-semibold shadow-sm">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+    @TempData["Error"]
+  </div>
+  }
+
+  <!-- KPI STRIP -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    @{
+      var kpis = new[] {
+        new { Label="Total Orders",  Value=totalCount.ToString(), Color="var(--brand-color)", Icon="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" },
+        new { Label="Drafts",        Value=orders.Count(o=>o.Status==SOStatus.Draft).ToString(), Color="#94a3b8", Icon="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" },
+        new { Label="Picking",       Value=orders.Count(o=>o.Status==SOStatus.Picking).ToString(), Color="#3b82f6", Icon="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" },
+        new { Label="Shipped",       Value=orders.Count(o=>o.Status==SOStatus.Shipped).ToString(), Color="#10b981", Icon="M5 13l4 4L19 7" },
+      };
+    }
+    @foreach (var k in kpis) {
+    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:color-mix(in srgb,@(k.Color) 12%,transparent);">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="@k.Color" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="@k.Icon"/></svg>
+      </div>
+      <div>
+        <div class="text-xl font-extrabold text-slate-900 dark:text-white leading-none">@k.Value</div>
+        <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">@k.Label</div>
+      </div>
+    </div>
+    }
+  </div>
+
+  <!-- MAIN CARD -->
+  <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+
+    <!-- TOOLBAR -->
+    <form method="get" action="/SalesOrder/Index">
+    <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-[#0c0c0e]/50">
+      <div class="flex flex-1 flex-col sm:flex-row gap-3">
+        <div class="relative w-full sm:w-72">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" name="search" value="@curSearch" placeholder="Search SO # or customer..."
+                 class="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none transition-all"/>
+        </div>
+        <select name="status" onchange="this.form.submit()"
+                class="w-full sm:w-44 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all cursor-pointer">
+          <option value="">All Statuses</option>
+          <option value="Draft"     selected="@(curStatus=="Draft")">Draft</option>
+          <option value="Pending"   selected="@(curStatus=="Pending")">Pending</option>
+          <option value="Picking"   selected="@(curStatus=="Picking")">Picking</option>
+          <option value="Packed"    selected="@(curStatus=="Packed")">Packed</option>
+          <option value="Shipped"   selected="@(curStatus=="Shipped")">Shipped</option>
+          <option value="Cancelled" selected="@(curStatus=="Cancelled")">Cancelled</option>
+        </select>
+        <button type="submit" class="px-4 py-2 rounded-xl text-sm font-bold text-white border-none outline-none transition-all" style="background-color:var(--brand-color)!important;">Search</button>
+      </div>
+      <span class="text-xs font-medium text-slate-400 dark:text-slate-500 shrink-0">@orders.Count() of @totalCount orders</span>
+    </div>
+    </form>
+
+    <!-- TABLE -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm whitespace-nowrap">
+        <thead>
+          <tr class="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">SO #</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Customer</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Order Date</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Items</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Total</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-center">Status</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+          @foreach (var so in orders) {
+              var (badgeBg, badgeText, badgeBorder, dot, pulse) = so.Status switch {
+                SOStatus.Draft     => ("bg-slate-100 dark:bg-slate-800",    "text-slate-500 dark:text-slate-400", "border-slate-200 dark:border-slate-700",    "bg-slate-400",  ""),
+                SOStatus.Pending   => ("bg-blue-50 dark:bg-blue-500/10",    "text-blue-600 dark:text-blue-400",   "border-blue-100 dark:border-blue-500/20",   "bg-blue-500",   ""),
+                SOStatus.Picking   => ("bg-blue-100 dark:bg-blue-500/15",   "text-blue-700 dark:text-blue-400",   "border-blue-200 dark:border-blue-500/20",   "bg-blue-500",   "animate-pulse"),
+                SOStatus.Packed    => ("bg-amber-100 dark:bg-amber-500/15", "text-amber-700 dark:text-amber-400", "border-amber-200 dark:border-amber-500/20", "bg-amber-500", ""),
+                SOStatus.Shipped   => ("bg-emerald-100 dark:bg-emerald-500/15", "text-emerald-700 dark:text-emerald-400", "border-emerald-200 dark:border-emerald-500/20", "bg-emerald-500", ""),
+                SOStatus.Cancelled => ("bg-red-100 dark:bg-red-500/15",     "text-red-600 dark:text-red-400",     "border-red-200 dark:border-red-500/20",     "bg-red-500",    ""),
+                _                  => ("bg-slate-100 dark:bg-slate-700",    "text-slate-600 dark:text-slate-300", "border-slate-200 dark:border-slate-600",    "bg-slate-400",  ""),
+              };
+          <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group">
+            <td class="px-6 py-4 font-mono text-xs font-bold text-slate-700 dark:text-slate-300">@so.SONumber</td>
+            <td class="px-6 py-4">
+              <div class="font-semibold text-slate-800 dark:text-slate-200">@(so.Customer?.CompanyName ?? "—")</div>
+              <div class="text-xs text-slate-400 mt-0.5">@(so.Customer?.ContactPerson ?? "")</div>
+            </td>
+            <td class="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs">@so.OrderDate.ToString("MMM dd, yyyy")</td>
+            <td class="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs">@so.Items.Count line items</td>
+            <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-200 text-right font-mono">$@so.TotalAmount.ToString("N2")</td>
+            <td class="px-6 py-4 text-center">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border @badgeBg @badgeText @badgeBorder">
+                <span class="w-1.5 h-1.5 rounded-full @dot @pulse"></span>
+                @so.Status
+              </span>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <div class="flex items-center justify-end gap-2.5">
+                <button onclick="showOrderModal(@so.Id, true)" 
+                        title="View Order Details"
+                        class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-gv-brand hover:bg-gv-brand-light transition-all border-none outline-none">
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                </button>
+                @if (so.Status == SOStatus.Draft) {
+                <button onclick="showOrderModal(@so.Id, false)" 
+                        title="Edit Draft"
+                        class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-gv-brand hover:bg-gv-brand-light transition-all border-none outline-none">
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                </button>
+                <button onclick="submitOrder(@so.Id, '@so.SONumber')" 
+                        title="Submit to Picking"
+                        class="p-2 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all border-none outline-none">
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                </button>
+                }
+                @if (so.Status == SOStatus.Draft || so.Status == SOStatus.Picking) {
+                <button onclick="deleteOrder(@so.Id, '@so.SONumber')" 
+                        title="Delete Order"
+                        class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all border-none outline-none">
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+                }
+              </div>
+            </td>
+          </tr>
+          }
+          @if (!orders.Any()) {
+          <tr><td colspan="7" class="px-6 py-16 text-center">
+            <div class="flex flex-col items-center gap-3">
+              <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" class="text-slate-300 dark:text-slate-700"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+              <p class="text-sm font-semibold text-slate-400 dark:text-slate-500">No sales orders found.</p>
+              <p class="text-xs text-slate-400 dark:text-slate-600">Click <strong>Create New Sales Order</strong> to draft your first order.</p>
+            </div>
+          </td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0c0e]/50 flex items-center justify-between">
+      <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">Showing @orders.Count() of @totalCount sales orders</span>
+      <span class="text-xs text-slate-400 dark:text-slate-500">Sorted by newest first</span>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE SO MODAL -->
+<div id="modal-create-so" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl p-6 overflow-y-auto max-h-[90vh]">
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h2 class="text-base font-extrabold text-slate-900 dark:text-white" id="so-modal-title">Draft New Sales Order</h2>
+        <p class="text-xs text-slate-400 mt-0.5" id="so-modal-desc">SO number will be auto-generated. Starts as Draft.</p>
+      </div>
+      <button type="button" onclick="closeCreateModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-transparent border-none outline-none transition-colors">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form method="post" id="so-form" action="/SalesOrder/Create"
+          onsubmit="this.querySelector('button[type=submit]').innerHTML='Processing...';">
+      @Html.AntiForgeryToken()
+      <input type="hidden" name="id" id="so-id" value="0" />
+      <div class="flex flex-col gap-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Customer <span class="text-red-500">*</span></label>
+          <select name="customerId" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all cursor-pointer">
+            <option value="">Select a Customer</option>
+            @foreach (var c in customers) {
+            <option value="@c.Id">@c.CompanyName</option>
+            }
+          </select>
+          @if (!customers.Any()) {
+          <p class="text-xs text-amber-500 mt-1.5">No active customers found. Add one in the Business Partners first.</p>
+          }
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Order Date <span class="text-red-500">*</span></label>
+          <input type="date" name="orderDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" required
+                 class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all"/>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Notes <span class="text-slate-400 font-normal">(optional)</span></label>
+          <textarea name="notes" rows="1" placeholder="e.g. Fragile items, handle with care..."
+                    class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all resize-none"></textarea>
+        </div>
+
+        <!-- DYNAMIC ITEMS SECTION -->
+        <div class="mt-2">
+          <div class="flex items-center justify-between mb-3">
+            <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Order Items</label>
+            <button type="button" onclick="addItemRow()" id="add-item-btn"
+                    class="text-[10px] font-bold text-white px-3 py-1.5 rounded-lg transition-all hover:opacity-90 shadow-sm"
+                    style="background-color:var(--brand-color)!important;">+ Add Item</button>
+          </div>
+          <div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+            <table class="w-full text-left text-[11px]">
+              <thead class="bg-slate-50 dark:bg-black/20 border-b border-slate-200 dark:border-slate-800">
+                <tr>
+                  <th class="px-3 py-2 font-bold text-slate-500 uppercase">Product</th>
+                  <th class="px-3 py-2 font-bold text-slate-500 uppercase w-20">Qty</th>
+                  <th class="px-3 py-2 font-bold text-slate-500 uppercase w-20 text-center">Stock</th>
+                  <th class="px-3 py-2 font-bold text-slate-500 uppercase w-24 text-right">Price</th>
+                  <th class="px-3 py-2 font-bold text-slate-500 uppercase w-24 text-right">Total</th>
+                  <th class="px-2 py-2 w-8"></th>
+                </tr>
+              </thead>
+              <tbody id="so-items-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                <!-- Dynamic Rows -->
+              </tbody>
+              <tfoot class="bg-slate-50/50 dark:bg-black/10">
+                <tr>
+                  <td colspan="4" class="px-3 py-2 text-right font-bold text-slate-500">Grand Total</td>
+                  <td class="px-3 py-2 text-right font-extrabold text-slate-900 dark:text-white" id="grand-total">$0.00</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+        <div class="flex gap-3 pt-1">
+          <button type="button" onclick="closeCreateModal()"
+                  class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">Cancel</button>
+          <button type="submit" id="so-submit-btn"
+                  class="flex-1 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg transition-all border-none outline-none"
+                  style="background-color:var(--brand-color)!important;">
+            Save Draft Order
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openCreateModal()  { 
+  setModalReadOnly(false);
+  document.getElementById('so-id').value = "0";
+  document.getElementById('so-form').action = "/SalesOrder/Create";
+  document.getElementById('so-modal-title').innerText = "Draft New Sales Order";
+  document.getElementById('so-modal-desc').innerText = "SO number will be auto-generated. Starts as Draft.";
+  document.getElementById('so-submit-btn').innerText = "Save Draft Order";
+  document.getElementById('so-submit-btn').classList.remove('hidden');
+  document.getElementById('add-item-btn').classList.remove('hidden');
+  
+  document.getElementById('modal-create-so').classList.remove('hidden'); 
+  document.getElementById('so-items-body').innerHTML = '';
+  addItemRow();
+  updateGrandTotal();
+}
+
+function setModalReadOnly(readonly) {
+  const form = document.getElementById('so-form');
+  const inputs = form.querySelectorAll('input, select, textarea');
+  inputs.forEach(el => {
+    if (el.id !== 'so-id' && el.name !== '__RequestVerificationToken') {
+      el.disabled = readonly;
+    }
+  });
+  
+  const addBtn = document.getElementById('add-item-btn');
+  const submitBtn = document.getElementById('so-submit-btn');
+  
+  if (readonly) {
+    addBtn.classList.add('hidden');
+    submitBtn.classList.add('hidden');
+  } else {
+    addBtn.classList.remove('hidden');
+    submitBtn.classList.remove('hidden');
+  }
+}
+
+async function showOrderModal(id, isReadOnly) {
+  try {
+    const res = await fetch(`/SalesOrder/GetOrderDetails/${id}`);
+    if (!res.ok) return;
+    const order = await res.json();
+
+    setModalReadOnly(isReadOnly);
+    
+    document.getElementById('so-id').value = order.id;
+    document.getElementById('so-form').action = isReadOnly ? "#" : "/SalesOrder/Edit";
+    document.getElementById('so-modal-title').innerText = isReadOnly ? "View Sales Order" : "Edit Sales Order";
+    document.getElementById('so-modal-desc').innerText = isReadOnly ? "Reviewing order history and line items." : "Update details or line items for this draft.";
+    document.getElementById('so-submit-btn').innerText = isReadOnly ? "" : "Update Draft";
+
+    document.querySelector('select[name="customerId"]').value = order.customerId;
+    document.querySelector('input[name="orderDate"]').value = order.orderDate.split('T')[0];
+    document.querySelector('textarea[name="notes"]').value = order.notes || "";
+
+    const body = document.getElementById('so-items-body');
+    body.innerHTML = '';
+    rowCount = 0;
+
+    for (const item of order.items) {
+      const index = rowCount++;
+      const tr = document.createElement('tr');
+      tr.className = 'group hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors';
+      tr.id = `row-${index}`;
+      tr.innerHTML = `
+        <input type="hidden" name="Items.Index" value="${index}" />
+        <td class="px-3 py-2">
+          <select name="Items[${index}].ProductId" required onchange="onProductChange(${index}, this.value)" ${isReadOnly ? 'disabled' : ''}
+                  class="w-full bg-transparent border-none focus:ring-0 text-slate-800 dark:text-slate-200 cursor-pointer disabled:opacity-100">
+            <option value="">Select Product...</option>
+            ${productsCatalog.map(p => `<option value="${p.Id}" ${p.Id == item.productId ? 'selected' : ''}>${p.Name}</option>`).join('')}
+          </select>
+        </td>
+        <td class="px-3 py-2">
+          <input type="number" name="Items[${index}].Quantity" value="${item.quantity}" min="1" required oninput="calculateRow(${index})" ${isReadOnly ? 'disabled' : ''}
+                 class="w-full bg-transparent border-none focus:ring-0 text-slate-800 dark:text-slate-200 disabled:opacity-100"/>
+        </td>
+        <td class="px-3 py-2 text-center">
+          <span id="row-stock-${index}" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500">—</span>
+        </td>
+        <td class="px-3 py-2 text-right">
+          <input type="text" name="Items[${index}].UnitPrice" value="${item.unitPrice.toFixed(2)}" readonly
+                 class="w-full bg-transparent border-none focus:ring-0 text-right text-slate-500 dark:text-slate-400 outline-none"/>
+        </td>
+        <td class="px-3 py-2 text-right font-bold text-slate-700 dark:text-slate-300" id="row-total-${index}">$${(item.quantity * item.unitPrice).toFixed(2)}</td>
+        <td class="px-2 py-2 text-center">
+          ${!isReadOnly ? `
+          <button type="button" onclick="removeRow(${index})" class="text-slate-300 hover:text-red-500 transition-colors">
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>` : ''}
+        </td>
+      `;
+      body.appendChild(tr);
+      // Fetch fresh stock for each row
+      onProductChange(index, item.productId);
+    }
+
+    document.getElementById('modal-create-so').classList.remove('hidden');
+    updateGrandTotal();
+
+  } catch (e) {
+    console.error("Error loading order:", e);
+  }
+}
+
+function submitOrder(id, soNum) {
+    showConfirm("Submit Order", `Are you sure you want to submit ${soNum} for picking?`, async () => {
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        const res = await fetch(`/SalesOrder/Submit/${id}`, {
+            method: 'POST',
+            headers: { 'RequestVerificationToken': token }
+        });
+        if (res.ok) window.location.reload();
+    });
+}
+
+function deleteOrder(id, soNum) {
+    showConfirm("Delete Order", `Delete ${soNum} permanently? Stock reservations will be released.`, async () => {
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        const res = await fetch(`/SalesOrder/Delete/${id}`, {
+            method: 'POST',
+            headers: { 'RequestVerificationToken': token }
+        });
+        if (res.ok) window.location.reload();
+    });
+}
+
+function closeCreateModal() { document.getElementById('modal-create-so').classList.add('hidden'); }
+
+// Dynamic Items Logic
+const productsCatalog = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(products.Select(p => new { 
+    p.Id, 
+    p.Name, 
+    p.SellingPrice,
+    Stock = stockMap.ContainsKey(p.Id) ? stockMap[p.Id] : 0
+})));
+let rowCount = 0;
+
+function addItemRow() {
+  const body = document.getElementById('so-items-body');
+  const index = rowCount++;
+  
+  const tr = document.createElement('tr');
+  tr.className = 'group hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors';
+  tr.id = `row-${index}`;
+  
+  tr.innerHTML = `
+    <input type="hidden" name="Items.Index" value="${index}" />
+    <td class="px-3 py-2">
+      <select name="Items[${index}].ProductId" required onchange="onProductChange(${index}, this.value)"
+              class="w-full bg-transparent border-none focus:ring-0 text-slate-800 dark:text-slate-200 cursor-pointer">
+        <option value="">Select Product...</option>
+        ${productsCatalog.map(p => `<option value="${p.Id}">${p.Name} (In Stock: ${p.Stock})</option>`).join('')}
+      </select>
+    </td>
+    <td class="px-3 py-2">
+      <input type="number" name="Items[${index}].Quantity" value="1" min="1" required oninput="calculateRow(${index})"
+             class="w-full bg-transparent border-none focus:ring-0 text-slate-800 dark:text-slate-200"/>
+    </td>
+    <td class="px-3 py-2 text-center">
+      <span id="row-stock-${index}" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500">—</span>
+    </td>
+    <td class="px-3 py-2 text-right">
+      <input type="text" name="Items[${index}].UnitPrice" value="0.00" readonly
+             class="w-full bg-transparent border-none focus:ring-0 text-right text-slate-500 dark:text-slate-400 outline-none"/>
+    </td>
+    <td class="px-3 py-2 text-right font-bold text-slate-700 dark:text-slate-300" id="row-total-${index}">$0.00</td>
+    <td class="px-2 py-2 text-center">
+      <button type="button" onclick="removeRow(${index})" class="text-slate-300 hover:text-red-500 transition-colors">
+        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </td>
+  `;
+  body.appendChild(tr);
+}
+
+function removeRow(index) {
+  const row = document.getElementById(`row-${index}`);
+  if (row) {
+    row.remove();
+    updateGrandTotal();
+  }
+}
+
+async function onProductChange(index, productId) {
+  if (!productId) return;
+  const priceInput = document.querySelector(`input[name="Items[${index}].UnitPrice"]`);
+  const stockDisplay = document.getElementById(`row-stock-${index}`);
+  if (!priceInput || !stockDisplay) return;
+
+  try {
+    const res = await fetch(`/api/products/${productId}`);
+    if (res.ok) {
+      const data = await res.json();
+      priceInput.value = data.sellingPrice.toFixed(2);
+      stockDisplay.innerText = data.availableStock;
+      stockDisplay.dataset.stock = data.availableStock;
+      
+      // Initial validation check
+      validateStock(index);
+      calculateRow(index);
+    }
+  } catch (e) {
+    console.error("Error fetching product details:", e);
+  }
+}
+
+function validateStock(index) {
+  const qtyInput = document.querySelector(`input[name="Items[${index}].Quantity"]`);
+  const stockDisplay = document.getElementById(`row-stock-${index}`);
+  if (!qtyInput || !stockDisplay || !stockDisplay.dataset.stock) return;
+
+  const qty = parseInt(qtyInput.value) || 0;
+  const available = parseInt(stockDisplay.dataset.stock) || 0;
+
+  if (qty > available) {
+    stockDisplay.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-600 animate-pulse';
+  } else {
+    stockDisplay.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-600';
+  }
+}
+
+function calculateRow(index) {
+  validateStock(index);
+  const qtyInput = document.querySelector(`input[name="Items[${index}].Quantity"]`);
+  const priceInput = document.querySelector(`input[name="Items[${index}].UnitPrice"]`);
+  const totalDisplay = document.getElementById(`row-total-${index}`);
+  
+  if (qtyInput && priceInput && totalDisplay) {
+    const qty = parseInt(qtyInput.value) || 0;
+    const price = parseFloat(priceInput.value) || 0;
+    const total = qty * price;
+    totalDisplay.innerText = '$' + total.toFixed(2);
+    updateGrandTotal();
+  }
+}
+
+function updateGrandTotal() {
+  let grandTotal = 0;
+  const rowTotals = document.querySelectorAll('[id^="row-total-"]');
+  rowTotals.forEach(el => {
+    grandTotal += parseFloat(el.innerText.replace('$', '')) || 0;
+  });
+  document.getElementById('grand-total').innerText = '$' + grandTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const toast = document.getElementById('toast-success');
+  if (toast) setTimeout(() => toast.style.opacity = '0', 3500);
+});
+</script>

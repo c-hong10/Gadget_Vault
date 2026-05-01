@@ -123,10 +123,16 @@
               </span>
             </td>
             <td class="px-6 py-4 text-right">
-              <div class="flex items-center justify-end gap-3">
-                <button class="text-xs font-bold hover-brand transition-colors border-none bg-transparent outline-none" style="color:var(--brand-color);">View</button>
+              <div class="flex items-center justify-end gap-2">
+                <a asp-action="PODetails" asp-route-id="@po.Id" title="View Details"
+                   class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-gv-brand hover:bg-gv-brand-light transition-all">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                </a>
                 @if (po.Status != POStatus.Cancelled && po.Status != POStatus.Received) {
-                <button class="text-xs font-bold text-slate-400 hover:text-amber-500 transition-colors border-none bg-transparent outline-none">Edit</button>
+                <button title="Edit Order"
+                        class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-all border-none outline-none">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                </button>
                 }
               </div>
             </td>
@@ -171,14 +177,14 @@
       <div class="flex flex-col gap-4">
         <div>
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Supplier <span class="text-red-500">*</span></label>
-          <select name="supplierId" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all cursor-pointer">
+          <select name="supplierId" onchange="onSupplierChange()" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all cursor-pointer">
             <option value="">Select a Supplier</option>
             @foreach (var s in suppliers) {
             <option value="@s.Id">@s.CompanyName</option>
             }
           </select>
           @if (!suppliers.Any()) {
-          <p class="text-xs text-amber-500 mt-1.5">No active suppliers found. Add one in the Business Directory first.</p>
+          <p class="text-xs text-amber-500 mt-1.5">No active suppliers found. Add one in the Business Partners first.</p>
           }
         </div>
         <div>
@@ -243,16 +249,28 @@ function openCreateModal()  {
   document.getElementById('modal-create-po').classList.remove('hidden'); 
   // Reset items if opening fresh
   document.getElementById('po-items-body').innerHTML = '';
-  addItemRow(); // Start with one row
   updateGrandTotal();
 }
 function closeCreateModal() { document.getElementById('modal-create-po').classList.add('hidden'); }
 
 // Dynamic Items Logic
-const productsCatalog = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(products.Select(p => new { p.Id, p.Name, p.Price })));
+const productsCatalog = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(products.Select(p => new { p.Id, p.Name, Price = p.CostPrice, p.SupplierId })));
 let rowCount = 0;
 
+function onSupplierChange() {
+  // Clear manifest when supplier changes to prevent vendor mismatch
+  document.getElementById('po-items-body').innerHTML = '';
+  rowCount = 0;
+  updateGrandTotal();
+}
+
 function addItemRow() {
+  const supplierId = document.querySelector('select[name="supplierId"]').value;
+  if (!supplierId) {
+    alert("Please select a Supplier first.");
+    return;
+  }
+
   const body = document.getElementById('po-items-body');
   const index = rowCount++;
   
@@ -260,12 +278,15 @@ function addItemRow() {
   tr.className = 'group hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors';
   tr.id = `row-${index}`;
   
+  // Filter products for this supplier
+  const supplierProducts = productsCatalog.filter(p => p.SupplierId == supplierId);
+
   tr.innerHTML = `
     <td class="px-3 py-2">
       <select name="Items[${index}].ProductId" required onchange="onProductChange(${index}, this.value)"
               class="w-full bg-transparent border-none focus:ring-0 text-slate-800 dark:text-slate-200 cursor-pointer">
         <option value="">Select Product...</option>
-        ${productsCatalog.map(p => `<option value="${p.Id}">${p.Name}</option>`).join('')}
+        ${supplierProducts.map(p => `<option value="${p.Id}">${p.Name}</option>`).join('')}
       </select>
     </td>
     <td class="px-3 py-2">

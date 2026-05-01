@@ -20,7 +20,7 @@ namespace GadgetVault.Models
         public string FullName { get; set; } = "New User";
         public bool TwoFactorEnabled { get; set; } = false;
         
-        // Link to BusinessPartner if the user is a Vendor
+        // Link to BusinessPartner if the user is a Supplier
         public int? SupplierId { get; set; }
         public BusinessPartner? Supplier { get; set; }
     }

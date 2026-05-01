@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using GadgetVault.Data;
 using GadgetVault.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -23,6 +24,7 @@ namespace GadgetVault.Controllers
         {
             var products = await _context.Products
                 .Include(p => p.Category)
+                .Include(p => p.Supplier)
                 .OrderBy(p => p.Name)
                 .ToListAsync();
             return View(products);
@@ -30,10 +32,19 @@ namespace GadgetVault.Controllers
 
         // GET /Product/Edit/{id}
         [HttpGet]
+        [Authorize(Roles = "Admin, WarehouseManager, Supplier")]
         public async Task<IActionResult> Edit(int id)
         {
             var product = await _context.Products.FindAsync(id);
             if (product == null) return NotFound();
+
+            // Isolation for suppliers
+            if (User.IsInRole("Supplier"))
+            {
+                var username = User.Identity?.Name;
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+                if (user == null || product.SupplierId != user.SupplierId) return Unauthorized();
+            }
 
             ViewBag.Categories = new SelectList(_context.Categories.ToList(), "Id", "Name", product.CategoryId);
             return View(product);
@@ -42,6 +53,7 @@ namespace GadgetVault.Controllers
         // POST /Product/Edit/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin, WarehouseManager, Supplier")]
         public async Task<IActionResult> Edit(int id, Product model, IFormFile? imageFile)
         {
             if (id != model.Id) 
@@ -55,6 +67,14 @@ namespace GadgetVault.Controllers
             {
                 TempData["Error"] = "Product not found.";
                 return RedirectToAction("ProductCatalog", "Dashboard");
+            }
+
+            // Isolation for suppliers
+            if (User.IsInRole("Supplier"))
+            {
+                var username = User.Identity?.Name;
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+                if (user == null || existing.SupplierId != user.SupplierId) return Unauthorized();
             }
 
             if (string.IsNullOrWhiteSpace(model.Name) || string.IsNullOrWhiteSpace(model.SKU))
@@ -86,7 +106,15 @@ namespace GadgetVault.Controllers
                 }
                 existing.Name = model.Name.Trim();
                 existing.SKU = model.SKU.Trim();
-                existing.Price = model.Price;
+                
+                // Pricing Logic
+                existing.CostPrice = model.CostPrice;
+                if (!User.IsInRole("Supplier"))
+                {
+                    existing.SellingPrice = model.SellingPrice;
+                    existing.SupplierId = model.SupplierId;
+                }
+
                 existing.CategoryId = model.CategoryId;
                 existing.Description = model.Description?.Trim();
                 existing.Barcode = model.Barcode?.Trim();
@@ -99,34 +127,50 @@ namespace GadgetVault.Controllers
                 TempData["Error"] = "Unable to save changes. Please try again.";
             }
             
+            // Redirect back to correct catalog
+            if (User.IsInRole("Supplier")) return RedirectToAction("SupplierCatalog", "Dashboard");
             return RedirectToAction("ProductCatalog", "Dashboard");
         }
 
         // POST /Product/Archive/{id}
         [HttpPost]
+        [Authorize(Roles = "Admin, WarehouseManager, Supplier")]
         public async Task<IActionResult> Archive(int id)
         {
             var product = await _context.Products.FindAsync(id);
-            if (product != null)
+            if (product == null) return Json(new { success = false, message = "Product not found." });
+
+            // Isolation for suppliers
+            if (User.IsInRole("Supplier"))
             {
-                _context.Products.Remove(product);
-                await _context.SaveChangesAsync();
-                return Json(new { success = true, message = "Product archived." });
+                var username = User.Identity?.Name;
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+                if (user == null || product.SupplierId != user.SupplierId)
+                {
+                    return Json(new { success = false, message = "Access denied." });
+                }
             }
-            return Json(new { success = false, message = "Product not found." });
+
+            product.IsActive = false;
+            await _context.SaveChangesAsync();
+            TempData["Success"] = $"\"{product.Name}\" has been moved to the archive vault.";
+            return Json(new { success = true, message = "Product archived." });
         }
 
         // POST /Product/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin, WarehouseManager, Supplier")]
         public async Task<IActionResult> Create(
             string name,
             string sku,
             string? barcode,
-            decimal price,
+            decimal costPrice,
+            decimal? sellingPrice,
             string? description,
             IFormFile? imageFile,
-            int categoryId)
+            int categoryId,
+            int? supplierId)
         {
             if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(sku))
             {
@@ -141,11 +185,23 @@ namespace GadgetVault.Controllers
                 return RedirectToAction("ProductCatalog", "Dashboard");
             }
 
-            // Duplicate Barcode guard
-            if (!string.IsNullOrWhiteSpace(barcode) && await _context.Products.AnyAsync(p => p.Barcode == barcode.Trim()))
+            // Data Isolation: If user is a supplier, force their ID
+            int finalSupplierId = supplierId ?? 0;
+            decimal finalSellingPrice = sellingPrice ?? (costPrice * 1.2m); // Default 20% markup if not provided
+
+            if (User.IsInRole("Supplier"))
             {
-                TempData["Error"] = $"This Barcode \"{barcode.Trim()}\" is already assigned to another gadget.";
-                return RedirectToAction("ProductCatalog", "Dashboard");
+                var username = User.Identity?.Name;
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+                if (user == null || user.SupplierId == null) return Unauthorized();
+                finalSupplierId = user.SupplierId.Value;
+                // Suppliers can't set selling price
+                finalSellingPrice = costPrice * 1.2m; 
+            }
+            else if (finalSupplierId == 0)
+            {
+                 TempData["Error"] = "Supplier selection is required.";
+                 return RedirectToAction("ProductCatalog", "Dashboard");
             }
 
             string? uploadedImageUrl = null;
@@ -156,17 +212,22 @@ namespace GadgetVault.Controllers
 
             _context.Products.Add(new Product
             {
-                Name        = name.Trim(),
-                SKU         = sku.Trim(),
-                Barcode     = barcode?.Trim(),
-                Price       = price,
-                Description = description?.Trim(),
-                ImageUrl    = uploadedImageUrl,
-                CategoryId  = categoryId
+                Name         = name.Trim(),
+                SKU          = sku.Trim(),
+                Barcode      = barcode?.Trim(),
+                CostPrice    = costPrice,
+                SellingPrice = finalSellingPrice,
+                Description  = description?.Trim(),
+                ImageUrl     = uploadedImageUrl,
+                CategoryId   = categoryId,
+                SupplierId   = finalSupplierId
             });
 
             await _context.SaveChangesAsync();
             TempData["Success"] = $"Product \"{name.Trim()}\" added to the catalog.";
+
+            // Redirect back to the correct catalog view
+            if (User.IsInRole("Supplier")) return RedirectToAction("SupplierCatalog", "Dashboard");
             return RedirectToAction("ProductCatalog", "Dashboard");
         }
     }

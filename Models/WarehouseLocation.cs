@@ -19,5 +19,10 @@ namespace GadgetVault.Models
 
         [Required, MaxLength(50)]
         public string Bin { get; set; } = string.Empty;
+        
+        [Required]
+        public bool IsActive { get; set; } = true;
+
+        public virtual ICollection<StockLevel>? StockLevels { get; set; }
     }
 }

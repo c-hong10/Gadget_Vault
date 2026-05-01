@@ -1,0 +1,100 @@
+@using GadgetVault.Models
+@model SalesOrder
+@{
+    var stockLevels = (ViewBag.StockLevels as IEnumerable<StockLevel>) ?? Enumerable.Empty<StockLevel>();
+}
+
+<div class="flex flex-col gap-5">
+    <div class="flex items-center justify-between">
+        <div>
+            <h3 class="text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">Pick List: @Model.SONumber</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Customer: <span class="font-bold">@(Model.Customer?.CompanyName ?? "Unknown")</span></p>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="window.print()" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+        <table class="w-full text-left text-xs whitespace-nowrap">
+            <thead class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+                <tr>
+                    <th class="px-4 py-3 font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Location</th>
+                    <th class="px-4 py-3 font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Product</th>
+                    <th class="px-4 py-3 font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-center">To Pick</th>
+                    <th class="px-4 py-3 font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-center">Available</th>
+                    <th class="px-4 py-3 font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Picked?</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                @foreach (var item in Model.Items)
+                {
+                    var locations = stockLevels.Where(s => s.ProductId == item.ProductId).ToList();
+                    
+                    @if (!locations.Any())
+                    {
+                        <tr class="bg-red-50/30 dark:bg-red-500/5">
+                            <td class="px-4 py-3 text-[10px] font-bold text-red-500 uppercase">NO STOCK FOUND</td>
+                            <td class="px-4 py-3">
+                                <div class="font-bold text-slate-800 dark:text-slate-200">@item.Product?.Name</div>
+                                <div class="text-[9px] text-slate-400 font-mono">SKU: @item.Product?.SKU</div>
+                            </td>
+                            <td class="px-4 py-3 text-center font-bold text-base">@item.Quantity</td>
+                            <td class="px-4 py-3 text-center text-red-500 font-bold">0</td>
+                            <td class="px-4 py-3 text-right">
+                                <input type="checkbox" disabled class="w-4 h-4 rounded border-slate-300" />
+                            </td>
+                        </tr>
+                    }
+                    
+                    @foreach (var loc in locations)
+                    {
+                        <tr class="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
+                            <td class="px-4 py-3">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-bold text-slate-900 dark:text-white">@loc.Location?.Zone - @loc.Location?.Aisle</span>
+                                    <span class="text-[9px] text-slate-500 uppercase tracking-tighter">Rack: @loc.Location?.Rack | Bin: @loc.Location?.Bin</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="font-bold text-slate-800 dark:text-slate-200">@item.Product?.Name</div>
+                                <div class="text-[9px] text-slate-400 font-mono">SKU: @item.Product?.SKU</div>
+                            </td>
+                            <td class="px-4 py-3 text-center font-bold text-slate-900 dark:text-white text-base">@item.Quantity</td>
+                            <td class="px-4 py-3 text-center font-bold text-slate-500 dark:text-slate-400">@loc.Quantity</td>
+                            <td class="px-4 py-3 text-right">
+                                <input type="checkbox" class="w-5 h-5 rounded border-slate-300 text-gv-brand focus:ring-gv-brand cursor-pointer" />
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.Status == SOStatus.Picking)
+    {
+        <div class="mt-2 flex gap-3">
+            <form asp-action="MarkAsPacked" method="post" class="flex-1">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type="submit" class="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold shadow-lg shadow-emerald-500/20 transition-all border-none outline-none">
+                    Confirm Picking & Mark as Packed
+                </button>
+            </form>
+            <button type="button" onclick="closePickListModal()" class="px-6 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">
+                Close
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="mt-2 flex justify-end">
+             <button type="button" onclick="closePickListModal()" class="px-8 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">
+                Close
+            </button>
+        </div>
+    }
+</div>

@@ -52,6 +52,33 @@ namespace GadgetVault.Controllers
             // [Professional Re-Seed]: Ensures the database has the standard roster with FullNames
             if (!_context.Users.Any(u => u.Username == "alex.admin"))
             {
+                // Ensure Roles exist first
+                var roles = _context.Roles.ToList();
+                if (!roles.Any(r => r.Name == "Admin")) 
+                {
+                    _context.Roles.AddRange(
+                        new Role { Name = "Admin", Description = "Super Admin" },
+                        new Role { Name = "WarehouseManager", Description = "Warehouse Manager" },
+                        new Role { Name = "WarehouseStaff", Description = "Warehouse Staff" },
+                        new Role { Name = "SalesAndProcurement", Description = "Sales and Procurement" },
+                        new Role { Name = "Supplier", Description = "External Supplier" }
+                    );
+                    _context.SaveChanges();
+                    roles = _context.Roles.ToList();
+                }
+                else if (!roles.Any(r => r.Name == "Supplier"))
+                {
+                    _context.Roles.Add(new Role { Name = "Supplier", Description = "External Supplier" });
+                    _context.SaveChanges();
+                    roles = _context.Roles.ToList();
+                }
+
+                var adminRole = roles.First(r => r.Name == "Admin").Id;
+                var mgrRole = roles.First(r => r.Name == "WarehouseManager").Id;
+                var staffRole = roles.First(r => r.Name == "WarehouseStaff").Id;
+                var salesRole = roles.First(r => r.Name == "SalesAndProcurement").Id;
+                var suppRole = roles.First(r => r.Name == "Supplier").Id;
+
                 // Wipe legacy/empty accounts to prevent crashes
                 _context.Users.RemoveRange(_context.Users);
                 _context.SaveChanges();
@@ -66,12 +93,27 @@ namespace GadgetVault.Controllers
                 foreach (var po in orphanedPOs) { po.SupplierId = globalTech.Id; }
                 _context.SaveChanges();
 
+                // Ensure Mock PO for Supplier Demo
+                if (!_context.PurchaseOrders.Any(o => o.SupplierId == globalTech.Id))
+                {
+                    _context.PurchaseOrders.Add(new PurchaseOrder {
+                        PONumber = "PO-DEMO-001",
+                        SupplierId = globalTech.Id,
+                        OrderDate = System.DateTime.Now.AddDays(-1),
+                        Status = POStatus.Ordered,
+                        TotalAmount = 750.00m,
+                        Items = new List<PurchaseOrderItem> {
+                            new PurchaseOrderItem { ProductId = 1, Quantity = 10, UnitPrice = 75.00m }
+                        }
+                    });
+                }
+
                 _context.Users.AddRange(
-                    new User { Username = "alex.admin", FullName = "Alex Ray", Email = "admin@gadgetvault.com", PasswordHash = "P@ssword123", RoleId = 1, IsActive = true },
-                    new User { Username = "jordan.mgr", FullName = "Jordan Chen", Email = "manager@gadgetvault.com", PasswordHash = "P@ssword123", RoleId = 2, IsActive = true },
-                    new User { Username = "casey.staff", FullName = "Casey Miller", Email = "staff@gadgetvault.com", PasswordHash = "P@ssword123", RoleId = 3, IsActive = true },
-                    new User { Username = "morgan.sales", FullName = "Morgan Reed", Email = "sales@gadgetvault.com", PasswordHash = "P@ssword123", RoleId = 4, IsActive = true },
-                    new User { Username = "global.vendor", FullName = "Global Tech Vendor", Email = "vendor@globaltech.com", PasswordHash = "P@ssword123", RoleId = 6, SupplierId = globalTech.Id, IsActive = true }
+                    new User { Username = "alex.admin", FullName = "Alex Ray", Email = "admin@gadgetvault.com", PasswordHash = "P@ssword123", RoleId = adminRole, IsActive = true },
+                    new User { Username = "jordan.mgr", FullName = "Jordan Chen", Email = "manager@gadgetvault.com", PasswordHash = "P@ssword123", RoleId = mgrRole, IsActive = true },
+                    new User { Username = "casey.staff", FullName = "Casey Miller", Email = "staff@gadgetvault.com", PasswordHash = "P@ssword123", RoleId = staffRole, IsActive = true },
+                    new User { Username = "morgan.sales", FullName = "Morgan Reed", Email = "sales@gadgetvault.com", PasswordHash = "P@ssword123", RoleId = salesRole, IsActive = true },
+                    new User { Username = "global.supplier", FullName = "Global Tech Supplier", Email = "global.supplier@gmail.com", PasswordHash = "P@ssword123", RoleId = suppRole, SupplierId = globalTech.Id, IsActive = true }
                 );
                 _context.SaveChanges();
             }
@@ -99,15 +141,15 @@ namespace GadgetVault.Controllers
             var principal = new ClaimsPrincipal(identity);
             await HttpContext.SignInAsync("Cookies", principal);
 
-            // Route logically based on physical Role ID binding
-            return user.RoleId switch
+            // Route logically based on Role Name
+            return user.Role?.Name switch
             {
-                1 => RedirectToAction("Index", "Dashboard"),
-                2 => RedirectToAction("WarehouseManager", "Dashboard"),
-                3 => RedirectToAction("ReceiveStock", "Dashboard"), 
-                4 => RedirectToAction("PurchaseOrders", "Dashboard"),
-                6 => RedirectToAction("SupplierPortal", "Dashboard"),
-                _ => RedirectToAction("Index", "Home")
+                "Admin"                => RedirectToAction("Index", "Dashboard"),
+                "WarehouseManager"     => RedirectToAction("WarehouseManager", "Dashboard"),
+                "WarehouseStaff"       => RedirectToAction("ReceiveStock", "Dashboard"), 
+                "SalesAndProcurement"  => RedirectToAction("ProductCatalog", "Dashboard"),
+                "Supplier"             => RedirectToAction("SupplierDashboard", "Dashboard"),
+                _                      => RedirectToAction("Index", "Home")
             };
         }
 
@@ -115,6 +157,12 @@ namespace GadgetVault.Controllers
         public IActionResult ExternalLogin(string provider)
         {
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
     }
 }

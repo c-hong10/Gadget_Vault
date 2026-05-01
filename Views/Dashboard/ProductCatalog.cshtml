@@ -2,8 +2,16 @@
 @{
     ViewData["Title"] = "Product Catalog";
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
-    var products   = (ViewBag.Products   as IEnumerable<Product>)  ?? Enumerable.Empty<Product>();
+    var products   = (ViewBag.Products   as IEnumerable<Product>)  ?? Model as IEnumerable<Product> ?? Enumerable.Empty<Product>();
     var categories = (ViewBag.Categories as IEnumerable<Category>) ?? Enumerable.Empty<Category>();
+    var suppliers  = (ViewBag.Suppliers  as IEnumerable<BusinessPartner>) ?? Enumerable.Empty<BusinessPartner>();
+    var stockMap   = (ViewBag.StockMap   as Dictionary<int, int>)  ?? new Dictionary<int, int>();
+    bool showStock = ViewBag.ShowStock ?? false;
+
+    int curPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    string? curSearch = ViewBag.CurrentSearch;
+    string? curCat = ViewBag.CurrentCategory;
 }
 
 <script src="https://cdn.tailwindcss.com"></script>
@@ -44,47 +52,72 @@
 
         <!-- Toolbar -->
         <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-[#0c0c0e]/50">
-            <div class="flex flex-1 flex-col sm:flex-row gap-3">
+            <form method="get" action="/Dashboard/ProductCatalog" class="flex flex-1 flex-col sm:flex-row gap-3">
                 <!-- Search -->
                 <div class="relative w-full sm:w-80">
                     <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
                          width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
                     </svg>
-                    <input type="text" id="prod-search" oninput="filterProducts()" placeholder="Search products..."
+                    <input type="text" name="search" value="@curSearch" placeholder="Search products..."
                            class="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                 </div>
                 <!-- Filter by Category -->
-                <select id="cat-filter" onchange="filterProducts()"
+                <select name="category" onchange="this.form.submit()"
                         class="w-full sm:w-48 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all cursor-pointer">
                     <option value="">All Categories</option>
                     @foreach (var cat in categories)
                     {
-                        <option value="@cat.Name">@cat.Name</option>
+                        <option value="@cat.Name" selected="@(curCat == cat.Name)">@cat.Name</option>
                     }
                 </select>
+                <button type="submit" class="hidden"></button>
+            </form>
+            <!-- Actions -->
+            <div class="flex items-center gap-3">
+                <button id="btn-vault-toggle" onclick="toggleVault()"
+                        class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border transition-all"
+                        style="color:var(--brand-color);border-color:color-mix(in srgb,var(--brand-color) 35%,transparent);background:color-mix(in srgb,var(--brand-color) 8%,transparent);">
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                  <span id="vault-btn-label">View Archives</span>
+                </button>
+                @if (User.IsInRole("Admin") || User.IsInRole("WarehouseManager") || User.IsInRole("Supplier"))
+                {
+                    <button onclick="document.getElementById('modal-add-product').classList.remove('hidden')"
+                            class="flex items-center justify-center gap-2 px-4 py-2 text-white text-sm font-bold rounded-xl shadow-lg transition-all shrink-0 border-none outline-none"
+                            style="background-color: var(--brand-color) !important; box-shadow: 0 4px 14px color-mix(in srgb, var(--brand-color) 30%, transparent) !important;">
+                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add New Gadget
+                    </button>
+                }
             </div>
-            <!-- Add product button -->
-            <button onclick="document.getElementById('modal-add-product').classList.remove('hidden')"
-                    class="flex items-center justify-center gap-2 px-4 py-2 text-white text-sm font-bold rounded-xl shadow-lg transition-all shrink-0 border-none outline-none"
-                    style="background-color: var(--brand-color) !important; box-shadow: 0 4px 14px color-mix(in srgb, var(--brand-color) 30%, transparent) !important;">
-                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-                </svg>
-                Add New Gadget
-            </button>
         </div>
 
-        <!-- Table -->
-        <div class="overflow-x-auto">
+        <!-- ACTIVE PRODUCTS TABLE -->
+        <div id="active-table" class="overflow-x-auto">
             <table class="w-full text-left text-sm whitespace-nowrap">
                 <thead>
                     <tr class="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
                         <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 w-16">Image</th>
                         <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">SKU</th>
                         <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Product Name</th>
+                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Supplier</th>
                         <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Category</th>
-                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Price</th>
+                        @if (showStock)
+                        {
+                            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-center">Qty</th>
+                        }
+                        @if (User.IsInRole("Supplier"))
+                        {
+                            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">My Cost Price</th>
+                        }
+                        else
+                        {
+                            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Cost</th>
+                            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Retail</th>
+                        }
                         <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Actions</th>
                     </tr>
                 </thead>
@@ -94,7 +127,8 @@
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group prod-row"
                             data-id="@p.Id"
                             data-name="@p.Name.ToLower()" data-sku="@p.SKU.ToLower()" data-cat="@(p.Category?.Name ?? "")"
-                            data-raw-name="@p.Name" data-raw-sku="@p.SKU" data-cat-id="@p.CategoryId" data-price="@p.Price.ToString("0.00")" data-desc="@p.Description">
+                            data-raw-name="@p.Name" data-raw-sku="@p.SKU" data-cat-id="@p.CategoryId" data-supplier-id="@p.SupplierId"
+                            data-cost-price="@p.CostPrice.ToString("0.00")" data-selling-price="@p.SellingPrice.ToString("0.00")" data-desc="@p.Description">
                             <td class="px-6 py-4">
                                 @if (!string.IsNullOrEmpty(p.ImageUrl))
                                 {
@@ -104,30 +138,76 @@
                                 {
                                     <div class="h-10 w-10 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400">
                                         <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2-2v12a2 2 0 002 2z"/>
                                         </svg>
                                     </div>
                                 }
                             </td>
-                            <td class="px-6 py-4 font-mono text-xs font-semibold text-slate-500 dark:text-slate-400">@p.SKU</td>
+                            <td class="px-6 py-4 font-mono text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                <div class="flex items-center gap-2">
+                                    @p.SKU
+                                    <button onclick="showBarcode('@p.SKU')" class="p-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-gv-brand transition-colors" title="Generate Test Barcode">
+                                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 4h4v16H3V4zm6 0h2v16H9V4zm4 0h1v16h-1V4zm3 0h5v16h-5V4z"/></svg>
+                                    </button>
+                                </div>
+                            </td>
                             <td class="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200">@p.Name</td>
+                            <td class="px-6 py-4">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-bold text-slate-900 dark:text-white">@(p.Supplier?.CompanyName ?? "No Supplier")</span>
+                                    <span class="text-[10px] text-slate-400 font-medium">ID: #SUP-@p.SupplierId.ToString("D3")</span>
+                                </div>
+                            </td>
                             <td class="px-6 py-4 text-slate-500 dark:text-slate-400">
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold
                                              bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                                     @(p.Category?.Name ?? "Uncategorised")
                                 </span>
                             </td>
-                            <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-200 text-right">$@p.Price.ToString("N2")</td>
+                            @if (showStock)
+                            {
+                                <td class="px-6 py-4 text-center">
+                                    @{
+                                        int qty = stockMap.ContainsKey(p.Id) ? stockMap[p.Id] : 0;
+                                        string qtyClass = qty <= 5 ? "text-red-500 font-bold" : (qty <= 20 ? "text-amber-500 font-bold" : "text-emerald-500 font-bold");
+                                    }
+                                    <span class="@qtyClass">@qty</span>
+                                </td>
+                            }
+                            @if (User.IsInRole("Supplier"))
+                            {
+                                <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-200 text-right font-mono">$@p.CostPrice.ToString("N2")</td>
+                            }
+                            else
+                            {
+                                <td class="px-6 py-4 font-medium text-slate-500 dark:text-slate-400 text-right font-mono">$@p.CostPrice.ToString("N2")</td>
+                                <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-200 text-right font-mono">$@p.SellingPrice.ToString("N2")</td>
+                            }
                             <td class="px-6 py-4 text-right">
-                                <button onclick="openEditModal(this)" class="text-xs font-bold transition-colors mr-3 bg-transparent border-none outline-none hover-brand" style="color: var(--brand-color);">Edit</button>
-                                <button onclick="triggerArchive(@p.Id, '@p.Name')" class="text-xs font-bold text-slate-400 hover:text-amber-500 transition-colors bg-transparent border-none outline-none">Archive</button>
+                                <div class="flex items-center justify-end gap-2">
+                                    @if (User.IsInRole("Admin") || User.IsInRole("WarehouseManager") || User.IsInRole("Supplier"))
+                                    {
+                                        <button onclick="openEditModal(this)" title="Edit Product"
+                                                class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-gv-brand hover:bg-gv-brand-light transition-all">
+                                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                        </button>
+                                        <button onclick="triggerArchive(@p.Id, '@Html.Raw(p.Name.Replace("'","\\\'"))')" title="Archive Product"
+                                                class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-all">
+                                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-xs font-bold text-slate-300 dark:text-slate-600 italic">Read Only</span>
+                                    }
+                                </div>
                             </td>
                         </tr>
                     }
                     @if (!products.Any())
                     {
                         <tr id="empty-row">
-                            <td colspan="6" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500 text-sm font-medium">
+                            <td colspan="@(showStock ? 7 : 6)" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500 text-sm font-medium">
                                 No products yet. Click <strong>Add New Gadget</strong> to add your first product.
                             </td>
                         </tr>
@@ -136,9 +216,85 @@
             </table>
         </div>
 
-        <!-- Footer -->
-        <div class="px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0c0e]/50 flex items-center justify-between">
-            <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">@products.Count() products in catalog</span>
+        <!-- ARCHIVE VAULT PANEL (hidden by default) -->
+        <div id="vault-panel" style="display:none;">
+            <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-amber-50/50 dark:bg-amber-500/5 flex items-center gap-3">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                <span class="text-sm font-bold text-amber-700 dark:text-amber-400">Archived Products Vault</span>
+                <span class="text-xs text-amber-600 dark:text-amber-500 ml-1">Products here are hidden from selection and dashboards. Restore them to reactivate.</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead>
+                        <tr class="bg-amber-50/80 dark:bg-amber-900/10 border-b border-amber-100 dark:border-amber-900/30">
+                            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-amber-500/80">SKU</th>
+                            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-amber-500/80">Product Name</th>
+                            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-amber-500/80">Category</th>
+                            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-amber-500/80 text-right">Price</th>
+                            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-amber-500/80 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vault-table-body" class="divide-y divide-amber-100/50 dark:divide-amber-900/20">
+                        <tr id="vault-loading"><td colspan="5" class="px-6 py-8 text-center text-slate-400 text-sm">Loading archived products...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer & Pagination -->
+        <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0c0e]/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">
+                Showing page @curPage of @totalPages (@ViewBag.TotalProducts products total)
+            </span>
+            
+            <div class="flex items-center gap-2">
+                @if (curPage > 1)
+                {
+                    <a href="/Dashboard/ProductCatalog?pageNumber=@(curPage - 1)&search=@curSearch&category=@curCat" 
+                       class="px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all no-underline">
+                        Previous
+                    </a>
+                }
+                else
+                {
+                    <span class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 text-slate-300 dark:text-slate-600 cursor-not-allowed">
+                        Previous
+                    </span>
+                }
+
+                <div class="flex items-center gap-1">
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        if (i == curPage)
+                        {
+                            <span class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold text-white" style="background-color: var(--brand-color);">@i</span>
+                        }
+                        else if (totalPages > 5 && (i > 3 && i < totalPages - 2 && Math.Abs(i - curPage) > 1))
+                        {
+                            if (i == 4 || i == totalPages - 3) { <span class="text-slate-400">...</span> }
+                        }
+                        else
+                        {
+                            <a href="/Dashboard/ProductCatalog?pageNumber=@i&search=@curSearch&category=@curCat" 
+                               class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all no-underline">@i</a>
+                        }
+                    }
+                </div>
+
+                @if (curPage < totalPages)
+                {
+                    <a href="/Dashboard/ProductCatalog?pageNumber=@(curPage + 1)&search=@curSearch&category=@curCat" 
+                       class="px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all no-underline">
+                        Next
+                    </a>
+                }
+                else
+                {
+                    <span class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 text-slate-300 dark:text-slate-600 cursor-not-allowed">
+                        Next
+                    </span>
+                }
+            </div>
         </div>
     </div>
 </div>
@@ -168,7 +324,7 @@
                     <input type="text" name="name" required placeholder="e.g. Cisco Catalyst 9300"
                            class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                 </div>
-                <!-- Row 2: SKU + Price -->
+                <!-- Row 2: SKU + Pricing -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">SKU <span class="text-red-500">*</span></label>
@@ -176,22 +332,50 @@
                                class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Price (USD) <span class="text-red-500">*</span></label>
-                        <input type="number" name="price" required min="0" step="0.01" placeholder="0.00"
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                            @(User.IsInRole("Supplier") ? "My Cost Price ($)" : "Supplier Cost ($)") <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" name="costPrice" required min="0" step="0.01" placeholder="0.00"
                                class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                     </div>
                 </div>
-                <!-- Row 3: Category -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Category <span class="text-red-500">*</span></label>
-                    <select name="categoryId" required
-                            class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all cursor-pointer">
-                        <option value="" disabled selected>Select a category...</option>
-                        @foreach (var cat in categories)
-                        {
-                            <option value="@cat.Id">@cat.Name</option>
-                        }
-                    </select>
+
+                @if (!User.IsInRole("Supplier"))
+                {
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Retail Selling Price ($) <span class="text-red-500">*</span></label>
+                        <input type="number" name="sellingPrice" min="0" step="0.01" placeholder="0.00"
+                               class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                        <p class="mt-1.5 text-[10px] text-slate-400">Leave blank to apply auto-markup (20%).</p>
+                    </div>
+                }
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Category <span class="text-red-500">*</span></label>
+                        <select name="categoryId" required
+                                class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all cursor-pointer">
+                            <option value="" disabled selected>Select category...</option>
+                            @foreach (var cat in categories)
+                            {
+                                <option value="@cat.Id">@cat.Name</option>
+                            }
+                        </select>
+                    </div>
+                    @if (!User.IsInRole("Supplier"))
+                    {
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Supplier <span class="text-red-500">*</span></label>
+                            <select name="supplierId" required
+                                    class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all cursor-pointer">
+                                <option value="" disabled selected>Select supplier...</option>
+                                @foreach (var sup in suppliers)
+                                {
+                                    <option value="@sup.Id">@sup.CompanyName</option>
+                                }
+                            </select>
+                        </div>
+                    }
                 </div>
                 <!-- Row 4: Description (optional) -->
                 <div>
@@ -248,7 +432,7 @@
                     <input type="text" name="name" id="edit-prod-name" required
                            class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                 </div>
-                <!-- Row 2: SKU + Price -->
+                <!-- Row 2: SKU + Pricing -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">SKU <span class="text-red-500">*</span></label>
@@ -256,22 +440,47 @@
                                class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Price (USD) <span class="text-red-500">*</span></label>
-                        <input type="number" name="price" id="edit-prod-price" required min="0" step="0.01"
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">@(User.IsInRole("Supplier") ? "My Cost Price ($)" : "Supplier Cost ($)") <span class="text-red-500">*</span></label>
+                        <input type="number" name="costPrice" id="edit-prod-cost" required min="0" step="0.01"
                                class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                     </div>
                 </div>
-                <!-- Row 3: Category -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Category <span class="text-red-500">*</span></label>
-                    <select name="categoryId" id="edit-prod-cat" required
-                            class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all cursor-pointer">
-                        <option value="" disabled>Select a category...</option>
-                        @foreach (var cat in categories)
-                        {
-                            <option value="@cat.Id">@cat.Name</option>
-                        }
-                    </select>
+
+                @if (!User.IsInRole("Supplier"))
+                {
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Retail Selling Price ($) <span class="text-red-500">*</span></label>
+                        <input type="number" name="sellingPrice" id="edit-prod-sell" required min="0" step="0.01"
+                               class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                    </div>
+                }
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Category <span class="text-red-500">*</span></label>
+                        <select name="categoryId" id="edit-prod-cat" required
+                                class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all cursor-pointer">
+                            <option value="" disabled>Select category...</option>
+                            @foreach (var cat in categories)
+                            {
+                                <option value="@cat.Id">@cat.Name</option>
+                            }
+                        </select>
+                    </div>
+                    @if (!User.IsInRole("Supplier"))
+                    {
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Supplier <span class="text-red-500">*</span></label>
+                            <select name="supplierId" id="edit-prod-sup" required
+                                    class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all cursor-pointer">
+                                <option value="" disabled>Select supplier...</option>
+                                @foreach (var sup in suppliers)
+                                {
+                                    <option value="@sup.Id">@sup.CompanyName</option>
+                                }
+                            </select>
+                        </div>
+                    }
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Description <span class="text-slate-400 font-normal">(optional)</span></label>
@@ -301,15 +510,142 @@
     </div>
 </div>
 
+<!-- BARCODE MODAL -->
+<div id="modal-barcode" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-all duration-300">
+    <div class="relative w-full max-w-sm bg-[#111113] border border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+        <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-extrabold text-white tracking-tight">Test Barcode</h3>
+                <p id="barcode-sku" class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1"></p>
+            </div>
+            <button onclick="document.getElementById('modal-barcode').classList.add('hidden')" class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-colors">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="p-8 bg-white flex flex-col items-center justify-center gap-4">
+            <svg id="barcode-canvas"></svg>
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Point scanner at screen to test</p>
+        </div>
+        <div class="p-4 bg-[#0c0c0e] text-center">
+             <button onclick="document.getElementById('modal-barcode').classList.add('hidden')" class="w-full py-3 rounded-xl bg-slate-800 text-white text-sm font-bold hover:bg-slate-700 transition-all">Close Preview</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 <script>
-    function filterProducts() {
-        const q   = document.getElementById('prod-search').value.toLowerCase();
-        const cat = document.getElementById('cat-filter').value.toLowerCase();
-        document.querySelectorAll('.prod-row').forEach(row => {
-            const nameMatch = row.dataset.name.includes(q) || row.dataset.sku.includes(q);
-            const catMatch  = cat === '' || row.dataset.cat.toLowerCase() === cat;
-            row.style.display = (nameMatch && catMatch) ? '' : 'none';
+    let isVaultOpen = false;
+
+    function showBarcode(sku) {
+        document.getElementById('barcode-sku').innerText = sku;
+        JsBarcode("#barcode-canvas", sku, {
+            format: "CODE128",
+            lineColor: "#000",
+            width: 2,
+            height: 100,
+            displayValue: true,
+            fontSize: 16,
+            font: "monospace",
+            margin: 10
         });
+        document.getElementById('modal-barcode').classList.remove('hidden');
+    }
+
+    function toggleVault() {
+        isVaultOpen = !isVaultOpen;
+        const activeTable = document.getElementById('active-table');
+        const vaultPanel  = document.getElementById('vault-panel');
+        const btnLabel    = document.getElementById('vault-btn-label');
+        const toggleBtn   = document.getElementById('btn-vault-toggle');
+
+        if (isVaultOpen) {
+            activeTable.style.display = 'none';
+            vaultPanel.style.display  = 'block';
+            btnLabel.innerText        = 'Exit Archive';
+            toggleBtn.style.background = 'white';
+            toggleBtn.style.color      = 'var(--brand-color)';
+            loadVault();
+        } else {
+            activeTable.style.display = 'block';
+            vaultPanel.style.display  = 'none';
+            btnLabel.innerText        = 'View Archives';
+            toggleBtn.style.background = 'color-mix(in srgb,var(--brand-color) 8%,transparent)';
+            toggleBtn.style.color      = 'var(--brand-color)';
+            filterProducts(); // Re-apply search filter to active items
+        }
+    }
+
+    async function loadVault() {
+        const tbody = document.getElementById('vault-table-body');
+        tbody.innerHTML = '<tr id="vault-loading"><td colspan="5" class="px-6 py-8 text-center text-slate-400 text-sm">Searching the vault...</td></tr>';
+
+        try {
+            const res = await fetch('/Dashboard/GetArchivedProducts');
+            const products = await res.json();
+
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500 text-sm font-medium italic">The vault is empty. No archived products found.</td></tr>';
+            } else {
+                tbody.innerHTML = '';
+                products.forEach(p => {
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-amber-500/5 transition-colors vault-row";
+                    row.dataset.name = p.name.toLowerCase();
+                    row.dataset.sku = p.sku.toLowerCase();
+                    row.innerHTML = `
+                        <td class="px-6 py-4 font-mono text-xs font-semibold text-amber-600/80">${p.sku}</td>
+                        <td class="px-6 py-4 font-semibold text-slate-700 dark:text-slate-300">${p.name}</td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight bg-amber-100 text-amber-700 border border-amber-200">
+                                ${p.category ? p.category.name : 'General'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 text-right">$${parseFloat(p.price).toFixed(2)}</td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="restoreProduct(${p.id}, '${p.name.replace("'","\\\'")}')" title="Restore Gadget"
+                                    class="p-2 rounded-lg bg-amber-50 dark:bg-amber-500/10 text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-all border-none outline-none">
+                                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                filterProducts(); // Apply search if already typing
+            }
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-red-400">Failed to load vault.</td></tr>';
+        }
+    }
+
+    async function restoreProduct(id, name) {
+        if (typeof showConfirm === 'function') {
+            showConfirm("Restore Product", "Move \"" + name + "\" back to active catalog?", async function() {
+                try {
+                    const res = await fetch(`/Dashboard/RestoreProduct/${id}`, { method: 'POST' });
+                    const data = await res.json();
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                } catch (e) {
+                    console.error("Restore failed", e);
+                }
+            });
+        }
+    }
+
+    function filterProducts() {
+        // Now handled server-side for Active Table. 
+        // Vault Table still uses client-side filtering as it's a smaller set.
+        const q = document.getElementById('prod-search')?.value.toLowerCase() || "";
+        
+        if (isVaultOpen) {
+            document.querySelectorAll('.vault-row').forEach(row => {
+                const nameMatch = row.dataset.name.includes(q) || row.dataset.sku.includes(q);
+                row.style.display = nameMatch ? '' : 'none';
+            });
+        }
     }
 
     function openEditModal(btn) {
@@ -317,8 +653,19 @@
         document.getElementById('edit-prod-id').value = row.dataset.id;
         document.getElementById('edit-prod-name').value = row.dataset.rawName;
         document.getElementById('edit-prod-sku').value = row.dataset.rawSku;
-        document.getElementById('edit-prod-price').value = row.dataset.price;
+        
+        // Pricing
+        const costInput = document.getElementById('edit-prod-cost');
+        if (costInput) costInput.value = row.dataset.costPrice;
+        
+        const sellInput = document.getElementById('edit-prod-sell');
+        if (sellInput) sellInput.value = row.dataset.sellingPrice;
+
         document.getElementById('edit-prod-cat').value = row.dataset.catId;
+        
+        const supInput = document.getElementById('edit-prod-sup');
+        if (supInput) supInput.value = row.dataset.supplierId;
+        
         document.getElementById('edit-prod-desc').value = row.dataset.desc || '';
         
         const form = document.getElementById('editProductForm');

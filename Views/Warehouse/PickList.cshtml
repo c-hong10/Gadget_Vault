@@ -1,0 +1,310 @@
+@using GadgetVault.Models
+@model SalesOrder
+@{
+    ViewData["Title"] = "Pick List - " + Model.SONumber;
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var stockLevels = (ViewBag.StockLevels as IEnumerable<StockLevel>) ?? Enumerable.Empty<StockLevel>();
+}
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="flex flex-col gap-6">
+
+  <!-- HEADER / ACTIONS -->
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <a asp-action="Fulfillment" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      </a>
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Pick List: @Model.SONumber</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Order for <span class="font-bold">@(Model.Customer?.CompanyName ?? "Unknown")</span></p>
+      </div>
+    </div>
+    <div class="flex gap-3">
+      <button onclick="startScanner()" class="px-4 py-2 rounded-xl bg-gv-brand text-white text-sm font-bold shadow-lg hover:opacity-90 transition-all border-none">Scan to Verify</button>
+      <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">Print List</button>
+      
+      @if (Model.Status == SOStatus.Pending)
+      {
+        <form asp-action="UpdateStatus" method="post">
+          <input type="hidden" name="id" value="@Model.Id" />
+          <input type="hidden" name="newStatus" value="@SOStatus.Picking" />
+          <button type="submit" class="px-5 py-2 rounded-xl text-white text-sm font-bold shadow-lg transition-all border-none outline-none" style="background-color:var(--brand-color)!important;">Start Picking</button>
+        </form>
+      }
+    </div>
+  </div>
+
+  <!-- ORDER INFO CARDS -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="md:col-span-2 space-y-6">
+      
+      <!-- PICK ITEMS TABLE -->
+      <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0c0e]/50 flex items-center justify-between">
+          <h3 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest">Inventory Locations</h3>
+          <span class="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 text-[10px] font-bold">@Model.Items.Count items total</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm whitespace-nowrap" id="pick-table">
+            <thead>
+              <tr class="bg-slate-50/30 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-800">
+                <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Location</th>
+                <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Product</th>
+                <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-center">To Pick</th>
+                <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-center">Available</th>
+                <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Picked?</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              @foreach (var item in Model.Items)
+              {
+                var locations = stockLevels.Where(s => s.ProductId == item.ProductId).ToList();
+                bool first = true;
+                
+                @if (!locations.Any())
+                {
+                  <tr class="bg-red-50/30 dark:bg-red-500/5" data-sku="@item.Product?.SKU">
+                    <td class="px-6 py-4 text-xs font-bold text-red-500 uppercase">NO STOCK FOUND</td>
+                    <td class="px-6 py-4">
+                      <div class="font-semibold text-slate-800 dark:text-slate-200">@item.Product?.Name</div>
+                      <div class="text-[10px] text-slate-400 font-mono sku-label">SKU: @item.Product?.SKU</div>
+                    </td>
+                    <td class="px-6 py-4 text-center font-bold text-lg">@item.Quantity</td>
+                    <td class="px-6 py-4 text-center text-red-500 font-bold">0</td>
+                    <td class="px-6 py-4 text-right">
+                      <input type="checkbox" disabled class="w-5 h-5 rounded border-slate-300 text-slate-300" />
+                    </td>
+                  </tr>
+                }
+                
+                @foreach (var loc in locations)
+                {
+                  <tr class="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors" data-sku="@item.Product?.SKU">
+                    <td class="px-6 py-4">
+                      <div class="flex flex-col">
+                        <span class="text-sm font-bold text-slate-900 dark:text-white">@loc.Location?.Zone - @loc.Location?.Aisle</span>
+                        <span class="text-[10px] text-slate-500 uppercase tracking-tighter">Rack: @loc.Location?.Rack | Bin: @loc.Location?.Bin</span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="font-semibold text-slate-800 dark:text-slate-200 product-name">@item.Product?.Name</div>
+                        <div class="text-[10px] text-slate-400 font-mono sku-label">SKU: @item.Product?.SKU</div>
+                    </td>
+                    <td class="px-6 py-4 text-center font-bold text-slate-900 dark:text-white text-lg">
+                      @item.Quantity
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                      <span class="font-bold text-slate-500 dark:text-slate-400">@loc.Quantity</span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                      <input type="checkbox" class="w-6 h-6 rounded-lg border-slate-300 text-brand focus:ring-brand cursor-pointer pick-checkbox" style="--brand-color:var(--brand-color);" />
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR INFO -->
+    <div class="space-y-6">
+      <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+        <h4 class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest mb-4">Order Summary</h4>
+        <div class="space-y-4">
+          <div class="flex justify-between">
+            <span class="text-xs text-slate-500">Status</span>
+            <span class="text-xs font-bold text-blue-500">@Model.Status</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-xs text-slate-500">Customer</span>
+            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">@(Model.Customer?.CompanyName)</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-xs text-slate-500">Order Date</span>
+            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">@Model.OrderDate.ToString("MMM dd, yyyy")</span>
+          </div>
+          <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+            <p class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest mb-2">Internal Notes</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400 italic">@(string.IsNullOrEmpty(Model.Notes) ? "No notes provided." : Model.Notes)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PACKING STATUS CARD -->
+      @if (Model.Status == SOStatus.Picking)
+      {
+        <div class="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl p-6">
+          <h4 class="text-sm font-bold text-emerald-800 dark:text-emerald-400 mb-2">Finish Picking</h4>
+          <p class="text-xs text-emerald-600 dark:text-emerald-500/70 mb-4">Once all items are gathered and verified, mark the order as packed.</p>
+          <form asp-action="UpdateStatus" method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <input type="hidden" name="newStatus" value="@SOStatus.Packed" />
+            <button type="submit" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold shadow-md transition-all border-none">Mark as Packed</button>
+          </form>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- SCANNER MODAL -->
+<div id="scanner-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md transition-all duration-300">
+    <div class="relative w-full max-w-lg bg-[#111113] border border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col mx-4">
+        
+        <!-- Header -->
+        <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+            <div>
+                <h3 class="text-xl font-extrabold text-white tracking-tight">Verify Item</h3>
+                <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1">Scan Product Barcode</p>
+            </div>
+            <button onclick="stopScanner()" class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-colors">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <!-- Viewport -->
+        <div class="relative aspect-square bg-black overflow-hidden flex items-center justify-center">
+            <div id="reader" class="w-full h-full"></div>
+            <div id="scanner-overlay" class="absolute inset-0 pointer-events-none flex items-center justify-center">
+                <div class="w-2/3 h-2/3 border-2 border-gv-brand/50 rounded-3xl relative">
+                    <div class="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-gv-brand rounded-tl-xl"></div>
+                    <div class="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-gv-brand rounded-tr-xl"></div>
+                    <div class="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-gv-brand rounded-bl-xl"></div>
+                    <div class="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-gv-brand rounded-br-xl"></div>
+                    <div class="absolute inset-x-4 top-1/2 h-[2px] bg-gv-brand shadow-[0_0_15px_rgba(var(--brand-color-rgb),0.8)] animate-[scan_2s_infinite_ease-in-out]"></div>
+                </div>
+            </div>
+            <div id="success-flash" class="absolute inset-0 bg-emerald-500/0 pointer-events-none transition-all duration-300"></div>
+        </div>
+
+        <!-- Controls -->
+        <div class="p-6 bg-[#0c0c0e] border-t border-slate-800 flex items-center justify-between">
+            <button id="btn-torch" onclick="toggleTorch()" class="flex items-center gap-3 px-5 py-3 rounded-2xl bg-slate-800 text-slate-300 font-bold text-sm hover:bg-slate-700 transition-all">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                Torch Off
+            </button>
+            <p class="text-[10px] text-slate-500 font-medium italic">Scanning for Product SKU</p>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script>
+    let html5QrCode;
+    let isTorchOn = false;
+
+    async function startScanner() {
+        const modal = document.getElementById('scanner-modal');
+        modal.classList.remove('hidden');
+        
+        html5QrCode = new Html5Qrcode("reader");
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+        try {
+            await html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
+        } catch (err) {
+            alert("Camera access denied or not available.");
+            stopScanner();
+        }
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+        const flash = document.getElementById('success-flash');
+        flash.classList.replace('bg-emerald-500/0', 'bg-emerald-500/40');
+        setTimeout(() => flash.classList.replace('bg-emerald-500/40', 'bg-emerald-500/0'), 300);
+
+        if (navigator.vibrate) navigator.vibrate(100);
+
+        const scannedSKU = decodedText.trim().toUpperCase();
+        console.log("Scanned SKU:", scannedSKU); // Debug log
+
+        const rows = document.querySelectorAll('#pick-table tbody tr');
+        let found = false;
+
+        rows.forEach(row => {
+            const rowSKU = row.getAttribute('data-sku');
+            if (rowSKU && rowSKU.trim().toUpperCase() === scannedSKU) {
+                const checkbox = row.querySelector('.pick-checkbox');
+                if (checkbox && !checkbox.checked) {
+                    checkbox.checked = true;
+                    checkbox.classList.add('animate-bounce');
+                    row.classList.add('bg-emerald-50', 'dark:bg-emerald-500/10');
+                    found = true;
+                } else if (checkbox && checkbox.checked) {
+                    // Already picked, still consider it "found" to prevent error toast
+                    found = true;
+                }
+            }
+        });
+
+        if (found) {
+            stopScanner();
+            showToast("Item Verified: " + scannedSKU, "success");
+        } else {
+            // Trigger "Wrong Item" feedback
+            showToast("Wrong Item: " + scannedSKU + " is not on this pick list!", "error");
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+        }
+    }
+
+    function showToast(message, type) {
+        const toastId = 'scan-toast-' + Date.now();
+        const colorClass = type === 'success' ? 'bg-emerald-500' : 'bg-red-500';
+        const icon = type === 'success' 
+            ? '<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>'
+            : '<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="M6 18L18 6M6 6l12 12"/></svg>';
+            
+        const toastHtml = `
+            <div id="${toastId}" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] px-6 py-3 rounded-2xl text-white font-bold text-sm shadow-2xl transition-all duration-500 translate-y-10 opacity-0 ${colorClass} flex items-center gap-3">
+                ${icon}
+                ${message}
+            </div>`;
+        
+        document.body.insertAdjacentHTML('beforeend', toastHtml);
+        const toast = document.getElementById(toastId);
+        
+        requestAnimationFrame(() => {
+            toast.classList.remove('translate-y-10', 'opacity-0');
+        });
+
+        setTimeout(() => {
+            toast.classList.add('translate-y-10', 'opacity-0');
+            setTimeout(() => toast.remove(), 500);
+        }, 3000);
+    }
+
+    async function stopScanner() {
+        const modal = document.getElementById('scanner-modal');
+        modal.classList.add('hidden');
+        if (html5QrCode && html5QrCode.isScanning) await html5QrCode.stop();
+        isTorchOn = false;
+        document.getElementById('btn-torch').innerHTML = '<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Torch Off';
+    }
+
+    async function toggleTorch() {
+        if (!html5QrCode || !html5QrCode.isScanning) return;
+        try {
+            isTorchOn = !isTorchOn;
+            await html5QrCode.applyVideoConstraints({ advanced: [{ torch: isTorchOn }] });
+            const btn = document.getElementById('btn-torch');
+            btn.innerHTML = isTorchOn ? 'Torch On' : 'Torch Off';
+            btn.classList.toggle('bg-gv-brand', isTorchOn);
+            btn.classList.toggle('bg-slate-800', !isTorchOn);
+        } catch (err) { }
+    }
+</script>
+
+<style>
+@@keyframes scan {
+    0%, 100% { transform: translateY(-80px); opacity: 0; }
+    50% { transform: translateY(80px); opacity: 1; }
+}
+@@media print {
+  aside, header, .top-bar, button, form, #scanner-modal { display: none !important; }
+  main, #dashboard-root { padding: 0 !important; margin: 0 !important; }
+  .md\:pl-\[256px\] { padding-left: 0 !important; }
+}
+</style>

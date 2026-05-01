@@ -4,58 +4,26 @@
 }
 <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- Toasts -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="mb-4 flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-semibold bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+            @TempData["Success"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="mb-4 flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-semibold bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            @TempData["Error"]
+        </div>
+    }
 
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-
-
-<script src="https://cdn.tailwindcss.com"></script>
-
- 
-<script src="https://cdn.tailwindcss.com"></script>
-
- 
-<script src="https://cdn.tailwindcss.com"></script>
-
- 
-<script src="https://cdn.tailwindcss.com"></script>
-
- 
-<script src="https://cdn.tailwindcss.com"></script>
-
- 
-<script src="https://cdn.tailwindcss.com"></script>
-
- 
-<script src="https://cdn.tailwindcss.com"></script>
-
- 
-<script src="https://cdn.tailwindcss.com"></script>
-
- 
-<script src="https://cdn.tailwindcss.com"></script>
-
-<!-- ┌──────────────────────────────────────────────────────
-             │  PAGE HEADER
-             └────────────────────────────────────────────────────── -->
-        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
+    <!-- ┌──────────────────────────────────────────────────────
+         │  PAGE HEADER
+         └────────────────────────────────────────────────────── -->
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
 
             <!-- left: title block -->
             <div>
@@ -97,13 +65,12 @@
                 </button>
             </div>
         </div>
-
         <!-- ┌──────────────────────────────────────────────────────
-             │  STATS CARDS (4 columns)
+             │  KPI CARDS — 4 columns
              └────────────────────────────────────────────────────── -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
 
-            <!-- Card 1: Total Inventory Value (green) -->
+            <!-- Card 1: Total Inventory Value -->
             <div class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800
                         relative overflow-hidden
                         hover:-translate-y-1 hover:shadow-md transition-all duration-300">
@@ -119,11 +86,11 @@
                         </svg>
                     </div>
                 </div>
-                <p class="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1">$845,200</p>
-                <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">.00 — Calculated via FIFO</p>
+                <p class="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1">@(((decimal)ViewBag.InventoryValue).ToString("C0"))</p>
+                <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Live value — Market Price</p>
                 <div class="mt-3 flex items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full bg-gv-brand inline-block"></span>
-                    <span class="text-xs font-semibold text-gv-brand">Updated 4 min ago</span>
+                    <span class="text-xs font-semibold text-gv-brand">Real-time sync active</span>
                 </div>
             </div>
 
@@ -143,22 +110,22 @@
                         </svg>
                     </div>
                 </div>
-                <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1">14</p>
-                <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">SKUs below reorder threshold</p>
+                <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1">@ViewBag.LowStockCount</p>
+                <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">SKUs below safety threshold (10)</p>
                 <div class="mt-3 flex items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full bg-yellow-400 inline-block"></span>
-                    <span class="text-xs font-semibold text-yellow-600">3 critical — reorder now</span>
+                    <span class="text-xs font-semibold text-yellow-600">Reorder recommended</span>
                 </div>
             </div>
 
-            <!-- Card 3: Pending Floor Tasks (blue) -->
+            <!-- Card 3: Pending Orders (blue) -->
             <div class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800
                         relative overflow-hidden
                         hover:-translate-y-1 hover:shadow-md transition-all duration-300">
                 <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 to-sky-500 rounded-t-2xl"></div>
                 <div class="flex items-start justify-between mb-3">
                     <p class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-tight">
-                        Pending Floor Tasks
+                        Pending POs
                     </p>
                     <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
@@ -167,11 +134,11 @@
                         </svg>
                     </div>
                 </div>
-                <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1">28</p>
-                <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Awaiting pick/pack by staff</p>
+                <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1">@ViewBag.PendingOrders</p>
+                <p class="text-xs text-slate-400 dark:text-slate-500 font-medium">Orders awaiting acknowledgment</p>
                 <div class="mt-3 flex items-center gap-1.5">
                     <span class="w-2 h-2 rounded-full bg-blue-400 inline-block"></span>
-                    <span class="text-xs font-semibold text-blue-600">8 marked high priority</span>
+                    <span class="text-xs font-semibold text-blue-600">Awaiting supplier action</span>
                 </div>
             </div>
 
@@ -205,7 +172,7 @@
         <!-- ┌──────────────────────────────────────────────────────
              │  SPLIT LAYOUT — 50 / 50
              └────────────────────────────────────────────────────── -->
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
             <!-- ╔══════════════════════════════════════════════════
                  ║  LEFT — LIVE PICK-PACK-SHIP OPERATIONS
@@ -238,11 +205,11 @@
                     <table class="w-full text-sm" aria-label="Active floor operations">
                         <thead>
                             <tr class="bg-slate-50 dark:bg-black/30 border-b border-slate-200 dark:border-slate-800">
-                                <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">Task ID</th>
-                                <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">Assigned To</th>
-                                <th class="text-center text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">Type</th>
-                                <th class="text-center text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">Status</th>
-                                <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">Location</th>
+                                <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3 whitespace-nowrap">Task ID</th>
+                                <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3 whitespace-nowrap">Assigned To</th>
+                                <th class="text-center text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3 whitespace-nowrap">Type</th>
+                                <th class="text-center text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3 whitespace-nowrap">Status</th>
+                                <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3 whitespace-nowrap">Location</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -392,15 +359,15 @@
                 <!-- card footer -->
                 <div class="px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0c0e]/50
                             flex items-center justify-between">
-                    <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">Showing 4 of 28 active tasks</span>
+                    <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">Showing 5 most recent activities</span>
                     <a href="#" class="text-xs font-bold text-gv-brand hover:text-gv-mid transition-colors">
-                        View all floor tasks →
+                        View audit history →
                     </a>
                 </div>
             </section>
 
             <!-- ╔══════════════════════════════════════════════════
-                 ║  RIGHT — INVENTORY AUDITS & STOCK ADJUSTMENTS
+                 ║  RIGHT — SYSTEM ACTIVITY FEED
                  ╚══════════════════════════════════════════════════ -->
             <section class="bg-white dark:bg-[#111113] rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800
                             overflow-hidden flex flex-col"
@@ -413,178 +380,65 @@
                         <div>
                             <h2 id="adj-heading"
                                 class="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight">
-                                Recent Audits &amp; Stock Adjustments
+                                System-Wide Activity Feed
                             </h2>
-                            <p class="text-xs text-slate-400 dark:text-slate-500 font-medium mt-0.5">Pending approvals &amp; floor discrepancies</p>
+                            <p class="text-xs text-slate-400 dark:text-slate-500 font-medium mt-0.5">Live stock movements & arrivals</p>
                         </div>
                     </div>
                     <span class="text-xs font-bold text-orange-600 bg-orange-50 border border-orange-100 px-2.5 py-1 rounded-full">
-                        2 Need Action
+                        Live Data
                     </span>
                 </div>
 
-                <!-- adjustments feed -->
+                <!-- transactions feed -->
                 <div class="flex-1 divide-y divide-slate-100 dark:divide-slate-800/60 overflow-y-auto">
-
-                    <!-- Item 1 — DAMAGE / Needs Approval (RED) -->
-                    <div class="px-6 py-5 flex gap-4 hover:bg-red-50/40 transition-colors duration-150">
-                        <!-- icon -->
-                        <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                                <path d="M9 2l7.5 13H1.5L9 2z" stroke="#ef4444" stroke-width="1.6" stroke-linejoin="round"/>
-                                <path d="M9 8v3M9 13v.5" stroke="#ef4444" stroke-width="1.6" stroke-linecap="round"/>
-                            </svg>
-                        </div>
-                        <!-- content -->
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                <span class="text-xs font-extrabold text-red-600 bg-red-100 border border-red-200
-                                             px-2 py-0.5 rounded-full uppercase tracking-wide">
-                                    Damage
-                                </span>
-                                <span class="text-xs font-bold text-slate-400 dark:text-slate-500">#ADJ-2024-0118</span>
+                    @foreach (var t in (List<InventoryTransaction>)ViewBag.RecentActivity)
+                    {
+                        <div class="px-6 py-5 flex gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors duration-150">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 
+                                        @(t.Type == TransactionType.StockIn ? "bg-emerald-100 text-emerald-600" : "bg-red-100 text-red-600")">
+                                @if (t.Type == TransactionType.StockIn) {
+                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                                } else {
+                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                                }
                             </div>
-                            <p class="text-sm font-bold text-slate-900 dark:text-white leading-snug">
-                                iPad Pro 12.9"
-                            </p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium mt-0.5 mb-3">
-                                Damaged during transit
-                                <span class="font-bold text-red-500 ml-1">Qty: −2 units</span>
-                            </p>
-                            <!-- meta row -->
-                            <div class="flex items-center justify-between flex-wrap gap-2">
-                                <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">
-                                    Reported by Staff Ana · 12 min ago
-                                </span>
-                                <button type="button"
-                                        class="text-xs font-extrabold text-white bg-red-500 border-none
-                                               hover:bg-red-600 px-3 py-1.5 rounded-lg
-                                               transition-colors duration-200 shadow-sm dark:shadow-none">
-                                    Approve Adjustment
-                                </button>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <span class="text-xs font-extrabold uppercase tracking-wide px-2 py-0.5 rounded-full border
+                                                 @(t.Type == TransactionType.StockIn ? "text-emerald-600 bg-emerald-50 border-emerald-100" : "text-red-600 bg-red-50 border-red-100")">
+                                        @t.Type.ToString()
+                                    </span>
+                                    <span class="text-xs font-bold text-slate-400 dark:text-slate-500">@t.ReferenceId</span>
+                                </div>
+                                <p class="text-sm font-bold text-slate-900 dark:text-white leading-snug">
+                                    @t.Product?.Name
+                                </p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                                    @t.Notes
+                                    <span class="font-bold ml-1 @(t.Type == TransactionType.StockIn ? "text-emerald-600" : "text-red-600")">
+                                        Qty: @(t.Type == TransactionType.StockIn ? "+" : "-")@t.Quantity
+                                    </span>
+                                </p>
+                                <div class="flex items-center justify-between mt-2">
+                                    <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">
+                                        @t.Timestamp.ToLocalTime().ToString("MMM dd, hh:mm tt")
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Item 2 — DISCREPANCY / Needs Review (YELLOW) -->
-                    <div class="px-6 py-5 flex gap-4 hover:bg-yellow-50/40 transition-colors duration-150">
-                        <!-- icon -->
-                        <div class="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center shrink-0 mt-0.5">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                                <circle cx="9" cy="9" r="7" stroke="#f59e0b" stroke-width="1.6"/>
-                                <path d="M9 6v4M9 12v.5" stroke="#f59e0b" stroke-width="1.6" stroke-linecap="round"/>
-                            </svg>
-                        </div>
-                        <!-- content -->
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                <span class="text-xs font-extrabold text-yellow-700 bg-yellow-100 border border-yellow-200
-                                             px-2 py-0.5 rounded-full uppercase tracking-wide">
-                                    Discrepancy
-                                </span>
-                                <span class="text-xs font-bold text-slate-400 dark:text-slate-500">#ADJ-2024-0115</span>
-                            </div>
-                            <p class="text-sm font-bold text-slate-900 dark:text-white leading-snug">
-                                Dell XPS 15 Laptop
-                            </p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium mt-0.5 mb-3">
-                                Audit discrepancy found —
-                                <span class="font-bold text-yellow-600">Missing 1 unit</span>
-                                vs. system record
-                            </p>
-                            <!-- meta row -->
-                            <div class="flex items-center justify-between flex-wrap gap-2">
-                                <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">
-                                    Audit #401 · 1 hour ago
-                                </span>
-                                <button type="button"
-                                        class="text-xs font-extrabold text-yellow-800 bg-yellow-200 border-none
-                                               hover:bg-yellow-300 px-3 py-1.5 rounded-lg
-                                               transition-colors duration-200 shadow-sm dark:shadow-none">
-                                    Review
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Item 3 — COMPLETED Audit (GREEN / read-only) -->
-                    <div class="px-6 py-5 flex gap-4 hover:bg-gv-brand-light transition-colors duration-150">
-                        <!-- icon -->
-                        <div class="w-10 h-10 rounded-xl bg-gv-brand-light flex items-center justify-center shrink-0 mt-0.5">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                                <circle cx="9" cy="9" r="7" stroke="#23a476" stroke-width="1.6"/>
-                                <path d="M5.5 9.2L8 11.5l4.5-5" stroke="#23a476" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
-                        <!-- content -->
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                <span class="text-xs font-extrabold text-gv-brand-dark bg-gv-brand-light border border-gv-brand-light
-                                             px-2 py-0.5 rounded-full uppercase tracking-wide">
-                                    Completed
-                                </span>
-                                <span class="text-xs font-bold text-slate-400 dark:text-slate-500">#AUD-402</span>
-                            </div>
-                            <p class="text-sm font-bold text-slate-900 dark:text-white leading-snug">
-                                Inventory Audit #402 Completed
-                            </p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium mt-0.5">
-                                Conducted by
-                                <span class="font-bold text-slate-900 dark:text-white">Staff John Dela Cruz</span>
-                                — All counts verified
-                            </p>
-                            <p class="text-xs text-slate-400 dark:text-slate-500 font-medium mt-2">Yesterday, 4:30 PM · No action required</p>
-                        </div>
-                    </div>
-
-                    <!-- Item 4 — RECOUNT (BLUE / info) -->
-                    <div class="px-6 py-5 flex gap-4 hover:bg-blue-50/30 transition-colors duration-150">
-                        <!-- icon -->
-                        <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0 mt-0.5">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                                <path d="M3 9a6 6 0 1112 0" stroke="#3b82f6" stroke-width="1.6" stroke-linecap="round"/>
-                                <path d="M3 9c0 3.31 2.69 6 6 6" stroke="#3b82f6" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="2 2"/>
-                                <path d="M1.5 7.5L3 9l1.5-1.5" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
-                        <!-- content -->
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                <span class="text-xs font-extrabold text-blue-600 bg-blue-100 border border-blue-200
-                                             px-2 py-0.5 rounded-full uppercase tracking-wide">
-                                    Recount Requested
-                                </span>
-                                <span class="text-xs font-bold text-slate-400 dark:text-slate-500">#ADJ-2024-0109</span>
-                            </div>
-                            <p class="text-sm font-bold text-slate-900 dark:text-white leading-snug">
-                                Samsung Galaxy Tab S9 — Aisle B, Bin 12
-                            </p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 dark:text-slate-500 font-medium mt-0.5 mb-3">
-                                Cycle count mismatch — system shows
-                                <span class="font-bold text-blue-600">+3 surplus</span>
-                            </p>
-                            <div class="flex items-center justify-between flex-wrap gap-2">
-                                <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">
-                                    Flagged by system · 2 days ago
-                                </span>
-                                <button type="button"
-                                        class="text-xs font-extrabold text-blue-700 bg-blue-100 border-none
-                                               hover:bg-blue-200 px-3 py-1.5 rounded-lg
-                                               transition-colors duration-200 shadow-sm dark:shadow-none">
-                                    Review
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                </div><!-- /feed -->
+                    }
+                    @if (!((List<InventoryTransaction>)ViewBag.RecentActivity).Any()) {
+                        <div class="px-6 py-12 text-center text-slate-400 italic font-medium">No activity recorded yet.</div>
+                    }
+                </div>
 
                 <!-- card footer -->
                 <div class="px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0c0e]/50
                             flex items-center justify-between">
-                    <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">4 recent events shown</span>
+                    <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">Latest ledger updates</span>
                     <a href="#" class="text-xs font-bold text-gv-brand hover:text-gv-mid transition-colors">
-                        View all adjustments →
+                        View all transactions →
                     </a>
                 </div>
             </section>

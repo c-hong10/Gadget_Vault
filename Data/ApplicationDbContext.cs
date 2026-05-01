@@ -24,19 +24,23 @@ namespace GadgetVault.Data
         // Phase 3 — Purchase Orders
         public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
         public DbSet<PurchaseOrderItem> PurchaseOrderItems { get; set; }
+        public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
+
+        // Phase 4 — Sales Orders
+        public DbSet<SalesOrder> SalesOrders { get; set; }
+        public DbSet<SalesOrderItem> SalesOrderItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Directly Seed the four pre-determined roles into the SSMS Roles Table
-            modelBuilder.Entity<Role>().HasData(
-                new Role { Id = 1, Name = "SystemManager", Description = "Super Admin: Full access to all modules" },
-                new Role { Id = 2, Name = "WarehouseManager", Description = "Access to Inventory Valuation, Stock Adjustments, Reports" },
-                new Role { Id = 3, Name = "WarehouseStaff", Description = "Limited to Pick-Pack-Ship and scanning items" },
-                new Role { Id = 4, Name = "SalesAndProcurement", Description = "View stock, create Purchase/Sales Orders" },
-                new Role { Id = 6, Name = "Vendor", Description = "External supplier access to POs" }
-            );
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Supplier)
+                .WithMany()
+                .HasForeignKey(p => p.SupplierId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Seeding will be handled via a dedicated service or migration script to avoid PK conflicts
         }
     }
 }

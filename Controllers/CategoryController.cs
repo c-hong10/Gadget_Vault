@@ -98,11 +98,44 @@ namespace GadgetVault.Controllers
                 return Json(new { success = false, message = "Category not found." });
             }
 
-            // Optional: you could check if it has products before archiving
-            _context.Categories.Remove(category);
+            category.IsActive = false;
             await _context.SaveChangesAsync();
 
             TempData["Success"] = $"Category \"{category.Name}\" archived successfully.";
+            return Json(new { success = true });
+        }
+
+        // GET /Category/GetArchived
+        [HttpGet]
+        public async Task<IActionResult> GetArchived()
+        {
+            var archived = await _context.Categories
+                .Where(c => !c.IsActive)
+                .OrderBy(c => c.Name)
+                .Select(c => new {
+                    c.Id,
+                    c.Name,
+                    c.Description,
+                    ProductCount = c.Products.Count
+                })
+                .ToListAsync();
+            return Json(archived);
+        }
+
+        // POST /Category/Restore/{id}
+        [HttpPost]
+        public async Task<IActionResult> Restore(int id)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
+            {
+                return Json(new { success = false, message = "Category not found." });
+            }
+
+            category.IsActive = true;
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Category \"{category.Name}\" restored successfully.";
             return Json(new { success = true });
         }
     }

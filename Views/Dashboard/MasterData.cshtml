@@ -67,14 +67,21 @@
                     <input type="text" id="cat-search" oninput="filterCategories()" placeholder="Search categories..."
                            class="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                 </div>
-                <button onclick="document.getElementById('modal-add-category').classList.remove('hidden')"
-                        class="flex items-center justify-center gap-2 px-4 py-2 text-white text-sm font-bold rounded-xl shadow-lg transition-all shrink-0 border-none outline-none"
-                        style="background-color: var(--brand-color) !important; box-shadow: 0 4px 14px color-mix(in srgb, var(--brand-color) 30%, transparent) !important;">
-                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    New Category
-                </button>
+                <div class="flex items-center gap-2 shrink-0">
+                    <button onclick="toggleVault('cat')" id="cat-vault-btn"
+                            class="flex items-center gap-2 px-4 py-2 text-slate-600 dark:text-slate-300 text-sm font-bold rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">
+                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                        <span id="cat-vault-label">View Archive Vault</span>
+                    </button>
+                    <button onclick="document.getElementById('modal-add-category').classList.remove('hidden')"
+                            class="flex items-center justify-center gap-2 px-4 py-2 text-white text-sm font-bold rounded-xl shadow-lg transition-all shrink-0 border-none outline-none"
+                            style="background-color: var(--brand-color) !important; box-shadow: 0 4px 14px color-mix(in srgb, var(--brand-color) 30%, transparent) !important;">
+                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        New Category
+                    </button>
+                </div>
             </div>
 
             <!-- Table -->
@@ -97,9 +104,18 @@
                                 <td class="px-6 py-4 text-slate-500 dark:text-slate-400 truncate max-w-[280px]">@(cat.Description ?? "—")</td>
                                 <td class="px-6 py-4 text-slate-500 dark:text-slate-400">@cat.Products.Count</td>
                                 <td class="px-6 py-4 text-right">
-                                    <button onclick="openEditCategoryModal(this)" class="text-xs font-bold transition-colors mr-3 bg-transparent border-none outline-none hover-brand" style="color: var(--brand-color);">Edit</button>
-                                    <button onclick="triggerArchive('@cat.Id', '@cat.Name')"
-                                            class="text-xs font-bold text-slate-400 hover:text-amber-500 transition-colors bg-transparent border-none outline-none">Archive</button>
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button onclick="openEditCategoryModal(this)"
+                                                title="Edit Category"
+                                                class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-gv-brand hover:bg-gv-brand-light transition-all border-none outline-none">
+                                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                        </button>
+                                        <button onclick="triggerArchive('@cat.Id', '@cat.Name')"
+                                                title="Archive Category"
+                                                class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-all border-none outline-none">
+                                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -115,9 +131,37 @@
                 </table>
             </div>
 
+            <!-- Category Archive Vault Panel -->
+            <div id="cat-vault-panel" class="hidden flex-col bg-amber-50/30 dark:bg-amber-500/5 border-t border-amber-100/50 dark:border-amber-500/10">
+                <div class="px-6 py-4 flex items-center gap-3">
+                    <div class="p-2 rounded-lg bg-amber-100 dark:bg-amber-500/20 text-amber-600">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-amber-900 dark:text-amber-400">Category Archive Vault</h3>
+                        <p class="text-[10px] text-amber-600/70 dark:text-amber-500/50 uppercase tracking-widest font-bold">Historical Structures</p>
+                    </div>
+                </div>
+                <div class="overflow-x-auto border-t border-amber-100/50 dark:border-amber-500/10">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead>
+                            <tr class="bg-amber-50/50 dark:bg-amber-500/5 border-b border-amber-100/30 dark:border-amber-500/10">
+                                <th class="px-6 py-2.5 text-[10px] font-bold uppercase tracking-wider text-amber-600/60">Category</th>
+                                <th class="px-6 py-2.5 text-[10px] font-bold uppercase tracking-wider text-amber-600/60">Description</th>
+                                <th class="px-6 py-2.5 text-[10px] font-bold uppercase tracking-wider text-amber-600/60">SKUs</th>
+                                <th class="px-6 py-2.5 text-[10px] font-bold uppercase tracking-wider text-amber-600/60 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cat-vault-body" class="divide-y divide-amber-100/30 dark:divide-amber-500/10">
+                            <!-- JS loaded -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Footer -->
             <div class="px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0c0e]/50">
-                <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">@categories.Count() categories total</span>
+                <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">@categories.Count() active categories</span>
             </div>
         </div>
 
@@ -125,14 +169,21 @@
         <div id="tab-content-zones" class="hidden flex-col">
             <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-[#0c0c0e]/50">
                 <p class="text-sm font-medium text-slate-500 dark:text-slate-400 flex-1">Manage logical areas within the physical warehouse.</p>
-                <button onclick="document.getElementById('modal-add-zone').classList.remove('hidden')"
-                        class="flex items-center justify-center gap-2 px-4 py-2 text-white text-sm font-bold rounded-xl shadow-lg transition-all shrink-0 border-none outline-none"
-                        style="background-color: var(--brand-color) !important; box-shadow: 0 4px 14px color-mix(in srgb, var(--brand-color) 30%, transparent) !important;">
-                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Add Zone
-                </button>
+                <div class="flex items-center gap-2 shrink-0">
+                    <button onclick="toggleVault('zone')" id="zone-vault-btn"
+                            class="flex items-center gap-2 px-4 py-2 text-slate-600 dark:text-slate-300 text-sm font-bold rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">
+                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                        <span id="zone-vault-label">View Archive Vault</span>
+                    </button>
+                    <button onclick="document.getElementById('modal-add-zone').classList.remove('hidden')"
+                            class="flex items-center justify-center gap-2 px-4 py-2 text-white text-sm font-bold rounded-xl shadow-lg transition-all shrink-0 border-none outline-none"
+                            style="background-color: var(--brand-color) !important; box-shadow: 0 4px 14px color-mix(in srgb, var(--brand-color) 30%, transparent) !important;">
+                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Zone
+                    </button>
+                </div>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm whitespace-nowrap">
@@ -153,8 +204,18 @@
                                 <td class="px-6 py-4 text-slate-500 dark:text-slate-400">@row.Aisle</td>
                                 <td class="px-6 py-4 text-slate-500 dark:text-slate-400">@row.Rack</td>
                                 <td class="px-6 py-4 text-right">
-                                    <button onclick="openEditZoneModal(this)" class="text-xs font-bold transition-colors mr-3 bg-transparent border-none outline-none hover-brand" style="color: var(--brand-color);">Edit</button>
-                                    <button onclick="triggerArchiveZone('@row.Id', '@row.Zone')" class="text-xs font-bold text-slate-400 hover:text-amber-500 transition-colors bg-transparent border-none outline-none">Archive</button>
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button onclick="openEditZoneModal(this)"
+                                                title="Edit Zone"
+                                                class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-gv-brand hover:bg-gv-brand-light transition-all border-none outline-none">
+                                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                        </button>
+                                        <button onclick="triggerArchiveZone('@row.Id', '@row.Zone')"
+                                                title="Archive Zone"
+                                                class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-all border-none outline-none">
+                                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -169,8 +230,37 @@
                     </tbody>
                 </table>
             </div>
+            <!-- Zone Archive Vault Panel -->
+            <div id="zone-vault-panel" class="hidden flex-col bg-amber-50/30 dark:bg-amber-500/5 border-t border-amber-100/50 dark:border-amber-500/10">
+                <div class="px-6 py-4 flex items-center gap-3">
+                    <div class="p-2 rounded-lg bg-amber-100 dark:bg-amber-500/20 text-amber-600">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-amber-900 dark:text-amber-400">Zone Archive Vault</h3>
+                        <p class="text-[10px] text-amber-600/70 dark:text-amber-500/50 uppercase tracking-widest font-bold">Historical Locations</p>
+                    </div>
+                </div>
+                <div class="overflow-x-auto border-t border-amber-100/50 dark:border-amber-500/10">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead>
+                            <tr class="bg-amber-50/50 dark:bg-amber-500/5 border-b border-amber-100/30 dark:border-amber-500/10">
+                                <th class="px-6 py-2.5 text-[10px] font-bold uppercase tracking-wider text-amber-600/60">Zone Code</th>
+                                <th class="px-6 py-2.5 text-[10px] font-bold uppercase tracking-wider text-amber-600/60">Zone Name</th>
+                                <th class="px-6 py-2.5 text-[10px] font-bold uppercase tracking-wider text-amber-600/60 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="zone-vault-body" class="divide-y divide-amber-100/30 dark:divide-amber-500/10">
+                            <!-- JS loaded -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Footer -->
+            <div class="px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0c0e]/50">
+                <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">@locations.Count() active zones</span>
+            </div>
         </div>
-
     </div>
 </div>
 
@@ -367,7 +457,19 @@
 </div>
 
 <script>
+    // ── Tab Management & Preservation ──
+    window.addEventListener('DOMContentLoaded', () => {
+        const activeTab = sessionStorage.getItem('masterdata_activetab') || 'categories';
+        switchTab(activeTab);
+
+        // Auto-dismiss success toast
+        const toast = document.getElementById('toast-success');
+        if (toast) setTimeout(() => toast.style.opacity = '0', 3500);
+    });
+
     function switchTab(tabId) {
+        sessionStorage.setItem('masterdata_activetab', tabId);
+        
         const btnCat  = document.getElementById('tab-btn-categories');
         const btnZone = document.getElementById('tab-btn-zones');
         const conCat  = document.getElementById('tab-content-categories');
@@ -394,37 +496,109 @@
         }
     }
 
-    function filterCategories() {
-        const q = document.getElementById('cat-search').value.toLowerCase();
-        document.querySelectorAll('.cat-row').forEach(row => {
-            const name = row.querySelector('.cat-name').textContent.toLowerCase();
-            row.style.display = name.includes(q) ? '' : 'none';
+    // ── Archive Vaults Logic ──
+    let catVaultOpen = false;
+    let zoneVaultOpen = false;
+
+    function toggleVault(type) {
+        if (type === 'cat') {
+            catVaultOpen = !catVaultOpen;
+            const panel = document.getElementById('cat-vault-panel');
+            const label = document.getElementById('cat-vault-label');
+            panel.classList.toggle('hidden', !catVaultOpen);
+            panel.classList.toggle('flex', catVaultOpen);
+            label.innerText = catVaultOpen ? 'Hide Archive Vault' : 'View Archive Vault';
+            if (catVaultOpen) loadCatVault();
+        } else {
+            zoneVaultOpen = !zoneVaultOpen;
+            const panel = document.getElementById('zone-vault-panel');
+            const label = document.getElementById('zone-vault-label');
+            panel.classList.toggle('hidden', !zoneVaultOpen);
+            panel.classList.toggle('flex', zoneVaultOpen);
+            label.innerText = zoneVaultOpen ? 'Hide Archive Vault' : 'View Archive Vault';
+            if (zoneVaultOpen) loadZoneVault();
+        }
+    }
+
+    async function loadCatVault() {
+        const tbody = document.getElementById('cat-vault-body');
+        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-amber-600/50 text-xs animate-pulse">Loading vault data...</td></tr>';
+        
+        try {
+            const res = await fetch('/Category/GetArchived?t=' + Date.now(), { cache: 'no-cache' });
+            const data = await res.json();
+            
+            if (!data.length) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-amber-600/40 text-xs italic">Vault is empty. No archived categories.</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = data.map(c => `
+                <tr id="cat-vault-row-${c.id}" class="hover:bg-amber-50/50 dark:hover:bg-amber-500/5 transition-colors">
+                    <td class="px-6 py-3 font-bold text-amber-900 dark:text-amber-400 text-xs">${c.name}</td>
+                    <td class="px-6 py-3 text-amber-700/60 dark:text-amber-500/40 text-xs truncate max-w-[200px]">${c.description || '—'}</td>
+                    <td class="px-6 py-3 text-amber-700/60 dark:text-amber-500/40 text-xs">${c.productCount} SKUs</td>
+                    <td class="px-6 py-3 text-right">
+                        <button onclick="restoreCat(${c.id}, '${c.name.replace(/'/g, "\\'")}')" 
+                                title="Restore Category"
+                                class="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-500/10 text-amber-600 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/20 transition-all border-none outline-none">
+                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-red-400 text-xs">Failed to load vault.</td></tr>';
+        }
+    }
+
+    async function loadZoneVault() {
+        const tbody = document.getElementById('zone-vault-body');
+        tbody.innerHTML = '<tr><td colspan="3" class="px-6 py-8 text-center text-amber-600/50 text-xs animate-pulse">Loading vault data...</td></tr>';
+        
+        try {
+            const res = await fetch('/WarehouseLocation/GetArchived?t=' + Date.now(), { cache: 'no-cache' });
+            const data = await res.json();
+            
+            if (!data.length) {
+                tbody.innerHTML = '<tr><td colspan="3" class="px-6 py-8 text-center text-amber-600/40 text-xs italic">Vault is empty. No archived zones.</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = data.map(l => `
+                <tr id="zone-vault-row-${l.id}" class="hover:bg-amber-50/50 dark:hover:bg-amber-500/5 transition-colors">
+                    <td class="px-6 py-3 font-bold text-amber-900 dark:text-amber-400 text-xs">${l.zone}</td>
+                    <td class="px-6 py-3 text-amber-700/60 dark:text-amber-500/40 text-xs">${l.aisle}</td>
+                    <td class="px-6 py-3 text-right">
+                        <button onclick="restoreZone(${l.id}, '${l.zone.replace(/'/g, "\\'")}')" 
+                                title="Restore Zone"
+                                class="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-500/10 text-amber-600 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/20 transition-all border-none outline-none">
+                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="3" class="px-6 py-8 text-center text-red-400 text-xs">Failed to load vault.</td></tr>';
+        }
+    }
+
+    function restoreCat(id, name) {
+        showConfirm("Restore Category", `Bring category "${name}" back to active listing?`, async function() {
+            try {
+                const res = await fetch('/Category/Restore/' + id, { method: 'POST' });
+                if (res.ok) window.location.reload(); // Reload to update active table counters/logic
+            } catch (e) { console.error(e); }
         });
     }
 
-    function openEditCategoryModal(btn) {
-        const row = btn.closest('tr');
-        document.getElementById('edit-cat-id').value = row.dataset.id;
-        document.getElementById('edit-cat-name').value = row.dataset.name;
-        document.getElementById('edit-cat-desc').value = row.dataset.desc;
-        
-        const form = document.getElementById('editCategoryForm');
-        form.action = `/Category/Edit/${row.dataset.id}`;
-        
-        document.getElementById('modal-edit-category').classList.remove('hidden');
-    }
-
-    function openEditZoneModal(btn) {
-        const row = btn.closest('tr');
-        document.getElementById('edit-zone-id').value = row.dataset.id;
-        document.getElementById('edit-zone-code').value = row.dataset.zone;
-        document.getElementById('edit-zone-name').value = row.dataset.aisle;
-        document.getElementById('edit-zone-rack').value = row.dataset.rack;
-        
-        const form = document.getElementById('editZoneForm');
-        form.action = `/WarehouseLocation/Edit/${row.dataset.id}`;
-        
-        document.getElementById('modal-edit-zone').classList.remove('hidden');
+    function restoreZone(id, name) {
+        showConfirm("Restore Zone", `Bring warehouse zone "${name}" back to active listing?`, async function() {
+            try {
+                const res = await fetch('/WarehouseLocation/Restore/' + id, { method: 'POST' });
+                if (res.ok) window.location.reload(); // Reload to update active table
+            } catch (e) { console.error(e); }
+        });
     }
 
     function triggerArchive(id, itemName) {
@@ -453,11 +627,35 @@
         }
     }
 
-    // Auto-dismiss success toast after 4s
-    window.addEventListener('DOMContentLoaded', () => {
-        const toast = document.getElementById('toast-success');
-        if (toast) setTimeout(() => toast.style.opacity = '0', 3500);
-    });
+    // ── Table Filtering & Modals ──
+    function filterCategories() {
+        const q = document.getElementById('cat-search').value.toLowerCase();
+        document.querySelectorAll('.cat-row').forEach(row => {
+            const name = row.querySelector('.cat-name').textContent.toLowerCase();
+            row.style.display = name.includes(q) ? '' : 'none';
+        });
+    }
+
+    function openEditCategoryModal(btn) {
+        const row = btn.closest('tr');
+        document.getElementById('edit-cat-id').value = row.dataset.id;
+        document.getElementById('edit-cat-name').value = row.dataset.name;
+        document.getElementById('edit-cat-desc').value = row.dataset.desc;
+        const form = document.getElementById('editCategoryForm');
+        form.action = `/Category/Edit/${row.dataset.id}`;
+        document.getElementById('modal-edit-category').classList.remove('hidden');
+    }
+
+    function openEditZoneModal(btn) {
+        const row = btn.closest('tr');
+        document.getElementById('edit-zone-id').value = row.dataset.id;
+        document.getElementById('edit-zone-code').value = row.dataset.zone;
+        document.getElementById('edit-zone-name').value = row.dataset.aisle;
+        document.getElementById('edit-zone-rack').value = row.dataset.rack;
+        const form = document.getElementById('editZoneForm');
+        form.action = `/WarehouseLocation/Edit/${row.dataset.id}`;
+        document.getElementById('modal-edit-zone').classList.remove('hidden');
+    }
 </script>
 
 

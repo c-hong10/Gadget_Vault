@@ -1,0 +1,249 @@
+@using GadgetVault.Models
+@model IEnumerable<SalesOrder>
+@{
+    ViewData["Title"] = "Fulfillment Dashboard";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var orders = Model ?? Enumerable.Empty<SalesOrder>();
+}
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="flex flex-col gap-6">
+
+  <!-- HEADER -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Pick-Pack-Ship</h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage active sales orders and coordinate warehouse fulfillment workflows.</p>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  @if (TempData["Success"] != null) {
+  <div id="toast-success" class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-semibold shadow-sm transition-opacity duration-500"
+       style="background-color:color-mix(in srgb,var(--brand-color) 10%,transparent);border:1px solid color-mix(in srgb,var(--brand-color) 30%,transparent);color:var(--brand-color);">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+    @TempData["Success"]
+  </div>
+  }
+  @if (TempData["Error"] != null) {
+  <div class="flex items-center gap-3 px-5 py-3.5 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400 text-sm font-semibold shadow-sm">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+    @TempData["Error"]
+  </div>
+  }
+
+  <!-- ACTIVE FULFILLMENT QUEUE -->
+  <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+    
+    <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-[#0c0c0e]/50">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+        <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Active Fulfillment Queue</span>
+      </div>
+      <span class="text-xs font-medium text-slate-400 dark:text-slate-500">@orders.Count(o => o.Status != SOStatus.Packed) orders requiring attention</span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm whitespace-nowrap">
+        <thead>
+          <tr class="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">SO #</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Customer</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-center">Line Items</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Status</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+          @foreach (var so in orders.Where(o => o.Status == SOStatus.Picking)) {
+              var (badgeBg, badgeText, badgeBorder, dot, pulse) = so.Status switch {
+                SOStatus.Picking   => ("bg-blue-100 dark:bg-blue-500/15",   "text-blue-700 dark:text-blue-400",   "border-blue-200 dark:border-blue-500/20",   "bg-blue-500",   "animate-pulse"),
+                _                  => ("bg-slate-100 dark:bg-slate-700",    "text-slate-600 dark:text-slate-300", "border-slate-200 dark:border-slate-600",    "bg-slate-400",  ""),
+              };
+          <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group">
+            <td class="px-6 py-4 font-mono text-xs font-bold text-slate-700 dark:text-slate-300">@so.SONumber</td>
+            <td class="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200">@(so.Customer?.CompanyName ?? "—")</td>
+            <td class="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs text-center">@so.Items.Count</td>
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border @badgeBg @badgeText @badgeBorder">
+                <span class="w-1.5 h-1.5 rounded-full @dot @pulse"></span>
+                @so.Status
+              </span>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <div class="flex items-center justify-end gap-2">
+                <button onclick="openPickListModal(@so.Id)" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">Generate Pick List</button>
+              </div>
+            </td>
+          </tr>
+          }
+          @if (!orders.Any(o => o.Status == SOStatus.Picking)) {
+          <tr><td colspan="5" class="px-6 py-10 text-center">
+            <p class="text-sm font-semibold text-slate-400 dark:text-slate-500">No orders currently in picking status.</p>
+          </td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- READY TO SHIP (PACKED ORDERS) -->
+  <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+    
+    <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-emerald-50/50 dark:bg-emerald-500/5">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Ready to Ship (Packed)</span>
+      </div>
+      <span class="text-xs font-medium text-emerald-600 dark:text-emerald-500/70">@orders.Count(o => o.Status == SOStatus.Packed) orders awaiting dispatch</span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm whitespace-nowrap">
+        <thead>
+          <tr class="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">SO #</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Customer</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-center">Line Items</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Status</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+          @foreach (var so in orders.Where(o => o.Status == SOStatus.Packed)) {
+          <tr class="hover:bg-emerald-50/30 dark:hover:bg-emerald-500/5 transition-colors group">
+            <td class="px-6 py-4 font-mono text-xs font-bold text-slate-700 dark:text-slate-300">@so.SONumber</td>
+            <td class="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200">@(so.Customer?.CompanyName ?? "—")</td>
+            <td class="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs text-center">@so.Items.Count</td>
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Packed
+              </span>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <div class="flex items-center justify-end gap-2">
+                <button disabled class="px-4 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 text-xs font-bold cursor-not-allowed">Manifest Generated</button>
+                <form asp-action="Dispatch" method="post" class="inline">
+                  <input type="hidden" name="id" value="@so.Id" />
+                  <button type="submit" class="px-4 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-bold shadow-sm hover:bg-emerald-600 transition-all border-none">Dispatch Order</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          }
+          @if (!orders.Any(o => o.Status == SOStatus.Packed)) {
+          <tr><td colspan="5" class="px-6 py-10 text-center">
+            <p class="text-sm font-semibold text-slate-400 dark:text-slate-500">No packed orders ready for shipment.</p>
+          </td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- RECENT SHIPMENTS (HISTORY) -->
+  @{
+    var recentShipments = (ViewBag.RecentShipments as IEnumerable<SalesOrder>) ?? Enumerable.Empty<SalesOrder>();
+  }
+  <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm opacity-90 hover:opacity-100 transition-opacity">
+    
+    <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-[#0c0c0e]/50">
+      <div class="flex items-center gap-2">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" class="text-slate-400"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Recent Shipments (History)</span>
+      </div>
+      <span class="text-xs font-medium text-slate-400 dark:text-slate-500">Last @recentShipments.Count() completed orders</span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm whitespace-nowrap">
+        <thead>
+          <tr class="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">SO #</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Customer</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-center">Items</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Status</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+          @foreach (var so in recentShipments) {
+          <tr class="hover:bg-slate-50/40 dark:hover:bg-slate-800/20 transition-colors">
+            <td class="px-6 py-4 font-mono text-xs font-bold text-slate-500 dark:text-slate-400">@so.SONumber</td>
+            <td class="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">@(so.Customer?.CompanyName ?? "—")</td>
+            <td class="px-6 py-4 text-slate-400 dark:text-slate-500 text-xs text-center">@so.Items.Count</td>
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border bg-slate-100 dark:bg-slate-800/40 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700">
+                <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                Shipped
+              </span>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <button type="button" onclick="openShipmentModal(@so.Id)" class="text-xs font-bold text-blue-500 hover:text-blue-600 bg-transparent border-none outline-none cursor-pointer">View Details</button>
+            </td>
+          </tr>
+          }
+          @if (!recentShipments.Any()) {
+          <tr><td colspan="5" class="px-6 py-10 text-center">
+            <p class="text-sm font-semibold text-slate-400 dark:text-slate-500">No completed shipments found.</p>
+          </td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- SHIPMENT DETAILS MODAL -->
+<div id="modal-shipment" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all">
+    <div class="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-2xl p-6 relative">
+        <button type="button" onclick="closeShipmentModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors bg-transparent border-none outline-none">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+        <div id="shipment-modal-content" class="min-h-[300px]"></div>
+    </div>
+</div>
+
+<!-- PICK LIST MODAL -->
+<div id="modal-pick-list" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all">
+    <div class="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-2xl p-6 relative">
+        <button type="button" onclick="closePickListModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors bg-transparent border-none outline-none">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+        <div id="pick-list-modal-content" class="min-h-[400px]"></div>
+    </div>
+</div>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  const toast = document.getElementById('toast-success');
+  if (toast) setTimeout(() => toast.style.opacity = '0', 3500);
+});
+
+async function openShipmentModal(id) {
+    const modal = document.getElementById('modal-shipment');
+    const content = document.getElementById('shipment-modal-content');
+    modal.classList.remove('hidden');
+    content.innerHTML = `<div class="flex items-center justify-center h-[300px]"><div class="w-8 h-8 border-4 border-slate-200 border-t-blue-500 rounded-full animate-spin"></div></div>`;
+    try {
+        const response = await fetch(`/Warehouse/GetShipmentDetails/${id}`);
+        if (response.ok) content.innerHTML = await response.text();
+        else content.innerHTML = '<div class="p-8 text-center text-red-500 font-bold">Failed to load shipment details.</div>';
+    } catch (err) { content.innerHTML = '<div class="p-8 text-center text-red-500 font-bold">An error occurred.</div>'; }
+}
+function closeShipmentModal() { document.getElementById('modal-shipment').classList.add('hidden'); }
+
+async function openPickListModal(id) {
+    const modal = document.getElementById('modal-pick-list');
+    const content = document.getElementById('pick-list-modal-content');
+    modal.classList.remove('hidden');
+    content.innerHTML = `<div class="flex items-center justify-center h-[400px]"><div class="w-8 h-8 border-4 border-slate-200 border-t-blue-500 rounded-full animate-spin"></div></div>`;
+    try {
+        const response = await fetch(`/Warehouse/GetPickList/${id}`);
+        if (response.ok) content.innerHTML = await response.text();
+        else content.innerHTML = '<div class="p-8 text-center text-red-500 font-bold">Failed to load pick list.</div>';
+    } catch (err) { content.innerHTML = '<div class="p-8 text-center text-red-500 font-bold">An error occurred.</div>'; }
+}
+function closePickListModal() { document.getElementById('modal-pick-list').classList.add('hidden'); }
+</script>

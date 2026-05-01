@@ -15,5 +15,8 @@ namespace GadgetVault.Models
 
         [MaxLength(7)]
         public string? PrimaryColorHex { get; set; }
+
+        public int? UpdatedByUserId { get; set; }
+        public virtual User? UpdatedBy { get; set; }
     }
 }

@@ -14,6 +14,9 @@ namespace GadgetVault.Models
         [MaxLength(500)]
         public string? Description { get; set; }
 
+        [Required]
+        public bool IsActive { get; set; } = true;
+
         // Navigation property
         public ICollection<Product> Products { get; set; } = new List<Product>();
     }

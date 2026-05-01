@@ -25,16 +25,30 @@ namespace GadgetVault.Controllers
 
         // GET: api/products/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
+        public async Task<ActionResult<object>> GetProduct(int id)
         {
             var product = await _context.Products.FindAsync(id);
+            if (product == null) return NotFound();
 
-            if (product == null)
-            {
-                return NotFound();
-            }
+            var totalStock = await _context.StockLevels
+                .Where(s => s.ProductId == id)
+                .SumAsync(s => (int?)s.Quantity) ?? 0;
 
-            return product;
+            var reserved = await _context.SalesOrderItems
+                .Where(i => i.ProductId == id && 
+                           (i.SalesOrder.Status == SOStatus.Draft || 
+                            i.SalesOrder.Status == SOStatus.Pending || 
+                            i.SalesOrder.Status == SOStatus.Picking || 
+                            i.SalesOrder.Status == SOStatus.Packed))
+                .SumAsync(i => (int?)i.Quantity) ?? 0;
+
+            return new {
+                product.Id,
+                product.Name,
+                product.SKU,
+                product.SellingPrice,
+                AvailableStock = totalStock - reserved
+            };
         }
 
         // POST: api/products
