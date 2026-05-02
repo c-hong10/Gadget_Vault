@@ -44,6 +44,12 @@ namespace GadgetVault.Models
         [StringLength(500)]
         public string? Notes { get; set; }
 
+        [StringLength(100)]
+        public string? TrackingNumber { get; set; }
+
+        [StringLength(1000)]
+        public string? ShippingLabelUrl { get; set; }
+
         // ── Navigation ────────────────────────────────────────────────────────
         public ICollection<SalesOrderItem> Items { get; set; } = new List<SalesOrderItem>();
     }

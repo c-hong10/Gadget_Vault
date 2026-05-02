@@ -146,6 +146,15 @@ namespace GadgetVault.Controllers
         public async Task<IActionResult> WarehouseManager() 
         { 
             await LoadDashboardMetrics();
+
+            // Fetch Active Operations (Picking or Packed)
+            ViewBag.ActiveOperations = await _context.SalesOrders
+                .Include(o => o.Customer)
+                .Where(o => o.Status == SOStatus.Picking || o.Status == SOStatus.Packed)
+                .OrderByDescending(o => o.OrderDate)
+                .Take(5)
+                .ToListAsync();
+
             return View(); 
         }
 
@@ -201,6 +210,11 @@ namespace GadgetVault.Controllers
                 .ToListAsync();
 
             ViewBag.PendingOrders = await _context.PurchaseOrders.CountAsync(o => o.Status == POStatus.Ordered);
+            
+            // 7. Active Floor Staff (WarehouseStaff Role)
+            ViewBag.ActiveStaffCount = await _context.Users
+                .Include(u => u.Role)
+                .CountAsync(u => u.Role != null && u.Role.Name == "WarehouseStaff" && u.IsActive);
         }
 
         [HttpGet]

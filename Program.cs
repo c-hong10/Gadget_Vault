@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using GadgetVault.Data;
 
+DotNetEnv.Env.Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -12,6 +14,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<GadgetVault.Services.ImageService>();
+builder.Services.AddScoped<GadgetVault.Services.IShippingService, GadgetVault.Services.ShippingService>();
 builder.Services.AddAuthentication("Cookies")
     .AddCookie("Cookies", options => {
         options.LoginPath = "/Account/Login";

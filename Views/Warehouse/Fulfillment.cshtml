@@ -164,6 +164,7 @@
             <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Customer</th>
             <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-center">Items</th>
             <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Status</th>
+            <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Tracking #</th>
             <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Actions</th>
           </tr>
         </thead>
@@ -178,6 +179,16 @@
                 <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                 Shipped
               </span>
+            </td>
+            <td class="px-6 py-4">
+              @if (!string.IsNullOrEmpty(so.TrackingNumber))
+              {
+                <span class="font-mono text-xs font-bold text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/5 px-2 py-1 rounded">@so.TrackingNumber</span>
+              }
+              else
+              {
+                <span class="text-slate-300 dark:text-slate-600">—</span>
+              }
             </td>
             <td class="px-6 py-4 text-right">
               <button type="button" onclick="openShipmentModal(@so.Id)" class="text-xs font-bold text-blue-500 hover:text-blue-600 bg-transparent border-none outline-none cursor-pointer">View Details</button>
@@ -206,20 +217,101 @@
 </div>
 
 <!-- PICK LIST MODAL -->
-<div id="modal-pick-list" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all">
-    <div class="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-2xl p-6 relative">
-        <button type="button" onclick="closePickListModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors bg-transparent border-none outline-none">
+<div id="modal-pick-list" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all overflow-hidden">
+    <div class="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col relative">
+        <button type="button" onclick="closePickListModal()" class="absolute top-6 right-6 z-10 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors bg-transparent border-none outline-none">
             <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
-        <div id="pick-list-modal-content" class="min-h-[400px]"></div>
+        <div id="pick-list-modal-content" class="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800"></div>
     </div>
 </div>
 
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <script>
 window.addEventListener('DOMContentLoaded', () => {
   const toast = document.getElementById('toast-success');
   if (toast) setTimeout(() => toast.style.opacity = '0', 3500);
 });
+
+let html5QrCodeModal;
+
+async function startModalScanner() {
+    const container = document.getElementById('modal-reader-container');
+    if (!container) return;
+    container.classList.remove('hidden');
+    
+    html5QrCodeModal = new Html5Qrcode("modal-reader");
+    const config = { fps: 15, qrbox: { width: 200, height: 200 } };
+
+    try {
+        await html5QrCodeModal.start({ facingMode: "environment" }, config, onModalScanSuccess);
+        document.getElementById('btn-modal-scan').classList.add('hidden');
+    } catch (err) {
+        alert("Camera access denied or not available.");
+        stopModalScanner();
+    }
+}
+
+async function stopModalScanner() {
+    const container = document.getElementById('modal-reader-container');
+    if (container) container.classList.add('hidden');
+    
+    const btn = document.getElementById('btn-modal-scan');
+    if (btn) btn.classList.remove('hidden');
+    
+    if (html5QrCodeModal && html5QrCodeModal.isScanning) {
+        await html5QrCodeModal.stop();
+    }
+}
+
+function onModalScanSuccess(decodedText, decodedResult) {
+    if (navigator.vibrate) navigator.vibrate(100);
+
+    const scannedSKU = decodedText.trim().toUpperCase();
+    const rows = document.querySelectorAll('#modal-pick-table-body .pick-row');
+    let found = false;
+
+    rows.forEach(row => {
+        const rowSKU = row.getAttribute('data-sku');
+        if (rowSKU && rowSKU.trim().toUpperCase() === scannedSKU) {
+            const checkbox = row.querySelector('.pick-modal-checkbox');
+            if (checkbox && !checkbox.checked) {
+                checkbox.checked = true;
+                checkbox.classList.add('animate-bounce');
+                row.classList.add('bg-emerald-50', 'dark:bg-emerald-500/10', 'border-emerald-200');
+                found = true;
+            } else if (checkbox && checkbox.checked) {
+                found = true;
+            }
+        }
+    });
+
+    if (found) {
+        checkModalVerified();
+    }
+}
+
+function simulateModalScan() {
+    const firstUncheckedRow = Array.from(document.querySelectorAll('#modal-pick-table-body .pick-row'))
+        .find(row => {
+            const checkbox = row.querySelector('.pick-modal-checkbox');
+            return checkbox && !checkbox.checked;
+        });
+    
+    if (firstUncheckedRow) {
+        const sku = firstUncheckedRow.getAttribute('data-sku');
+        onModalScanSuccess(sku);
+    }
+}
+
+function checkModalVerified() {
+    const checkboxes = document.querySelectorAll('.pick-modal-checkbox');
+    const confirmBtn = document.getElementById('btn-modal-confirm');
+    if (!confirmBtn) return;
+
+    const allChecked = Array.from(checkboxes).length > 0 && Array.from(checkboxes).every(cb => cb.checked);
+    confirmBtn.disabled = !allChecked;
+}
 
 async function openShipmentModal(id) {
     const modal = document.getElementById('modal-shipment');
@@ -241,9 +333,15 @@ async function openPickListModal(id) {
     content.innerHTML = `<div class="flex items-center justify-center h-[400px]"><div class="w-8 h-8 border-4 border-slate-200 border-t-blue-500 rounded-full animate-spin"></div></div>`;
     try {
         const response = await fetch(`/Warehouse/GetPickList/${id}`);
-        if (response.ok) content.innerHTML = await response.text();
+        if (response.ok) {
+            content.innerHTML = await response.text();
+            checkModalVerified(); // Initial check after loading
+        }
         else content.innerHTML = '<div class="p-8 text-center text-red-500 font-bold">Failed to load pick list.</div>';
     } catch (err) { content.innerHTML = '<div class="p-8 text-center text-red-500 font-bold">An error occurred.</div>'; }
 }
-function closePickListModal() { document.getElementById('modal-pick-list').classList.add('hidden'); }
+function closePickListModal() { 
+    if (typeof stopModalScanner === 'function') stopModalScanner();
+    document.getElementById('modal-pick-list').classList.add('hidden'); 
+}
 </script>

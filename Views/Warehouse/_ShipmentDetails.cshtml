@@ -38,6 +38,23 @@
             </div>
 
             <div class="bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-slate-800 rounded-xl p-4">
+                <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Carrier Information</h3>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase">Tracking #</p>
+                        <p class="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">@(Model.TrackingNumber ?? "N/A")</p>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.ShippingLabelUrl))
+                    {
+                        <a href="@Model.ShippingLabelUrl" target="_blank" class="flex items-center justify-center gap-2 w-full py-2 rounded-lg bg-gv-brand text-white text-[10px] font-bold shadow-md hover:opacity-90 transition-all border-none no-underline">
+                            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            📄 View Shipping Label
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <div class="bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-slate-800 rounded-xl p-4">
                 <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Workflow</h3>
                 <div class="relative space-y-4 before:absolute before:left-[9px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200 dark:before:bg-slate-800">
                     <div class="relative flex items-start gap-3">

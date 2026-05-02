@@ -46,84 +46,86 @@
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
 
     <!-- Card 1: Total Revenue -->
-    <div class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800 relative overflow-hidden flex flex-col justify-between min-h-[160px]
-                hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+    <a href="/SalesOrder" class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800 relative overflow-hidden flex flex-col justify-between min-h-[140px]
+                hover:scale-105 hover:shadow-xl hover:border-gv-brand/30 transition-all duration-300 group">
         <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-gv-brand to-emerald-400 rounded-t-2xl"></div>
         <div class="flex items-start justify-between">
-            <div class="flex-1">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Total Gross Revenue</p>
-                <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none text-right">@(((decimal)ViewBag.TotalRevenue).ToString("C0"))</p>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium text-right">Total processed sales</p>
+            <div class="w-10 h-10 rounded-xl bg-gv-brand-light dark:bg-gv-brand/10 border border-gv-brand-light dark:border-gv-brand/10 flex items-center justify-center shrink-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#23a476" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Inter, sans-serif" font-weight="900" font-size="14" fill="#23a476">₱</text>
+                </svg>
             </div>
-            <div class="w-11 h-11 rounded-xl bg-gv-brand-light dark:bg-gv-brand/10 border border-gv-brand-light dark:border-gv-brand/10 flex items-center justify-center shrink-0 ml-4">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#23a476" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            <div class="flex-1 text-right">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">Total Gross Revenue</p>
+                <p class="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none">@(((decimal)ViewBag.TotalRevenue).ToString("C0", new System.Globalization.CultureInfo("en-PH")))</p>
+                <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-bold uppercase tracking-tighter">View Sales Orders →</p>
             </div>
         </div>
-        <div class="mt-4 flex items-center justify-end gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-gv-brand inline-block"></span>
-            <span class="text-xs font-semibold text-gv-brand text-right">Live P&L Sync</span>
+        <div class="mt-4 flex items-center justify-end gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+            <span class="w-1.5 h-1.5 rounded-full bg-gv-brand inline-block"></span>
+            <span class="text-[10px] font-bold text-gv-brand uppercase tracking-widest">Live P&L Sync</span>
         </div>
-    </div>
+    </a>
 
     <!-- Card 2: Active Orders -->
-    <div class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800 relative overflow-hidden flex flex-col justify-between min-h-[160px]
-                hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+    <a href="/Warehouse/Fulfillment" class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800 relative overflow-hidden flex flex-col justify-between min-h-[140px]
+                hover:scale-105 hover:shadow-xl hover:border-blue-400/30 transition-all duration-300 group">
         <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-t-2xl"></div>
         <div class="flex items-start justify-between">
-            <div class="flex-1">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Active Fulfillment</p>
-                <p class="text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-none text-right">@ViewBag.ActiveOrdersCount</p>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium text-right">Orders in Picking/Packed</p>
+            <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/10 flex items-center justify-center shrink-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
             </div>
-            <div class="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/10 flex items-center justify-center shrink-0 ml-4">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+            <div class="flex-1 text-right">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">Active Fulfillment</p>
+                <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none">@ViewBag.ActiveOrdersCount</p>
+                <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-bold uppercase tracking-tighter">Open PPS Queue →</p>
             </div>
         </div>
-        <div class="mt-4 flex items-center justify-end gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-blue-400 inline-block"></span>
-            <span class="text-xs font-semibold text-blue-600 text-right">Real-time Logistics</span>
+        <div class="mt-4 flex items-center justify-end gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+            <span class="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block"></span>
+            <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Real-time Logistics</span>
         </div>
-    </div>
+    </a>
 
     <!-- Card 3: Global Value -->
-    <div class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800 relative overflow-hidden flex flex-col justify-between min-h-[160px]
-                hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+    <a href="/Dashboard/WarehouseStaff" class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800 relative overflow-hidden flex flex-col justify-between min-h-[140px]
+                hover:scale-105 hover:shadow-xl hover:border-amber-400/30 transition-all duration-300 group">
         <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-400 to-orange-500 rounded-t-2xl"></div>
         <div class="flex items-start justify-between">
-            <div class="flex-1">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Inventory Assets</p>
-                <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none text-right">@(((decimal)ViewBag.InventoryValue).ToString("C0"))</p>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium text-right">On-hand Market Value</p>
+            <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/10 flex items-center justify-center shrink-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
             </div>
-            <div class="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/10 flex items-center justify-center shrink-0 ml-4">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            <div class="flex-1 text-right">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">Inventory Assets</p>
+                <p class="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none">@(((decimal)ViewBag.InventoryValue).ToString("C0", new System.Globalization.CultureInfo("en-PH")))</p>
+                <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-bold uppercase tracking-tighter">View Inventory →</p>
             </div>
         </div>
-        <div class="mt-4 flex items-center justify-end gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span>
-            <span class="text-xs font-semibold text-amber-600 text-right">Stock Valuation</span>
+        <div class="mt-4 flex items-center justify-end gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block"></span>
+            <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Stock Valuation</span>
         </div>
-    </div>
+    </a>
 
     <!-- Card 4: Low Stock Alerts -->
-    <div class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800 relative overflow-hidden flex flex-col justify-between min-h-[160px]
-                hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+    <a href="/Dashboard/PurchaseOrders" class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800 relative overflow-hidden flex flex-col justify-between min-h-[140px]
+                hover:scale-105 hover:shadow-xl hover:border-red-400/30 transition-all duration-300 group">
         <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-400 to-rose-600 rounded-t-2xl"></div>
         <div class="flex items-start justify-between">
-            <div class="flex-1">
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Critical Alerts</p>
-                <p class="text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-none text-right">@ViewBag.LowStockCount</p>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium text-right">Items < 10 units</p>
+            <div class="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-100/10 flex items-center justify-center shrink-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
             </div>
-            <div class="w-11 h-11 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-100/10 flex items-center justify-center shrink-0 ml-4">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <div class="flex-1 text-right">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">Critical Alerts</p>
+                <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none">@ViewBag.LowStockCount</p>
+                <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-bold uppercase tracking-tighter">Fix Discrepancies →</p>
             </div>
         </div>
-        <div class="mt-4 flex items-center justify-end gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-red-400 @(ViewBag.LowStockCount > 0 ? "animate-pulse" : "") inline-block"></span>
-            <span class="text-xs font-semibold text-red-500 text-right">Attention Needed</span>
+        <div class="mt-4 flex items-center justify-end gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+            <span class="w-1.5 h-1.5 rounded-full bg-red-400 @(ViewBag.LowStockCount > 0 ? "animate-pulse" : "") inline-block"></span>
+            <span class="text-[10px] font-bold text-red-500 uppercase tracking-widest">Attention Needed</span>
         </div>
-    </div>
+    </a>
 </div>
 
 <!-- ┌──────────────────────────────────────────────────────
@@ -252,7 +254,7 @@
                             <p class="text-xs text-red-500 font-bold">Only @item.Qty units left</p>
                         </div>
                         <div class="text-right shrink-0">
-                            <a href="#" class="inline-flex items-center gap-1.5 text-xs font-extrabold text-white bg-slate-900 dark:bg-slate-700 px-3 py-1.5 rounded-lg">RESTOCK</a>
+                            <a href="/Dashboard/PurchaseOrders" class="inline-flex items-center gap-1.5 text-xs font-extrabold text-white bg-slate-900 dark:bg-slate-700 px-3 py-1.5 rounded-lg">RESTOCK</a>
                         </div>
                     </div>
                 }

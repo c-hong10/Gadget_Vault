@@ -1,12 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "EhbYiC9IzbI=",
+  "dgSpecHash": "DTMwrStHBB4=",
   "success": true,
   "projectFilePath": "C:\\Users\\Cherylou\\GadgetVault\\GadgetVault.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Cherylou\\.nuget\\packages\\azure.core\\1.47.1\\azure.core.1.47.1.nupkg.sha512",
     "C:\\Users\\Cherylou\\.nuget\\packages\\azure.identity\\1.14.2\\azure.identity.1.14.2.nupkg.sha512",
     "C:\\Users\\Cherylou\\.nuget\\packages\\cloudinarydotnet\\1.28.0\\cloudinarydotnet.1.28.0.nupkg.sha512",
+    "C:\\Users\\Cherylou\\.nuget\\packages\\dotnetenv\\3.2.0\\dotnetenv.3.2.0.nupkg.sha512",
     "C:\\Users\\Cherylou\\.nuget\\packages\\humanizer\\2.14.1\\humanizer.2.14.1.nupkg.sha512",
     "C:\\Users\\Cherylou\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\Cherylou\\.nuget\\packages\\humanizer.core.af\\2.14.1\\humanizer.core.af.2.14.1.nupkg.sha512",
@@ -118,6 +119,7 @@
     "C:\\Users\\Cherylou\\.nuget\\packages\\nuget.protocol\\6.12.1\\nuget.protocol.6.12.1.nupkg.sha512",
     "C:\\Users\\Cherylou\\.nuget\\packages\\nuget.versioning\\6.12.1\\nuget.versioning.6.12.1.nupkg.sha512",
     "C:\\Users\\Cherylou\\.nuget\\packages\\pomelo.entityframeworkcore.mysql\\9.0.0\\pomelo.entityframeworkcore.mysql.9.0.0.nupkg.sha512",
+    "C:\\Users\\Cherylou\\.nuget\\packages\\superpower\\3.0.0\\superpower.3.0.0.nupkg.sha512",
     "C:\\Users\\Cherylou\\.nuget\\packages\\swashbuckle.aspnetcore\\10.1.6\\swashbuckle.aspnetcore.10.1.6.nupkg.sha512",
     "C:\\Users\\Cherylou\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\10.1.6\\swashbuckle.aspnetcore.swagger.10.1.6.nupkg.sha512",
     "C:\\Users\\Cherylou\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\10.1.6\\swashbuckle.aspnetcore.swaggergen.10.1.6.nupkg.sha512",

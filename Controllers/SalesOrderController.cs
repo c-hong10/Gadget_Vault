@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace GadgetVault.Controllers
 {
-    [Authorize(Roles = "SystemManager, WarehouseManager, SalesAndProcurement")]
+    [Authorize(Roles = "Admin, SystemManager, WarehouseManager, SalesAndProcurement")]
     public class SalesOrderController : Controller
     {
         private readonly ApplicationDbContext _context;

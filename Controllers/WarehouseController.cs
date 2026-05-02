@@ -8,14 +8,16 @@ using System.Threading.Tasks;
 
 namespace GadgetVault.Controllers
 {
-    [Authorize(Roles = "SystemManager, WarehouseManager, WarehouseStaff")]
+    [Authorize(Roles = "Admin, SystemManager, WarehouseManager, WarehouseStaff")]
     public class WarehouseController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly GadgetVault.Services.IShippingService _shippingService;
 
-        public WarehouseController(ApplicationDbContext context)
+        public WarehouseController(ApplicationDbContext context, GadgetVault.Services.IShippingService shippingService)
         {
             _context = context;
+            _shippingService = shippingService;
         }
 
         [HttpPost]
@@ -331,11 +333,17 @@ namespace GadgetVault.Controllers
                 }
             }
 
-            // 2. Update Order Status
+            // 2. Generate Shipping Label (Simulated Shipping API)
+            var (trackingNumber, labelUrl) = await _shippingService.GenerateShippingLabelAsync(order.SONumber, order.Customer?.CompanyName ?? "Customer");
+
+            // 3. Update Order Status & Tracking Info
             order.Status = SOStatus.Shipped;
+            order.TrackingNumber = trackingNumber;
+            order.ShippingLabelUrl = labelUrl;
+            
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = $"Order {order.SONumber} dispatched. Inventory levels updated.";
+            TempData["Success"] = $"Order {order.SONumber} successfully dispatched! Tracking Number: {trackingNumber}";
             return RedirectToAction("Fulfillment");
         }
 
