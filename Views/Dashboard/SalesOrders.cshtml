@@ -1,135 +1,263 @@
+@using GadgetVault.Models
+@model IEnumerable<SalesOrder>
 @{
     ViewData["Title"] = "Sales Orders";
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var orders = Model ?? Enumerable.Empty<SalesOrder>();
+    int totalOrders   = (int)(ViewBag.TotalOrders  ?? 0);
+    int draftCount    = (int)(ViewBag.DraftCount   ?? 0);
+    int pickingCount  = (int)(ViewBag.PickingCount ?? 0);
+    int shippedCount  = (int)(ViewBag.ShippedCount ?? 0);
 }
 <script src="https://cdn.tailwindcss.com"></script>
 
-
 <div class="flex flex-col gap-6">
-    <!-- HEADER -->
+
+    <!-- ── HEADER ──────────────────────────────────────────────────────── -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Sales Orders</h1>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Track customer orders, monitor fulfillment progress, and manage dispatch.</p>
         </div>
-        <button id="btn-create-so" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gv-brand text-white text-sm font-bold shadow-lg hover:opacity-90 hover:-translate-y-0.5 transition-all duration-200 shrink-0 outline-none border-none">
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        <button id="btn-create-so"
+                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold shadow-lg hover:opacity-90 hover:-translate-y-0.5 transition-all duration-200 shrink-0 outline-none border-none"
+                style="background-color:var(--brand-color)!important;box-shadow:0 4px 14px color-mix(in srgb,var(--brand-color) 30%,transparent)!important;">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+            </svg>
             Create Sales Order
         </button>
     </div>
 
-    <!-- SERVER TOAST -->
+    <!-- ── SERVER TOAST ─────────────────────────────────────────────────── -->
     @if (TempData["Success"] != null) {
-    <div id="toast-success" class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-semibold shadow-sm transition-opacity duration-500"
-         style="background-color:color-mix(in srgb,var(--brand-color) 10%,transparent);border:1px solid color-mix(in srgb,var(--brand-color) 30%,transparent);color:var(--brand-color);">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-      @TempData["Success"]
-    </div>
+        <div id="toast-success" class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-semibold shadow-sm transition-opacity duration-500"
+             style="background-color:color-mix(in srgb,var(--brand-color) 10%,transparent);border:1px solid color-mix(in srgb,var(--brand-color) 30%,transparent);color:var(--brand-color);">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            @TempData["Success"]
+        </div>
     }
 
-    <!-- CARD -->
-    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-        <!-- Toolbar -->
-        <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-[#0c0c0e]/50">
-            <div class="flex flex-1 flex-col sm:flex-row gap-3">
-                <div class="relative w-full sm:w-72">
-                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
-                    <input type="text" placeholder="Search SO # or customer..." class="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
-                </div>
-                <select class="w-full sm:w-44 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand transition-all cursor-pointer">
-                    <option value="">All Statuses</option>
-                    <option>Pending</option><option>Processing</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option>
-                </select>
+    <!-- ── KPI CARDS (right-aligned, flush-right strip) ─────────────────── -->
+    <div class="flex flex-wrap justify-end gap-4">
+
+        <!-- Total Orders -->
+        <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl p-5 flex items-center gap-4 min-w-[170px] shadow-sm">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                 style="background:color-mix(in srgb,var(--brand-color) 12%,transparent);">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="2" style="stroke:var(--brand-color);">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
             </div>
-            <span class="text-xs font-medium text-slate-400 dark:text-slate-500 shrink-0">12 orders total</span>
+            <div class="flex-1">
+                <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Total Orders</p>
+                <p class="text-2xl font-black text-slate-900 dark:text-white leading-none mt-0.5 text-right">@totalOrders</p>
+            </div>
+        </div>
+
+        <!-- Drafts -->
+        <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl p-5 flex items-center gap-4 min-w-[170px] shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#1e1e24] flex items-center justify-center shrink-0">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#94a3b8" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Drafts</p>
+                <p class="text-2xl font-black text-slate-900 dark:text-white leading-none mt-0.5 text-right">@draftCount</p>
+            </div>
+        </div>
+
+        <!-- Picking -->
+        <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl p-5 flex items-center gap-4 min-w-[170px] shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center shrink-0">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#3b82f6" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Picking</p>
+                <p class="text-2xl font-black text-slate-900 dark:text-white leading-none mt-0.5 text-right">@pickingCount</p>
+            </div>
+        </div>
+
+        <!-- Shipped -->
+        <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl p-5 flex items-center gap-4 min-w-[170px] shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center shrink-0">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#10b981" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Shipped</p>
+                <p class="text-2xl font-black text-slate-900 dark:text-white leading-none mt-0.5 text-right">@shippedCount</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── MAIN TABLE CARD ──────────────────────────────────────────────── -->
+    <section class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-2xl shadow-sm overflow-hidden">
+
+        <!-- Toolbar -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-[#1e1e24] gap-4 bg-slate-50/50 dark:bg-[#111113]/50">
+            <div class="flex items-center gap-3">
+                <div class="w-1 h-7 rounded-full shrink-0" style="background-color:var(--brand-color);"></div>
+                <div>
+                    <h2 class="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight">Order List</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">Sorted newest first · @orders.Count() total</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-1 bg-slate-100 dark:bg-[#111113]/50 p-1 rounded-xl">
+                <div class="text-[10px] font-extrabold uppercase tracking-widest px-4 py-2 text-slate-400">All Orders</div>
+            </div>
         </div>
 
         <!-- Table -->
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm whitespace-nowrap">
+        <div class="overflow-x-auto min-h-[400px]">
+            <table class="w-full text-left border-collapse" id="so-table">
                 <thead>
-                    <tr class="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
-                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">SO #</th>
-                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Customer</th>
-                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Date</th>
-                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Order Value</th>
-                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-center">Fulfillment</th>
-                        <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Actions</th>
+                    <tr class="bg-slate-50/50 dark:bg-[#111113]/30 border-b border-slate-100 dark:border-[#1e1e24]">
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">SO #</th>
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Customer</th>
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Date</th>
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Order Value</th>
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center">Status</th>
+                        <th class="px-6 py-3.5 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                    @{
-                        var soRows = new[] {
-                            new { Num="SO-2026-0119", Customer="MegaMart Philippines", Location="Makati City, PH", Date="Apr 22, 2026", Amount="$12,400.00", Status="Processing" },
-                            new { Num="SO-2026-0118", Customer="Vortex Electronics", Location="Berlin, DE", Date="Apr 22, 2026", Amount="$8,750.00", Status="Pending" },
-                            new { Num="SO-2026-0117", Customer="TechNova Retail", Location="Singapore, SG", Date="Apr 21, 2026", Amount="$31,200.00", Status="Shipped" },
-                            new { Num="SO-2026-0116", Customer="Pixel Paradise", Location="Manila, PH", Date="Apr 20, 2026", Amount="$5,300.00", Status="Delivered" },
-                            new { Num="SO-2026-0115", Customer="Gadget Hub KL", Location="Kuala Lumpur, MY", Date="Apr 19, 2026", Amount="$9,900.00", Status="Pending" },
-                            new { Num="SO-2026-0114", Customer="CityTech Store", Location="Jakarta, ID", Date="Apr 18, 2026", Amount="$3,200.00", Status="Cancelled" },
-                            new { Num="SO-2026-0113", Customer="Alpha Electronics", Location="Bangkok, TH", Date="Apr 16, 2026", Amount="$18,500.00", Status="Shipped" },
-                            new { Num="SO-2026-0112", Customer="ByteStore Inc.", Location="Cebu City, PH", Date="Apr 14, 2026", Amount="$6,100.00", Status="Delivered" },
-                        };
-                    }
-                    @foreach (var row in soRows)
+                <tbody class="divide-y divide-slate-100 dark:divide-[#1e1e24]/60" id="so-tbody">
+                    @foreach (var so in orders)
                     {
-                        var (badgeCls, dotCls, pulse) = row.Status switch {
-                            "Pending"    => ("text-yellow-700 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-500/15 border-yellow-200 dark:border-yellow-500/20", "bg-yellow-500", "animate-pulse"),
-                            "Processing" => ("text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-500/15 border-blue-200 dark:border-blue-500/20", "bg-blue-500", "animate-pulse"),
-                            "Shipped"    => ("text-violet-700 dark:text-violet-400 bg-violet-100 dark:bg-violet-500/15 border-violet-200 dark:border-violet-500/20", "bg-violet-500", ""),
-                            "Delivered"  => ("text-gv-brand-dark dark:text-gv-brand-light bg-gv-brand-light dark:bg-gv-brand/15 border-gv-brand-light dark:border-gv-brand/20", "bg-gv-brand", ""),
-                            _            => ("text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-500/15 border-red-200 dark:border-red-500/20", "bg-red-500", ""),
+                        var (badgeBg, badgeText, badgeBorder, dot, pulse) = so.Status switch {
+                            SOStatus.Draft      => ("bg-slate-100 dark:bg-[#1e1e24]",              "text-slate-600 dark:text-slate-300",  "border-slate-200 dark:border-slate-600",              "bg-slate-400",    ""),
+                            SOStatus.Pending    => ("bg-yellow-100 dark:bg-yellow-500/15",         "text-yellow-700 dark:text-yellow-400","border-yellow-200 dark:border-yellow-500/20",         "bg-yellow-500",   "animate-pulse"),
+                            SOStatus.Picking    => ("bg-blue-100 dark:bg-blue-500/15",             "text-blue-700 dark:text-blue-400",    "border-blue-200 dark:border-blue-500/20",             "bg-blue-500",     "animate-pulse"),
+                            SOStatus.Packed     => ("bg-violet-100 dark:bg-violet-500/15",         "text-violet-700 dark:text-violet-400","border-violet-200 dark:border-violet-500/20",         "bg-violet-500",   "animate-pulse"),
+                            SOStatus.Shipped    => ("bg-emerald-100 dark:bg-emerald-500/15",       "text-emerald-700 dark:text-emerald-400","border-emerald-200 dark:border-emerald-500/20",     "bg-emerald-500",  ""),
+                            _                   => ("bg-red-100 dark:bg-red-500/15",               "text-red-600 dark:text-red-400",      "border-red-200 dark:border-red-500/20",               "bg-red-500",      ""),
                         };
-                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group">
-                            <td class="px-6 py-4 font-mono text-xs font-bold text-slate-700 dark:text-slate-300">@row.Num</td>
+                        <tr class="so-row group hover:bg-slate-50 dark:hover:bg-[#1e1e24]/30 transition-colors">
+                            <td class="px-6 py-4 font-mono text-xs font-bold text-slate-700 dark:text-slate-300">@so.SONumber</td>
                             <td class="px-6 py-4">
-                                <div class="font-semibold text-slate-800 dark:text-slate-200">@row.Customer</div>
-                                <div class="text-xs text-slate-400 mt-0.5">@row.Location</div>
+                                <div class="font-semibold text-slate-800 dark:text-slate-200 text-xs">@(so.Customer?.CompanyName ?? "Unknown")</div>
+                                <div class="text-[10px] text-slate-400 mt-0.5">@(so.Customer?.Address ?? "—")</div>
                             </td>
-                            <td class="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs">@row.Date</td>
-                            <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-200 text-right">@row.Amount</td>
+                            <td class="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs">@so.OrderDate.ToString("MMM dd, yyyy")</td>
+                            <td class="px-6 py-4 text-right font-bold font-mono text-slate-800 dark:text-slate-200">₱@so.TotalAmount.ToString("N2")</td>
                             <td class="px-6 py-4 text-center">
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border @badgeCls">
-                                    <span class="w-1.5 h-1.5 rounded-full @dotCls @pulse"></span> @row.Status
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border @badgeBg @badgeText @badgeBorder">
+                                    <span class="w-1.5 h-1.5 rounded-full @dot @pulse"></span>@so.Status
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-right">
-                                <div class="flex items-center justify-end gap-2">
-                                    <button title="View Order Details"
-                                            class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-gv-brand hover:bg-gv-brand-light transition-all border-none outline-none">
-                                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                    </button>
-                                    @if (row.Status != "Delivered" && row.Status != "Cancelled") {
-                                        <button title="Update Status"
-                                                class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-all border-none outline-none">
-                                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                                        </button>
-                                    }
-                                </div>
+                                <button title="View Order Details"
+                                        class="p-2 rounded-lg bg-slate-100 dark:bg-[#1e1e24] text-slate-500 dark:text-slate-400 hover:text-gv-brand hover:bg-gv-brand-light transition-all border-none outline-none">
+                                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                </button>
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
+            @if (!orders.Any()) {
+                <div class="flex flex-col items-center justify-center py-24 gap-3">
+                    <div class="w-16 h-16 bg-slate-50 dark:bg-[#1e1e24]/50 rounded-2xl flex items-center justify-center text-slate-300 dark:text-slate-600">
+                        <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <p class="text-sm font-bold text-slate-900 dark:text-white">No Sales Orders</p>
+                    <p class="text-xs text-slate-400 dark:text-slate-500 italic">Click "Create Sales Order" to get started.</p>
+                </div>
+            }
         </div>
 
-        <!-- Footer -->
-        <div class="px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0c0e]/50 flex items-center justify-between">
-            <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">Showing 8 of 12 sales orders</span>
-            <a href="#" class="text-xs font-bold text-gv-brand hover:text-gv-brand transition-colors">View all →</a>
+        <!-- ── PAGINATION FOOTER (exact match: Stock Adjustments style) ──── -->
+        <div class="px-6 py-4 border-t border-slate-200 dark:border-[#1e1e24] bg-slate-50/50 dark:bg-[#111113]/30 flex items-center justify-between">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" id="pagination-info">
+                Showing 1–@Math.Min(10, orders.Count()) of @orders.Count() orders
+            </p>
+            <div class="flex items-center gap-2">
+                <button onclick="changePage(-1)" id="btn-prev"
+                        class="p-2 rounded-lg bg-white dark:bg-[#1e1e24] border border-slate-200 dark:border-[#1e1e24] text-slate-400 hover:text-slate-900 dark:hover:text-white disabled:opacity-40 transition-all">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <div id="page-numbers" class="flex items-center gap-1"></div>
+                <button onclick="changePage(1)" id="btn-next"
+                        class="p-2 rounded-lg bg-white dark:bg-[#1e1e24] border border-slate-200 dark:border-[#1e1e24] text-slate-400 hover:text-slate-900 dark:hover:text-white disabled:opacity-40 transition-all">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg>
+                </button>
+            </div>
         </div>
-    </div>
+
+    </section>
 </div>
 
 <script>
-    // Auto-dismiss toast
-    window.addEventListener('DOMContentLoaded', () => {
-        const toast = document.getElementById('toast-success');
-        if (toast) setTimeout(() => toast.style.opacity = '0', 3500);
-    });
+// ── Auto-dismiss toast ──────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+    const toast = document.getElementById('toast-success');
+    if (toast) setTimeout(() => { toast.style.opacity = '0'; }, 3500);
+    renderTable(); // Boot pagination
+});
+
+// ── Pagination engine (mirrors Stock Adjustments module exactly) ────────────
+let currentPage = 1;
+const pageSize  = 10;
+
+function renderTable() {
+    const rows = Array.from(document.querySelectorAll('.so-row'));
+
+    // Hide all rows
+    rows.forEach(r => r.classList.add('hidden'));
+
+    // Slice for current page
+    const start    = (currentPage - 1) * pageSize;
+    const end      = start + pageSize;
+    const total    = rows.length;
+    const pageRows = rows.slice(start, end);
+    pageRows.forEach(r => r.classList.remove('hidden'));
+
+    // Info text
+    const infoEl = document.getElementById('pagination-info');
+    if (infoEl) {
+        infoEl.innerText = total > 0
+            ? `Showing ${Math.min(start + 1, total)}–${Math.min(end, total)} of ${total} orders`
+            : 'No orders found';
+    }
+
+    // Button states
+    const prevBtn = document.getElementById('btn-prev');
+    const nextBtn = document.getElementById('btn-next');
+    if (prevBtn) prevBtn.disabled = currentPage === 1;
+    if (nextBtn) nextBtn.disabled = end >= total;
+
+    // Page-number buttons
+    const totalPages = Math.ceil(total / pageSize);
+    const container  = document.getElementById('page-numbers');
+    if (!container) return;
+    container.innerHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.innerText = i;
+        btn.className = `w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+            i === currentPage
+                ? 'bg-gv-brand text-white shadow-md shadow-gv-brand/20'
+                : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1e1e24]'
+        }`;
+        btn.onclick = () => { currentPage = i; renderTable(); };
+        container.appendChild(btn);
+    }
+}
+
+function changePage(dir) {
+    const rows  = document.querySelectorAll('.so-row').length;
+    const total = Math.ceil(rows / pageSize);
+    currentPage = Math.max(1, Math.min(currentPage + dir, total));
+    renderTable();
+}
 </script>
-
-
-
-
-
-

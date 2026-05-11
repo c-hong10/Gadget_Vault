@@ -13,10 +13,12 @@ namespace GadgetVault.Controllers
     public class AccountController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public AccountController(ApplicationDbContext context)
+        public AccountController(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -25,108 +27,142 @@ namespace GadgetVault.Controllers
             return View();
         }
 
+        // Public registration is disabled. This is a managed system.
+        // All accounts are created by the Administrator via User Management.
         [HttpGet]
-        public IActionResult SignUp()
-
-        
-        {
-            return View();
-        }
+        public IActionResult SignUp() => RedirectToAction("Login");
 
         [HttpPost]
-        public IActionResult SignUp(string username, string email, string password)
-        {
-            // Simple mock sign-up flow
-            return RedirectToAction("Login");
-        }
+        public IActionResult SignUp(string username, string email, string password) => RedirectToAction("Login");
 
         [HttpPost]
         public async Task<IActionResult> Login(string email, string password)
         {
+            var recaptchaResponse = Request.Form["g-recaptcha-response"];
+            var secretKey = _configuration["RECAPTCHA_SECRET_KEY"];
+
+            if (string.IsNullOrEmpty(recaptchaResponse))
+            {
+                ViewBag.Error = "Please complete the reCAPTCHA challenge.";
+                return View();
+            }
+
+            using (var client = new System.Net.Http.HttpClient())
+            {
+                var content = new System.Net.Http.FormUrlEncodedContent(new[]
+                {
+                    new KeyValuePair<string, string>("secret", secretKey ?? ""),
+                    new KeyValuePair<string, string>("response", recaptchaResponse.ToString())
+                });
+
+                var response = await client.PostAsync("https://www.google.com/recaptcha/api/siteverify", content);
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                var result = System.Text.Json.JsonDocument.Parse(jsonResponse);
+                
+                if (!result.RootElement.GetProperty("success").GetBoolean())
+                {
+                    _context.AuditLogs.Add(new AuditLog
+                    {
+                        Action = "SECURITY_ALERT",
+                        PerformedBy = "Anonymous",
+                        Timestamp = DateTime.UtcNow,
+                        Details = $"reCAPTCHA validation failed for attempt: {email}"
+                    });
+                    await _context.SaveChangesAsync();
+
+                    ViewBag.Error = "Security verification failed. Please try again.";
+                    return View();
+                }
+            }
+
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password)) 
             {
                 ViewBag.Error = "Please enter both your email and password.";
                 return View();
             }
 
-            // [Professional Re-Seed]: Ensures the database has the standard roster with FullNames
-            if (!_context.Users.Any(u => u.Username == "alex.admin"))
+            // Secure verification using BCrypt
+            var user = await _context.Users.Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower() || u.Username.ToLower() == email.ToLower());
+
+            if (user != null)
             {
-                // Ensure Roles exist first
-                var roles = _context.Roles.ToList();
-                if (!roles.Any(r => r.Name == "Admin")) 
+                // 1. Check if account is disabled
+                if (!user.IsActive)
                 {
-                    _context.Roles.AddRange(
-                        new Role { Name = "Admin", Description = "Super Admin" },
-                        new Role { Name = "WarehouseManager", Description = "Warehouse Manager" },
-                        new Role { Name = "WarehouseStaff", Description = "Warehouse Staff" },
-                        new Role { Name = "SalesAndProcurement", Description = "Sales and Procurement" },
-                        new Role { Name = "Supplier", Description = "External Supplier" }
-                    );
-                    _context.SaveChanges();
-                    roles = _context.Roles.ToList();
-                }
-                else if (!roles.Any(r => r.Name == "Supplier"))
-                {
-                    _context.Roles.Add(new Role { Name = "Supplier", Description = "External Supplier" });
-                    _context.SaveChanges();
-                    roles = _context.Roles.ToList();
+                    ViewBag.Error = "Account disabled. Please contact the System Manager.";
+                    return View();
                 }
 
-                var adminRole = roles.First(r => r.Name == "Admin").Id;
-                var mgrRole = roles.First(r => r.Name == "WarehouseManager").Id;
-                var staffRole = roles.First(r => r.Name == "WarehouseStaff").Id;
-                var salesRole = roles.First(r => r.Name == "SalesAndProcurement").Id;
-                var suppRole = roles.First(r => r.Name == "Supplier").Id;
-
-                // Wipe legacy/empty accounts to prevent crashes
-                _context.Users.RemoveRange(_context.Users);
-                _context.SaveChanges();
-
-                var globalTech = _context.BusinessPartners.FirstOrDefault(p => p.CompanyName == "Global Tech Inc") 
-                                 ?? new BusinessPartner { CompanyName = "Global Tech Inc", PartnerType = PartnerType.Supplier, IsActive = true };
-                
-                if (globalTech.Id == 0) { _context.BusinessPartners.Add(globalTech); _context.SaveChanges(); }
-
-                // Synchronize existing POs with Global Tech for demo consistency
-                var orphanedPOs = _context.PurchaseOrders.ToList();
-                foreach (var po in orphanedPOs) { po.SupplierId = globalTech.Id; }
-                _context.SaveChanges();
-
-                // Ensure Mock PO for Supplier Demo
-                if (!_context.PurchaseOrders.Any(o => o.SupplierId == globalTech.Id))
+                // 2. Check if currently locked out
+                if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTime.UtcNow)
                 {
-                    _context.PurchaseOrders.Add(new PurchaseOrder {
-                        PONumber = "PO-DEMO-001",
-                        SupplierId = globalTech.Id,
-                        OrderDate = System.DateTime.Now.AddDays(-1),
-                        Status = POStatus.Ordered,
-                        TotalAmount = 750.00m,
-                        Items = new List<PurchaseOrderItem> {
-                            new PurchaseOrderItem { ProductId = 1, Quantity = 10, UnitPrice = 75.00m }
-                        }
-                    });
+                    var waitMinutes = Math.Ceiling((user.LockoutEnd.Value - DateTime.UtcNow).TotalMinutes);
+                    ViewBag.Error = $"Account temporarily locked for {waitMinutes} more minutes.";
+                    return View();
                 }
-
-                _context.Users.AddRange(
-                    new User { Username = "alex.admin", FullName = "Alex Ray", Email = "admin@gadgetvault.com", PasswordHash = "P@ssword123", RoleId = adminRole, IsActive = true },
-                    new User { Username = "jordan.mgr", FullName = "Jordan Chen", Email = "manager@gadgetvault.com", PasswordHash = "P@ssword123", RoleId = mgrRole, IsActive = true },
-                    new User { Username = "casey.staff", FullName = "Casey Miller", Email = "staff@gadgetvault.com", PasswordHash = "P@ssword123", RoleId = staffRole, IsActive = true },
-                    new User { Username = "morgan.sales", FullName = "Morgan Reed", Email = "sales@gadgetvault.com", PasswordHash = "P@ssword123", RoleId = salesRole, IsActive = true },
-                    new User { Username = "global.supplier", FullName = "Global Tech Supplier", Email = "global.supplier@gmail.com", PasswordHash = "P@ssword123", RoleId = suppRole, SupplierId = globalTech.Id, IsActive = true }
-                );
-                _context.SaveChanges();
             }
 
-            // Actual Database Verification
-            var user = _context.Users.Include(u => u.Role)
-                .FirstOrDefault(u => (u.Email.ToLower() == email.ToLower() || u.Username.ToLower() == email.ToLower()) && u.PasswordHash == password);
-
-            if (user == null)
+            if (user == null || string.IsNullOrEmpty(user.PasswordHash) || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
             {
-                ViewBag.Error = "Invalid credentials. Please use P@ssword123 for seeded accounts.";
+                string ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                
+                if (user != null)
+                {
+                    user.AccessFailedCount++;
+                    
+                    if (user.AccessFailedCount >= 10)
+                    {
+                        user.IsActive = false;
+                        ViewBag.Error = "Account disabled due to multiple failed attempts. Please contact the System Manager.";
+                        
+                        _context.AuditLogs.Add(new AuditLog
+                        {
+                            Action = "SECURITY_ALERT",
+                            PerformedBy = user.Username,
+                            Timestamp = DateTime.UtcNow,
+                            Details = $"Account PERMANENTLY DISABLED after 10 failed attempts for {email} from IP {ip}."
+                        });
+                    }
+                    else if (user.AccessFailedCount == 5)
+                    {
+                        user.LockoutEnd = DateTime.UtcNow.AddMinutes(5);
+                        ViewBag.Error = "Account temporarily locked for 5 minutes.";
+                        
+                        _context.AuditLogs.Add(new AuditLog
+                        {
+                            Action = "SECURITY_ALERT",
+                            PerformedBy = user.Username,
+                            Timestamp = DateTime.UtcNow,
+                            Details = $"Account TEMPORARILY LOCKED (5 min) after 5 failed attempts for {email} from IP {ip}."
+                        });
+                    }
+                    else
+                    {
+                        ViewBag.Error = "Invalid credentials. Access Denied.";
+                    }
+                }
+                else
+                {
+                    ViewBag.Error = "Invalid credentials. Access Denied.";
+                }
+
+                // Record FAILED_LOGIN event
+                _context.AuditLogs.Add(new AuditLog
+                {
+                    Action = "FAILED_LOGIN",
+                    PerformedBy = user?.Username ?? "Anonymous",
+                    Timestamp = DateTime.UtcNow,
+                    Details = $"Failed login attempt for {email} from IP {ip}."
+                });
+                await _context.SaveChangesAsync();
+
                 return View();
             }
+
+            // Successful Login - Reset failed count
+            user.AccessFailedCount = 0;
+            user.LockoutEnd = null;
 
             // Create claims for role-based access
             var claims = new List<Claim>
@@ -135,18 +171,45 @@ namespace GadgetVault.Controllers
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role?.Name ?? "Guest"),
                 new Claim("FullName", user.FullName ?? user.Username),
-                new Claim("RoleId", user.RoleId.ToString())
+                new Claim("RoleId", user.RoleId.ToString()),
+                new Claim("ProfilePictureUrl", user.ProfilePictureUrl ?? "")
             };
+
+            // Add granular permissions as individual claims
+            if (!string.IsNullOrEmpty(user.Role?.Permissions))
+            {
+                var perms = user.Role.Permissions.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                foreach (var p in perms)
+                {
+                    claims.Add(new Claim("Permission", p));
+                }
+            }
             var identity = new ClaimsIdentity(claims, "Cookies");
             var principal = new ClaimsPrincipal(identity);
             await HttpContext.SignInAsync("Cookies", principal);
+
+            // Update Session Info
+            user.LastLoginAt = DateTime.UtcNow;
+            user.LastLoginIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+
+            // Record LOGIN event
+            _context.AuditLogs.Add(new AuditLog
+            {
+                Action = "LOGIN",
+                PerformedBy = user.Username,
+                Timestamp = DateTime.UtcNow,
+                Details = $"User {user.Username} successfully logged in from IP {user.LastLoginIp}."
+            });
+            await _context.SaveChangesAsync();
 
             // Route logically based on Role Name
             return user.Role?.Name switch
             {
                 "Admin"                => RedirectToAction("Index", "Dashboard"),
+                "SystemManager"        => RedirectToAction("Index", "Dashboard"),
+                "System Manager"        => RedirectToAction("Index", "Dashboard"),
                 "WarehouseManager"     => RedirectToAction("WarehouseManager", "Dashboard"),
-                "WarehouseStaff"       => RedirectToAction("ReceiveStock", "Dashboard"), 
+                "WarehouseStaff"       => RedirectToAction("LiveInventory", "Warehouse"), 
                 "SalesAndProcurement"  => RedirectToAction("ProductCatalog", "Dashboard"),
                 "Supplier"             => RedirectToAction("SupplierDashboard", "Dashboard"),
                 _                      => RedirectToAction("Index", "Home")
@@ -154,15 +217,28 @@ namespace GadgetVault.Controllers
         }
 
         [HttpGet]
-        public IActionResult ExternalLogin(string provider)
-        {
-            return RedirectToAction("Index", "Home");
-        }
-
-        [HttpGet]
         public IActionResult AccessDenied()
         {
             return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            var username = User.Identity?.Name ?? "Unknown";
+
+            // Record LOGOUT event
+            _context.AuditLogs.Add(new AuditLog
+            {
+                Action = "LOGOUT",
+                PerformedBy = username,
+                Timestamp = DateTime.UtcNow,
+                Details = $"User {username} logged out of the system."
+            });
+            await _context.SaveChangesAsync();
+
+            await HttpContext.SignOutAsync("Cookies");
+            return RedirectToAction("Login");
         }
     }
 }

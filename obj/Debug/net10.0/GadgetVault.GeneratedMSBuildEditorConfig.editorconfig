@@ -19,181 +19,193 @@ build_property.TargetFrameworkIdentifier = .NETCoreApp
 build_property.TargetFrameworkVersion = v10.0
 build_property.RootNamespace = GadgetVault
 build_property.RootNamespace = GadgetVault
-build_property.ProjectDir = C:\Users\Cherylou\GadgetVault\
+build_property.ProjectDir = c:\Users\Cherylou\GadgetVault\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 9.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\Cherylou\GadgetVault
+build_property.MSBuildProjectDirectory = c:\Users\Cherylou\GadgetVault
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Account/AccessDenied.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Account/AccessDenied.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxBY2Nlc3NEZW5pZWQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Account/Login.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Account/SignUp.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Account/SignUp.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxTaWduVXAuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/Admin.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/Admin.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXEFkbWluLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/BusinessDirectory.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/BusinessDirectory.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXEJ1c2luZXNzRGlyZWN0b3J5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/CompanySettings.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/CompanySettings.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXENvbXBhbnlTZXR0aW5ncy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/EditUser.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/EditRole.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXEVkaXRSb2xlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/EditUser.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXEVkaXRVc2VyLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/InviteUser.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/InviteUser.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXEludml0ZVVzZXIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/MasterData.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/MasterData.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXE1hc3RlckRhdGEuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/MyProfile.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/MyProfile.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXE15UHJvZmlsZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/OrderHistory.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/OrderHistory.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXE9yZGVySGlzdG9yeS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/PickAndPack.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/PickAndPack.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBpY2tBbmRQYWNrLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/PODetails.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/PODetails.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFBPRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/ProductCatalog.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/ProductCatalog.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFByb2R1Y3RDYXRhbG9nLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/PurchaseOrders.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/PurchaseOrders.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFB1cmNoYXNlT3JkZXJzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/ReceiveStock.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/ReceiveStock.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFJlY2VpdmVTdG9jay5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/RolesPermissions.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/RolesPermissions.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFJvbGVzUGVybWlzc2lvbnMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/SalesAndProcurement.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/SalesAndProcurement.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFNhbGVzQW5kUHJvY3VyZW1lbnQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/SalesOrders.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/SalesOrders.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFNhbGVzT3JkZXJzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/SecurityLogs.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/SecurityLogs.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFNlY3VyaXR5TG9ncy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/StockAdjustments.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/StockAdjustments.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFN0b2NrQWRqdXN0bWVudHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/SupplierCatalog.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/SupplierCatalog.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFN1cHBsaWVyQ2F0YWxvZy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/SupplierDashboard.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/SupplierDashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFN1cHBsaWVyRGFzaGJvYXJkLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/SupplierPortal.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/SupplierPortal.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFN1cHBsaWVyUG9ydGFsLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/SystemLogs.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/SystemLogs.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFN5c3RlbUxvZ3MuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/UserManagement.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/UserManagement.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFVzZXJNYW5hZ2VtZW50LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/WarehouseManager.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/WarehouseManager.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFdhcmVob3VzZU1hbmFnZXIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/WarehouseStaff.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXFdhcmVob3VzZVN0YWZmLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Cherylou/GadgetVault/Views/Dashboard/_ViewStart.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Dashboard/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGFzaGJvYXJkXF9WaWV3U3RhcnQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Home/Index.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Home/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxFcnJvci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Cherylou/GadgetVault/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/SalesOrder/Index.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/SalesOrder/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2FsZXNPcmRlclxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Shared/Error.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Shared/Components/NotificationBell/Default.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXENvbXBvbmVudHNcTm90aWZpY2F0aW9uQmVsbFxEZWZhdWx0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Cherylou/GadgetVault/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Shared/_DashboardLayout.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Shared/_DashboardLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9EYXNoYm9hcmRMYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Shared/_Header.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Shared/_Header.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9IZWFkZXIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Shared/_ValidationScriptsPartial.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Warehouse/Fulfillment.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Warehouse/Fulfillment.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcV2FyZWhvdXNlXEZ1bGZpbGxtZW50LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Warehouse/PickList.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Warehouse/LiveInventory.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcV2FyZWhvdXNlXExpdmVJbnZlbnRvcnkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/Cherylou/GadgetVault/Views/Warehouse/PickList.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcV2FyZWhvdXNlXFBpY2tMaXN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Warehouse/_PickList.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Warehouse/_PickList.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcV2FyZWhvdXNlXF9QaWNrTGlzdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Warehouse/_ShipmentDetails.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Warehouse/_ShipmentDetails.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcV2FyZWhvdXNlXF9TaGlwbWVudERldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/_ViewImports.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/_ViewStart.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Cherylou/GadgetVault/Views/Shared/_Layout.cshtml]
+[c:/Users/Cherylou/GadgetVault/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-hkdyejdbxh

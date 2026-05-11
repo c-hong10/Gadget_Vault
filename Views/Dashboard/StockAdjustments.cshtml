@@ -8,118 +8,95 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 
-
 <!-- ┌──────────────────────────────────────────────────────
      │  PAGE HEADER
      └────────────────────────────────────────────────────── -->
 <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
-
-    <!-- left: title block -->
     <div>
         <span class="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest
-                     bg-orange-500 text-white px-3 py-1.5 rounded-full mb-3 shadow-sm">
-            <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse inline-block"></span>
+                     bg-slate-100 dark:bg-[#1e1e24] text-slate-900 dark:text-white px-3 py-1.5 rounded-full mb-3 shadow-sm transition-colors duration-300">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="text-orange-500"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
             Inventory Audit
         </span>
-        <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-            Stock Adjustments &amp;
-            <span class="text-orange-500">Inventory Audit</span>
+        <h1 class="text-3xl font-black tracking-tight leading-tight">
+            <span class="text-orange-500">Stock</span>
+            <span class="text-slate-900 dark:text-white transition-colors duration-300"> Adjustments</span>
         </h1>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-medium max-w-xl leading-relaxed">
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 font-medium max-w-xl leading-relaxed transition-colors duration-300">
             Review discrepancies, approve adjustments, and track shrinkage across all warehouse zones.
         </p>
     </div>
 
-    <!-- right: CTA button -->
-    <div class="shrink-0 mt-1">
-        <button id="btn-manual-adj" onclick="openAdjustmentModal()"
-                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl
-                       bg-gv-brand text-white text-sm font-bold
-                       shadow-lg
-                       hover:opacity-90 hover:-translate-y-0.5
-                       transition-all duration-200
-                       outline-none border-none">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-            </svg>
-            Manual Stock Adjustment
+    <div class="shrink-0 mt-1 flex flex-col items-end gap-3">
+        <div class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl shadow-sm transition-colors duration-300">
+            <span class="w-2 h-2 rounded-full bg-gv-brand animate-pulse inline-block"></span>
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Live Audit Sync</span>
+        </div>
+        <button onclick="openAdjustmentModal()"
+                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gv-brand text-white text-sm font-bold shadow-lg hover:scale-105 transition-all duration-200 outline-none border-none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg>
+            New Adjustment
         </button>
     </div>
 </div>
 
 <!-- ┌──────────────────────────────────────────────────────
-     │  KPI STATS CARDS — 3 columns
+     │  KPI CARDS — Visual Parity with Admin Dashboard
      └────────────────────────────────────────────────────── -->
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
-
-    <!-- Card 1: Pending Approvals (orange) -->
-    <div class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none
-                border border-slate-200 dark:border-slate-800
-                relative overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-400 to-amber-500 rounded-t-2xl"></div>
-        <div class="flex items-start justify-between mb-3">
-            <p class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-tight">
-                Pending Approvals
-            </p>
-            <div class="w-9 h-9 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center shrink-0">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                    <circle cx="9" cy="9" r="7" stroke="#f97316" stroke-width="1.6"/>
-                    <path d="M9 5.5v4l2.5 2.5" stroke="#f97316" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+    <!-- Total Adjustments -->
+    <div class="bg-white dark:bg-[#111113] rounded-2xl p-5 shadow-sm dark:shadow-none border border-slate-200 dark:border-[#1e1e24] relative overflow-hidden flex flex-col justify-between min-h-[120px]
+                hover:scale-[1.02] hover:shadow-xl hover:border-blue-400/30 transition-all duration-300 group">
+        <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-t-2xl"></div>
+        <div class="flex items-start justify-between">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-[#1e1e24]/30 border border-blue-100 dark:border-blue-500/10 flex items-center justify-center shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
+            </div>
+            <div class="flex-1 text-right leading-none">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Total Adjustments (MTD)</p>
+                <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">@transactions.Count(t => t.Timestamp >= new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1))</p>
             </div>
         </div>
-        <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1 text-right">@ViewBag.PendingCount</p>
-        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium text-right">Adjustments awaiting manager sign-off</p>
-        <div class="mt-3 flex items-center justify-end gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-orange-400 animate-pulse inline-block"></span>
-            <span class="text-xs font-semibold text-orange-500">Live Audit Sync</span>
+        <div class="mt-4 flex items-center justify-end gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+            <span class="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block"></span>
+            <span class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">Operational Velocity</span>
         </div>
     </div>
 
-    <!-- Card 2: Total Shrinkage MTD (red) -->
-    <div class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none
-                border border-slate-200 dark:border-slate-800
-                relative overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-400 to-rose-500 rounded-t-2xl"></div>
-        <div class="flex items-start justify-between mb-3">
-            <p class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-tight">
-                Total Shrinkage (MTD)
-            </p>
-            <div class="w-9 h-9 rounded-xl bg-red-50 dark:bg-red-500/10 flex items-center justify-center shrink-0">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                    <path d="M9 2l7.5 13H1.5L9 2z" stroke="#ef4444" stroke-width="1.6" stroke-linejoin="round"/>
-                    <path d="M9 8v3M9 13v.5" stroke="#ef4444" stroke-width="1.6" stroke-linecap="round"/>
-                </svg>
+    <!-- Total Shrinkage -->
+    <div class="bg-white dark:bg-[#111113] rounded-2xl p-5 shadow-sm dark:shadow-none border border-slate-200 dark:border-[#1e1e24] relative overflow-hidden flex flex-col justify-between min-h-[120px]
+                hover:scale-[1.02] hover:shadow-xl hover:border-red-400/30 transition-all duration-300 group">
+        <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-400 to-rose-500 rounded-t-2xl"></div>
+        <div class="flex items-start justify-between">
+            <div class="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/10 flex items-center justify-center shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><path d="M12 2l9 18H3l9-18z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="flex-1 text-right leading-none">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Total Shrinkage (MTD)</p>
+                <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">@(((decimal)ViewBag.TotalShrinkage).ToString("C0", new System.Globalization.CultureInfo("en-PH")))</p>
             </div>
         </div>
-        <p class="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1 text-right">@ViewBag.TotalShrinkage.ToString("C0")</p>
-        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium text-right">From manual & system corrections</p>
-        <div class="mt-3 flex items-center justify-end gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-red-400 inline-block"></span>
-            <span class="text-xs font-semibold text-red-500">Updated @DateTime.Now.ToString("HH:mm")</span>
+        <div class="mt-4 flex items-center justify-end gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+            <span class="w-1.5 h-1.5 rounded-full bg-red-400 inline-block"></span>
+            <span class="text-[10px] font-bold text-red-500 uppercase tracking-widest">Loss Mitigation</span>
         </div>
     </div>
 
-    <!-- Card 3: Audit Completion % (green) -->
-    <div class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none
-                border border-slate-200 dark:border-slate-800
-                relative overflow-hidden hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[var(--brand-color)] to-[color-mix(in_srgb,var(--brand-color)_80%,transparent)] rounded-t-2xl"></div>
-        <div class="flex items-start justify-between mb-3">
-            <p class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-tight">
-                Audit Completion %
-            </p>
-            <div class="w-9 h-9 rounded-xl bg-gv-brand-light dark:bg-gv-brand/10 flex items-center justify-center shrink-0">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                    <circle cx="9" cy="9" r="7" stroke="#23a476" stroke-width="1.6"/>
-                    <path d="M5.5 9.2L8 11.5l4.5-5" stroke="#23a476" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+    <!-- Audit Completion -->
+    <div class="bg-white dark:bg-[#111113] rounded-2xl p-5 shadow-sm dark:shadow-none border border-slate-200 dark:border-[#1e1e24] relative overflow-hidden flex flex-col justify-between min-h-[120px]
+                hover:scale-[1.02] hover:shadow-xl hover:border-gv-brand/30 transition-all duration-300 group">
+        <div class="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-gv-brand to-emerald-400 rounded-t-2xl"></div>
+        <div class="flex items-start justify-between">
+            <div class="w-10 h-10 rounded-xl bg-gv-brand-light dark:bg-gv-brand/10 border border-gv-brand-light dark:border-gv-brand/10 flex items-center justify-center shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#23a476" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <div class="flex-1 text-right leading-none">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Audit Completion %</p>
+                <p class="text-3xl font-black text-gv-brand tracking-tight">@ViewBag.AuditCompletion%</p>
             </div>
         </div>
-        <p class="text-4xl font-black text-gv-brand tracking-tight leading-none mb-1 text-right">@ViewBag.AuditCompletion%</p>
-        <p class="text-xs text-slate-400 dark:text-slate-500 font-medium text-right">Monthly cycle count progress</p>
-        <div class="mt-3 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-            <div class="h-full bg-gradient-to-r from-[var(--brand-color)] to-[color-mix(in_srgb,var(--brand-color)_80%,transparent)] rounded-full" style="width:@ViewBag.AuditCompletion%"></div>
+        <div class="mt-4 w-full h-1 bg-slate-100 dark:bg-[#1e1e24] rounded-full overflow-hidden">
+            <div class="h-full bg-gv-brand rounded-full" style="width:@ViewBag.AuditCompletion%"></div>
         </div>
     </div>
 </div>
@@ -127,94 +104,69 @@
 <!-- ┌──────────────────────────────────────────────────────
      │  ADJUSTMENT TABLE
      └────────────────────────────────────────────────────── -->
-<section class="bg-white dark:bg-[#111113] rounded-2xl shadow-sm dark:shadow-none
-                border border-slate-200 dark:border-slate-800 overflow-hidden"
-         aria-labelledby="adj-table-heading">
-
-    <!-- section header -->
-    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+<section class="bg-white dark:bg-[#111113] rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-[#1e1e24] overflow-hidden transition-colors duration-300">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-[#1e1e24] gap-4">
         <div class="flex items-center gap-3">
             <div class="w-1 h-7 rounded-full bg-orange-500 shrink-0"></div>
             <div>
-                <h2 id="adj-table-heading"
-                    class="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight">
-                    Adjustment Log
-                </h2>
-                <p class="text-xs text-slate-400 dark:text-slate-500 font-medium mt-0.5">All stock changes — pending &amp; approved</p>
+                <h2 class="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight">Adjustment Log</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">Verified inventory activity feed</p>
             </div>
         </div>
 
-        <!-- filter tabs -->
-        <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/60 p-1 rounded-xl">
-            <button class="text-xs font-bold px-3 py-1.5 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm transition-all duration-200">All</button>
-            <button class="text-xs font-bold px-3 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all duration-200">Pending</button>
-            <button class="text-xs font-bold px-3 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all duration-200">Approved</button>
+        <div class="flex items-center gap-1 bg-slate-100 dark:bg-[#111113]/50 p-1 rounded-xl">
+            <div class="text-[10px] font-extrabold uppercase tracking-widest px-4 py-2 text-slate-400">Instant Verification Active</div>
         </div>
     </div>
 
-    <!-- table -->
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm" aria-label="Stock adjustment log">
+    <!-- Table Body -->
+    <div class="overflow-x-auto min-h-[400px]">
+        <table class="w-full text-left border-collapse" id="adj-table">
             <thead>
-                <tr class="bg-slate-50 dark:bg-black/30 border-b border-slate-200 dark:border-slate-800">
-                    <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">Date</th>
-                    <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">Product</th>
-                    <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">SKU</th>
-                    <th class="text-center text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">Qty Change</th>
-                    <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">Reason</th>
-                    <th class="text-center text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">Status</th>
-                    <th class="text-center text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3">Action</th>
+                <tr class="bg-slate-50/50 dark:bg-[#111113]/30 border-b border-slate-100 dark:border-[#1e1e24]">
+                    <th class="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">Timestamp</th>
+                    <th class="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">Product Details</th>
+                    <th class="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center">Qty Change</th>
+                    <th class="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">Reason / Reference</th>
+                    <th class="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Actions</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+            <tbody class="divide-y divide-slate-100 dark:divide-[#1e1e24]/60" id="adj-tbody">
                 @foreach (var t in transactions)
                 {
                     var qtyColor = t.Quantity > 0 ? "text-gv-brand" : "text-red-500";
                     var qtySign = t.Quantity > 0 ? "+" : "";
-                    
-                    var typeLabel = t.Type.ToString();
-                    var typeClass = t.Type switch {
-                        TransactionType.StockIn => "bg-gv-brand-light dark:bg-gv-brand/10 text-gv-brand-dark dark:text-gv-brand-light border-gv-brand-light dark:border-gv-brand/20",
-                        TransactionType.StockOut => "bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/20",
-                        _ => "bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/20"
-                    };
 
-                    <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/20 transition-colors duration-150 group">
-                        <td class="px-5 py-4 text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">
-                            @t.Timestamp.ToString("MMM dd, yyyy HH:mm")
+                    <tr class="adj-row group hover:bg-slate-50 dark:hover:bg-[#1e1e24]/30 transition-colors">
+                        <td class="px-6 py-4">
+                            <span class="text-xs text-slate-500">@t.Timestamp.ToString("MMM dd, HH:mm")</span>
                         </td>
-                        <td class="px-5 py-4">
-                            <div class="font-semibold text-slate-900 dark:text-white text-xs">@(t.Product?.Name ?? "Unknown Product")</div>
+                        <td class="px-6 py-4">
+                            <div class="text-xs font-black text-slate-900 dark:text-white truncate max-w-[200px]">@(t.Product?.Name ?? "Unknown")</div>
+                            <div class="text-[10px] font-bold text-slate-400 font-mono">@(t.Product?.SKU ?? "N/A")</div>
                         </td>
-                        <td class="px-5 py-4">
-                            <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">@(t.Product?.SKU ?? "N/A")</span>
+                        <td class="px-6 py-4 text-center">
+                            <span class="text-base font-black @qtyColor">@qtySign@t.Quantity</span>
                         </td>
-                        <td class="px-5 py-4 text-center">
-                            <span class="font-extrabold text-base @qtyColor">@qtySign@t.Quantity</span>
+                        <td class="px-6 py-4">
+                            <div class="text-xs font-bold text-slate-700 dark:text-slate-300">@t.Type</div>
+                            <div class="text-[10px] text-slate-400 font-medium">@(t.ReferenceId ?? "SYSTEM")</div>
                         </td>
-                        <td class="px-5 py-4">
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border @typeClass">
-                                @typeLabel
-                            </span>
-                        </td>
-                        <td class="px-5 py-4 text-center">
-                            <span class="font-mono text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight">
-                                @(t.ReferenceId ?? "SYSTEM")
-                            </span>
-                        </td>
-                        <td class="px-5 py-4 text-center">
-                            <button class="text-xs font-bold text-slate-400 dark:text-slate-500 hover:text-gv-brand transition-colors border-none bg-transparent">
+                        <td class="px-6 py-4 text-right">
+                            <button onclick='viewDetails(@Json.Serialize(new { 
+                                product = t.Product?.Name ?? "Unknown",
+                                sku = t.Product?.SKU ?? "N/A",
+                                qty = t.Quantity,
+                                date = t.Timestamp.ToString("MMM dd, yyyy HH:mm"),
+                                reason = t.Type.ToString(),
+                                reference = t.ReferenceId ?? "SYSTEM",
+                                notes = t.Notes ?? "No additional notes provided.",
+                                location = t.Location != null ? $"{t.Location.Zone}-{t.Location.Aisle} ({t.Location.Rack})" : "Unknown"
+                            }))' 
+                                    class="text-[10px] font-black text-slate-400 hover:text-gv-brand uppercase tracking-widest transition-colors">
                                 View
                             </button>
-                        </td>
-                    </tr>
-                }
-
-                @if (!transactions.Any())
-                {
-                    <tr>
-                        <td colspan="7" class="px-5 py-12 text-center text-slate-400 font-medium italic">
-                            No inventory transactions recorded yet.
                         </td>
                     </tr>
                 }
@@ -222,67 +174,116 @@
         </table>
     </div>
 
-    <!-- table footer -->
-    <div class="px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0c0e]/50
-                flex items-center justify-between">
-        <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">Showing @transactions.Count() entries in the audit ledger</span>
-        <a href="#" class="text-xs font-bold text-gv-brand hover:text-gv-mid transition-colors">
-            View full audit log →
-        </a>
+    <!-- Table Footer / Pagination -->
+    <div class="px-6 py-4 border-t border-slate-200 dark:border-[#1e1e24] bg-slate-50/50 dark:bg-[#111113]/30 flex items-center justify-between">
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" id="pagination-info">
+            Showing 1-10 of @transactions.Count() logs
+        </p>
+        <div class="flex items-center gap-2">
+            <button onclick="changePage(-1)" id="btn-prev" class="p-2 rounded-lg bg-white dark:bg-[#1e1e24] border border-slate-200 dark:border-[#1e1e24] text-slate-400 hover:text-slate-900 dark:hover:text-white disabled:opacity-50 transition-all">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <div id="page-numbers" class="flex items-center gap-1">
+                <!-- Page numbers injected here -->
+            </div>
+            <button onclick="changePage(1)" id="btn-next" class="p-2 rounded-lg bg-white dark:bg-[#1e1e24] border border-slate-200 dark:border-[#1e1e24] text-slate-400 hover:text-slate-900 dark:hover:text-white disabled:opacity-50 transition-all">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg>
+            </button>
+        </div>
     </div>
 </section>
 
-<!-- MANUAL ADJUSTMENT MODAL -->
-<div id="modal-adjustment" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all duration-300">
-    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all">
-        <!-- Header -->
-        <div class="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-white/5">
+<!-- MODAL: VIEW DETAILS -->
+<div id="modal-details" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0c0c0e]/60 backdrop-blur-md transition-all duration-300 opacity-0">
+    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden scale-95 transition-all">
+        <div class="px-8 py-6 border-b border-slate-100 dark:border-[#1e1e24] flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Adjustment Details</h3>
+                <p class="text-xs text-slate-500 font-medium mt-0.5" id="modal-title-ref"></p>
+            </div>
+            <button onclick="closeModal('modal-details')" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1e1e24] transition-all border-none outline-none">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="p-8 space-y-6">
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Product</label>
+                    <p class="text-sm font-black text-slate-900 dark:text-white" id="m-product"></p>
+                    <p class="text-xs font-mono text-slate-500" id="m-sku"></p>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Quantity Change</label>
+                    <p class="text-xl font-black" id="m-qty"></p>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Timestamp</label>
+                    <p class="text-xs font-bold text-slate-700 dark:text-slate-300" id="m-date"></p>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Location</label>
+                    <p class="text-xs font-bold text-slate-700 dark:text-slate-300" id="m-location"></p>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Adjustment Type</label>
+                    <p class="text-xs font-bold text-slate-700 dark:text-slate-300" id="m-reason"></p>
+                </div>
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Notes / Reason</label>
+                <div class="p-4 bg-slate-50 dark:bg-[#111113] rounded-2xl border border-slate-100 dark:border-[#1e1e24]">
+                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed italic" id="m-notes"></p>
+                </div>
+            </div>
+        </div>
+        <div class="px-8 py-4 bg-slate-50/50 dark:bg-white/5 border-t border-slate-100 dark:border-[#1e1e24] flex justify-end">
+            <button onclick="closeModal('modal-details')" class="px-6 py-3 rounded-2xl bg-slate-900 dark:bg-[#1e1e24] text-white font-black text-xs hover:scale-105 transition-all">CLOSE</button>
+        </div>
+    </div>
+</div>
+
+<!-- MANUAL ADJUSTMENT MODAL (Already exists, but updating style for consistency) -->
+<div id="modal-adjustment" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0c0c0e]/60 backdrop-blur-md transition-all duration-300 opacity-0">
+    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden scale-95 transition-all">
+        <div class="px-8 py-6 border-b border-slate-100 dark:border-[#1e1e24] flex items-center justify-between bg-slate-50/50 dark:bg-white/5">
             <div>
                 <h3 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Manual Stock Adjustment</h3>
                 <p class="text-xs text-slate-500 font-medium mt-0.5">Record shrinkage, damage, or found items.</p>
             </div>
-            <button onclick="closeAdjustmentModal()" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border-none outline-none">
-                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            <button onclick="closeModal('modal-adjustment')" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1e1e24] transition-all border-none outline-none">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
 
         <form asp-action="SubmitStockAdjustment" method="post" class="p-8">
             @Html.AntiForgeryToken()
             <div class="space-y-5">
-                <!-- Product -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Product</label>
-                    <select name="productId" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-gv-brand outline-none transition-all dark:text-white">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Product</label>
+                    <select name="productId" required class="w-full bg-slate-50 dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-gv-brand outline-none transition-all dark:text-white">
                         <option value="">Select Product...</option>
-                        @foreach (var p in (ViewBag.Products as List<Product>) ?? new List<Product>())
-                        {
+                        @foreach (var p in (ViewBag.Products as List<Product>) ?? new List<Product>()) {
                             <option value="@p.Id">@p.Name (@p.SKU)</option>
                         }
                     </select>
                 </div>
-
-                <!-- Location -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Location</label>
-                    <select name="locationId" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-gv-brand outline-none transition-all dark:text-white">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Location</label>
+                    <select name="locationId" required class="w-full bg-slate-50 dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-gv-brand outline-none transition-all dark:text-white">
                         <option value="">Select Location...</option>
-                        @foreach (var l in (ViewBag.Locations as List<WarehouseLocation>) ?? new List<WarehouseLocation>())
-                        {
+                        @foreach (var l in (ViewBag.Locations as List<WarehouseLocation>) ?? new List<WarehouseLocation>()) {
                             <option value="@l.Id">@l.Zone - @l.Aisle (@l.Rack)</option>
                         }
                     </select>
                 </div>
-
                 <div class="grid grid-cols-2 gap-5">
-                    <!-- Qty Change -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Qty Change</label>
-                        <input type="number" name="quantityChange" required placeholder="e.g. -5 or 10" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-gv-brand outline-none transition-all dark:text-white" />
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Qty Change</label>
+                        <input type="number" name="quantityChange" required placeholder="e.g. -5 or 10" class="w-full bg-slate-50 dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-gv-brand outline-none transition-all dark:text-white" />
                     </div>
-                    <!-- Reason -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Reason</label>
-                        <select name="reason" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-gv-brand outline-none transition-all dark:text-white">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Reason</label>
+                        <select name="reason" required class="w-full bg-slate-50 dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-gv-brand outline-none transition-all dark:text-white">
                             <option value="Damaged">Damaged</option>
                             <option value="Lost">Lost</option>
                             <option value="Expired">Expired</option>
@@ -291,19 +292,17 @@
                         </select>
                     </div>
                 </div>
-
-                <!-- Notes -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Notes / Audit Details</label>
-                    <textarea name="notes" rows="3" placeholder="Explain the reason for adjustment..." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-gv-brand outline-none transition-all dark:text-white resize-none"></textarea>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Notes / Audit Details</label>
+                    <textarea name="notes" rows="3" placeholder="Explain the reason for adjustment..." class="w-full bg-slate-50 dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-gv-brand outline-none transition-all dark:text-white resize-none"></textarea>
                 </div>
             </div>
 
             <div class="mt-8 flex gap-3">
-                <button type="submit" class="flex-1 bg-gv-brand text-white py-4 rounded-2xl font-black text-sm shadow-xl shadow-gv-brand/20 hover:opacity-90 hover:-translate-y-1 transition-all border-none outline-none">
+                <button type="submit" class="flex-1 bg-gv-brand text-white py-4 rounded-2xl font-black text-xs shadow-xl shadow-gv-brand/20 hover:opacity-90 hover:-translate-y-1 transition-all border-none outline-none uppercase tracking-widest">
                     Confirm & Update Stock
                 </button>
-                <button type="button" onclick="closeAdjustmentModal()" class="px-6 py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">
+                <button type="button" onclick="closeModal('modal-adjustment')" class="px-6 py-4 rounded-2xl bg-slate-100 dark:bg-[#1e1e24] text-slate-500 font-bold text-xs hover:bg-slate-200 dark:hover:bg-[#1e1e24] transition-all border-none outline-none uppercase tracking-widest">
                     Cancel
                 </button>
             </div>
@@ -312,16 +311,85 @@
 </div>
 
 <script>
+    let currentPage = 1;
+    const pageSize = 10;
+    let currentFilter = 'All';
+
     function openAdjustmentModal() {
-        document.getElementById('modal-adjustment').classList.remove('hidden');
+        const modal = document.getElementById('modal-adjustment');
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modal.querySelector('div').classList.remove('scale-95');
+        }, 10);
     }
-    function closeAdjustmentModal() {
-        document.getElementById('modal-adjustment').classList.add('hidden');
+
+    function viewDetails(data) {
+        document.getElementById('modal-title-ref').innerText = data.reference;
+        document.getElementById('m-product').innerText = data.product;
+        document.getElementById('m-sku').innerText = data.sku;
+        document.getElementById('m-qty').innerText = (data.qty > 0 ? '+' : '') + data.qty;
+        document.getElementById('m-qty').className = `text-xl font-black ${data.qty > 0 ? 'text-gv-brand' : 'text-red-500'}`;
+        document.getElementById('m-date').innerText = data.date;
+        document.getElementById('m-location').innerText = data.location;
+        document.getElementById('m-reason').innerText = data.reason;
+        document.getElementById('m-notes').innerText = data.notes;
+
+        const modal = document.getElementById('modal-details');
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modal.querySelector('div').classList.remove('scale-95');
+        }, 10);
     }
+
+    function closeModal(id) {
+        const modal = document.getElementById(id);
+        modal.classList.add('opacity-0');
+        modal.querySelector('div').classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
+    function renderTable() {
+        const rows = Array.from(document.querySelectorAll('.adj-row'));
+        let filteredRows = rows;
+        
+        // Hide all rows first
+        rows.forEach(row => row.classList.add('hidden'));
+
+        // Paginate
+        const start = (currentPage - 1) * pageSize;
+        const end = start + pageSize;
+        const pageRows = filteredRows.slice(start, end);
+
+        pageRows.forEach(row => row.classList.remove('hidden'));
+
+        // Update Info
+        const total = filteredRows.length;
+        document.getElementById('pagination-info').innerText = `Showing ${Math.min(start + 1, total)}-${Math.min(end, total)} of ${total} logs`;
+
+        // Update Buttons
+        document.getElementById('btn-prev').disabled = currentPage === 1;
+        document.getElementById('btn-next').disabled = end >= total;
+
+        // Render Page Numbers
+        const totalPages = Math.ceil(total / pageSize);
+        const pageContainer = document.getElementById('page-numbers');
+        pageContainer.innerHTML = '';
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.innerText = i;
+            btn.className = `w-8 h-8 rounded-lg text-xs font-bold transition-all ${i === currentPage ? 'bg-gv-brand text-white shadow-md shadow-gv-brand/20' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1e1e24]'}`;
+            btn.onclick = () => { currentPage = i; renderTable(); };
+            pageContainer.appendChild(btn);
+        }
+    }
+
+    function changePage(dir) {
+        currentPage += dir;
+        renderTable();
+    }
+
+    // Initial render
+    document.addEventListener('DOMContentLoaded', renderTable);
 </script>
-
-
-
-
-
-

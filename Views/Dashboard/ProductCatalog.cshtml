@@ -1,4 +1,6 @@
 @using GadgetVault.Models
+@using GadgetVault.Data
+@inject ApplicationDbContext DbContext
 @{
     ViewData["Title"] = "Product Catalog";
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
@@ -12,6 +14,7 @@
     int totalPages = ViewBag.TotalPages ?? 1;
     string? curSearch = ViewBag.CurrentSearch;
     string? curCat = ViewBag.CurrentCategory;
+    var settings = DbContext.SystemSettings.FirstOrDefault() ?? new SystemSettings();
 }
 
 <script src="https://cdn.tailwindcss.com"></script>
@@ -40,7 +43,7 @@
     @if (TempData["Error"] != null)
     {
         <div class="flex items-center gap-3 px-5 py-3.5 rounded-xl bg-red-50 dark:bg-red-500/10
-                    border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400
+                    border border-red-200 dark:border-[#1e1e24] text-red-700 dark:text-red-400
                     text-sm font-semibold shadow-sm">
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             @TempData["Error"]
@@ -48,10 +51,10 @@
     }
 
     <!-- MAIN CARD -->
-    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm flex flex-col">
+    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-2xl overflow-hidden shadow-sm flex flex-col">
 
         <!-- Toolbar -->
-        <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-[#0c0c0e]/50">
+        <div class="p-6 border-b border-slate-200 dark:border-[#1e1e24] flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-[#111113]/50">
             <form method="get" action="/Dashboard/ProductCatalog" class="flex flex-1 flex-col sm:flex-row gap-3">
                 <!-- Search -->
                 <div class="relative w-full sm:w-80">
@@ -60,11 +63,11 @@
                         <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
                     </svg>
                     <input type="text" name="search" value="@curSearch" placeholder="Search products..."
-                           class="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                           class="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24]/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                 </div>
                 <!-- Filter by Category -->
                 <select name="category" onchange="this.form.submit()"
-                        class="w-full sm:w-48 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all cursor-pointer">
+                        class="w-full sm:w-48 bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24]/60 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all cursor-pointer">
                     <option value="">All Categories</option>
                     @foreach (var cat in categories)
                     {
@@ -99,7 +102,7 @@
         <div id="active-table" class="overflow-x-auto">
             <table class="w-full text-left text-sm whitespace-nowrap">
                 <thead>
-                    <tr class="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+                    <tr class="bg-slate-50/80 dark:bg-[#111113]/50 border-b border-slate-100 dark:border-[#1e1e24]">
                         <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 w-16">Image</th>
                         <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">SKU</th>
                         <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Product Name</th>
@@ -121,10 +124,10 @@
                         <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody id="prod-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody id="prod-table-body" class="divide-y divide-slate-100 dark:divide-[#1e1e24]">
                     @foreach (var p in products)
                     {
-                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group prod-row"
+                        <tr class="hover:bg-slate-50/60 dark:hover:bg-[#1e1e24]/30 transition-colors group prod-row"
                             data-id="@p.Id"
                             data-name="@p.Name.ToLower()" data-sku="@p.SKU.ToLower()" data-cat="@(p.Category?.Name ?? "")"
                             data-raw-name="@p.Name" data-raw-sku="@p.SKU" data-cat-id="@p.CategoryId" data-supplier-id="@p.SupplierId"
@@ -132,11 +135,11 @@
                             <td class="px-6 py-4">
                                 @if (!string.IsNullOrEmpty(p.ImageUrl))
                                 {
-                                    <img src="@p.ImageUrl" alt="@p.Name" class="h-10 w-10 object-cover rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm" />
+                                    <img src="@p.ImageUrl" alt="@p.Name" class="h-10 w-10 object-cover rounded-lg border border-slate-200 dark:border-[#1e1e24] shadow-sm" />
                                 }
                                 else
                                 {
-                                    <div class="h-10 w-10 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400">
+                                    <div class="h-10 w-10 rounded-lg bg-slate-100 dark:bg-[#1e1e24] border border-slate-200 dark:border-[#1e1e24] flex items-center justify-center text-slate-400">
                                         <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2-2v12a2 2 0 002 2z"/>
                                         </svg>
@@ -146,7 +149,7 @@
                             <td class="px-6 py-4 font-mono text-xs font-semibold text-slate-500 dark:text-slate-400">
                                 <div class="flex items-center gap-2">
                                     @p.SKU
-                                    <button onclick="showBarcode('@p.SKU')" class="p-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-gv-brand transition-colors" title="Generate Test Barcode">
+                                    <button onclick="showBarcode('@p.SKU')" class="p-1 rounded bg-slate-100 dark:bg-[#1e1e24] text-slate-400 hover:text-gv-brand transition-colors" title="Generate Test Barcode">
                                         <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 4h4v16H3V4zm6 0h2v16H9V4zm4 0h1v16h-1V4zm3 0h5v16h-5V4z"/></svg>
                                     </button>
                                 </div>
@@ -160,7 +163,7 @@
                             </td>
                             <td class="px-6 py-4 text-slate-500 dark:text-slate-400">
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold
-                                             bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                             bg-slate-100 dark:bg-[#1e1e24] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#1e1e24]">
                                     @(p.Category?.Name ?? "Uncategorised")
                                 </span>
                             </td>
@@ -169,30 +172,30 @@
                                 <td class="px-6 py-4 text-center">
                                     @{
                                         int qty = stockMap.ContainsKey(p.Id) ? stockMap[p.Id] : 0;
-                                        string qtyClass = qty <= 5 ? "text-red-500 font-bold" : (qty <= 20 ? "text-amber-500 font-bold" : "text-emerald-500 font-bold");
+                                        string qtyClass = qty == 0 ? "bg-red-100 text-red-700 border-red-200" : (qty <= settings.LowStockThreshold ? "bg-orange-100 text-orange-700 border-orange-200" : "bg-green-100 text-green-700 border-green-200");
                                     }
-                                    <span class="@qtyClass">@qty</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border @qtyClass">@qty</span>
                                 </td>
                             }
                             @if (User.IsInRole("Supplier"))
                             {
-                                <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-200 text-right font-mono">$@p.CostPrice.ToString("N2")</td>
+                                <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-200 text-right font-mono">₱@p.CostPrice.ToString("N2")</td>
                             }
                             else
                             {
-                                <td class="px-6 py-4 font-medium text-slate-500 dark:text-slate-400 text-right font-mono">$@p.CostPrice.ToString("N2")</td>
-                                <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-200 text-right font-mono">$@p.SellingPrice.ToString("N2")</td>
+                                <td class="px-6 py-4 font-medium text-slate-500 dark:text-slate-400 text-right font-mono">₱@p.CostPrice.ToString("N2")</td>
+                                <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-200 text-right font-mono">₱@p.SellingPrice.ToString("N2")</td>
                             }
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-2">
                                     @if (User.IsInRole("Admin") || User.IsInRole("WarehouseManager") || User.IsInRole("Supplier"))
                                     {
                                         <button onclick="openEditModal(this)" title="Edit Product"
-                                                class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-gv-brand hover:bg-gv-brand-light transition-all">
+                                                class="p-2 rounded-lg bg-slate-100 dark:bg-[#1e1e24] text-slate-600 dark:text-slate-400 hover:text-gv-brand hover:bg-gv-brand-light transition-all">
                                             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                         </button>
-                                        <button onclick="triggerArchive(@p.Id, '@Html.Raw(p.Name.Replace("'","\\\'"))')" title="Archive Product"
-                                                class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-all">
+                                        <button onclick="triggerArchive(@p.Id)" title="Archive Product"
+                                                class="p-2 rounded-lg bg-slate-100 dark:bg-[#1e1e24] text-slate-600 dark:text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-all">
                                             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                                         </button>
                                     }
@@ -218,7 +221,7 @@
 
         <!-- ARCHIVE VAULT PANEL (hidden by default) -->
         <div id="vault-panel" style="display:none;">
-            <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-amber-50/50 dark:bg-amber-500/5 flex items-center gap-3">
+            <div class="px-6 py-4 border-t border-slate-200 dark:border-[#1e1e24] bg-amber-50/50 dark:bg-amber-500/5 flex items-center gap-3">
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
                 <span class="text-sm font-bold text-amber-700 dark:text-amber-400">Archived Products Vault</span>
                 <span class="text-xs text-amber-600 dark:text-amber-500 ml-1">Products here are hidden from selection and dashboards. Restore them to reactivate.</span>
@@ -242,7 +245,7 @@
         </div>
 
         <!-- Footer & Pagination -->
-        <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0c0e]/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="px-6 py-4 border-t border-slate-200 dark:border-[#1e1e24] bg-slate-50/50 dark:bg-[#111113]/50 flex flex-col sm:flex-row items-center justify-between gap-4">
             <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">
                 Showing page @curPage of @totalPages (@ViewBag.TotalProducts products total)
             </span>
@@ -251,13 +254,13 @@
                 @if (curPage > 1)
                 {
                     <a href="/Dashboard/ProductCatalog?pageNumber=@(curPage - 1)&search=@curSearch&category=@curCat" 
-                       class="px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all no-underline">
+                       class="px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#1e1e24] transition-all no-underline">
                         Previous
                     </a>
                 }
                 else
                 {
-                    <span class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 text-slate-300 dark:text-slate-600 cursor-not-allowed">
+                    <span class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-[#111113]/50 border border-slate-100 dark:border-[#1e1e24] text-slate-300 dark:text-slate-600 cursor-not-allowed">
                         Previous
                     </span>
                 }
@@ -276,7 +279,7 @@
                         else
                         {
                             <a href="/Dashboard/ProductCatalog?pageNumber=@i&search=@curSearch&category=@curCat" 
-                               class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all no-underline">@i</a>
+                               class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-[#1e1e24] transition-all no-underline">@i</a>
                         }
                     }
                 </div>
@@ -284,13 +287,13 @@
                 @if (curPage < totalPages)
                 {
                     <a href="/Dashboard/ProductCatalog?pageNumber=@(curPage + 1)&search=@curSearch&category=@curCat" 
-                       class="px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all no-underline">
+                       class="px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#1e1e24] transition-all no-underline">
                         Next
                     </a>
                 }
                 else
                 {
-                    <span class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 text-slate-300 dark:text-slate-600 cursor-not-allowed">
+                    <span class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-[#111113]/50 border border-slate-100 dark:border-[#1e1e24] text-slate-300 dark:text-slate-600 cursor-not-allowed">
                         Next
                     </span>
                 }
@@ -303,8 +306,8 @@
      ADD PRODUCT MODAL
      ══════════════════════════════════════ -->
 <div id="modal-add-product"
-     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-lg p-6">
+     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0c0c0e]/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-2xl shadow-2xl w-full max-w-lg p-6">
         <div class="flex items-center justify-between mb-5">
             <h2 class="text-base font-extrabold text-slate-900 dark:text-white">Add New Product</h2>
             <button onclick="document.getElementById('modal-add-product').classList.add('hidden')"
@@ -321,31 +324,33 @@
                 <!-- Row 1: Name -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Product Name <span class="text-red-500">*</span></label>
-                    <input type="text" name="name" required placeholder="e.g. Cisco Catalyst 9300"
-                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                    <input type="text" name="Name" required placeholder="e.g. Cisco Catalyst 9300"
+                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                    <span class="text-[10px] text-red-500 font-bold mt-1 block" data-valmsg-for="Name" data-valmsg-replace="true"></span>
                 </div>
                 <!-- Row 2: SKU + Pricing -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">SKU <span class="text-red-500">*</span></label>
-                        <input type="text" name="sku" required placeholder="e.g. CSC-CAT9300"
-                               class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                        <input type="text" name="SKU" required placeholder="e.g. CSC-CAT9300"
+                               class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm font-mono text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                        <span class="text-[10px] text-red-500 font-bold mt-1 block" data-valmsg-for="SKU" data-valmsg-replace="true"></span>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                            @(User.IsInRole("Supplier") ? "My Cost Price ($)" : "Supplier Cost ($)") <span class="text-red-500">*</span>
+                            @(User.IsInRole("Supplier") ? "My Cost Price (₱)" : "Supplier Cost (₱)") <span class="text-red-500">*</span>
                         </label>
-                        <input type="number" name="costPrice" required min="0" step="0.01" placeholder="0.00"
-                               class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                        <input type="number" name="CostPrice" required min="0" step="0.01" placeholder="0.00"
+                               class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                     </div>
                 </div>
 
                 @if (!User.IsInRole("Supplier"))
                 {
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Retail Selling Price ($) <span class="text-red-500">*</span></label>
-                        <input type="number" name="sellingPrice" min="0" step="0.01" placeholder="0.00"
-                               class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Retail Selling Price (₱) <span class="text-red-500">*</span></label>
+                        <input type="number" name="SellingPrice" min="0" step="0.01" placeholder="0.00"
+                               class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                         <p class="mt-1.5 text-[10px] text-slate-400">Leave blank to apply auto-markup (20%).</p>
                     </div>
                 }
@@ -353,8 +358,8 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Category <span class="text-red-500">*</span></label>
-                        <select name="categoryId" required
-                                class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all cursor-pointer">
+                        <select name="CategoryId" required
+                                class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all cursor-pointer">
                             <option value="" disabled selected>Select category...</option>
                             @foreach (var cat in categories)
                             {
@@ -366,8 +371,8 @@
                     {
                         <div>
                             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Supplier <span class="text-red-500">*</span></label>
-                            <select name="supplierId" required
-                                    class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all cursor-pointer">
+                            <select name="SupplierId" required
+                                    class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all cursor-pointer">
                                 <option value="" disabled selected>Select supplier...</option>
                                 @foreach (var sup in suppliers)
                                 {
@@ -380,19 +385,19 @@
                 <!-- Row 4: Description (optional) -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Description <span class="text-slate-400 font-normal">(optional)</span></label>
-                    <textarea name="description" rows="2" placeholder="Short product description..."
-                              class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all resize-none"></textarea>
+                    <textarea name="Description" rows="2" placeholder="Short product description..."
+                              class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all resize-none"></textarea>
                 </div>
                 <!-- Row 5: Image -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Product Image <span class="text-slate-400 font-normal">(optional)</span></label>
                     <input type="file" name="imageFile" accept="image/*"
-                           class="w-full px-4 py-2 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand transition-all cursor-pointer file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-700 dark:file:bg-slate-700 dark:file:text-slate-200 hover:file:bg-slate-300 dark:hover:file:bg-slate-600"/>
+                           class="w-full px-4 py-2 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand transition-all cursor-pointer file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-700 dark:file:bg-slate-700 dark:file:text-slate-200 hover:file:bg-slate-300 dark:hover:file:bg-slate-600"/>
                 </div>
                 <!-- Actions -->
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="document.getElementById('modal-add-product').classList.add('hidden')"
-                            class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">
+                            class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#1e1e24] hover:bg-slate-200 dark:hover:bg-[#1e1e24] transition-all border-none outline-none">
                         Cancel
                     </button>
                     <button type="submit"
@@ -410,8 +415,8 @@
      EDIT PRODUCT MODAL
      ══════════════════════════════════════ -->
 <div id="modal-edit-product"
-     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-lg p-6">
+     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0c0c0e]/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-2xl shadow-2xl w-full max-w-lg p-6">
         <div class="flex items-center justify-between mb-5">
             <h2 class="text-base font-extrabold text-slate-900 dark:text-white">Edit Product</h2>
             <button type="button" onclick="document.getElementById('modal-edit-product').classList.add('hidden')"
@@ -429,37 +434,39 @@
                 <!-- Row 1: Name -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Product Name <span class="text-red-500">*</span></label>
-                    <input type="text" name="name" id="edit-prod-name" required
-                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                    <input type="text" name="Name" id="edit-prod-name" required
+                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                    <span class="text-[10px] text-red-500 font-bold mt-1 block" data-valmsg-for="Name" data-valmsg-replace="true"></span>
                 </div>
                 <!-- Row 2: SKU + Pricing -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">SKU <span class="text-red-500">*</span></label>
-                        <input type="text" name="sku" id="edit-prod-sku" required
-                               class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                        <input type="text" name="SKU" id="edit-prod-sku" required
+                               class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm font-mono text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                        <span class="text-[10px] text-red-500 font-bold mt-1 block" data-valmsg-for="SKU" data-valmsg-replace="true"></span>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">@(User.IsInRole("Supplier") ? "My Cost Price ($)" : "Supplier Cost ($)") <span class="text-red-500">*</span></label>
-                        <input type="number" name="costPrice" id="edit-prod-cost" required min="0" step="0.01"
-                               class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">@(User.IsInRole("Supplier") ? "My Cost Price (₱)" : "Supplier Cost (₱)") <span class="text-red-500">*</span></label>
+                        <input type="number" name="CostPrice" id="edit-prod-cost" required min="0" step="0.01"
+                               class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                     </div>
                 </div>
 
                 @if (!User.IsInRole("Supplier"))
                 {
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Retail Selling Price ($) <span class="text-red-500">*</span></label>
-                        <input type="number" name="sellingPrice" id="edit-prod-sell" required min="0" step="0.01"
-                               class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Retail Selling Price (₱) <span class="text-red-500">*</span></label>
+                        <input type="number" name="SellingPrice" id="edit-prod-sell" required min="0" step="0.01"
+                               class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                     </div>
                 }
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Category <span class="text-red-500">*</span></label>
-                        <select name="categoryId" id="edit-prod-cat" required
-                                class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all cursor-pointer">
+                        <select name="CategoryId" id="edit-prod-cat" required
+                                class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all cursor-pointer">
                             <option value="" disabled>Select category...</option>
                             @foreach (var cat in categories)
                             {
@@ -471,8 +478,8 @@
                     {
                         <div>
                             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Supplier <span class="text-red-500">*</span></label>
-                            <select name="supplierId" id="edit-prod-sup" required
-                                    class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all cursor-pointer">
+                            <select name="SupplierId" id="edit-prod-sup" required
+                                    class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all cursor-pointer">
                                 <option value="" disabled>Select supplier...</option>
                                 @foreach (var sup in suppliers)
                                 {
@@ -484,19 +491,19 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Description <span class="text-slate-400 font-normal">(optional)</span></label>
-                    <textarea name="description" id="edit-prod-desc" rows="2"
-                              class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all resize-none"></textarea>
+                    <textarea name="Description" id="edit-prod-desc" rows="2"
+                              class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all resize-none"></textarea>
                 </div>
                 <!-- Row 5: Image -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Product Image <span class="text-slate-400 font-normal">(optional, will overwrite existing)</span></label>
                     <input type="file" name="imageFile" accept="image/*"
-                           class="w-full px-4 py-2 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand transition-all cursor-pointer file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-700 dark:file:bg-slate-700 dark:file:text-slate-200 hover:file:bg-slate-300 dark:hover:file:bg-slate-600"/>
+                           class="w-full px-4 py-2 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand transition-all cursor-pointer file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-700 dark:file:bg-slate-700 dark:file:text-slate-200 hover:file:bg-slate-300 dark:hover:file:bg-slate-600"/>
                 </div>
                 <!-- Actions -->
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="document.getElementById('modal-edit-product').classList.add('hidden')"
-                            class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">
+                            class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#1e1e24] hover:bg-slate-200 dark:hover:bg-[#1e1e24] transition-all border-none outline-none">
                         Cancel
                     </button>
                     <button type="submit"
@@ -512,8 +519,8 @@
 
 <!-- BARCODE MODAL -->
 <div id="modal-barcode" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-all duration-300">
-    <div class="relative w-full max-w-sm bg-[#111113] border border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
-        <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+    <div class="relative w-full max-w-sm dark:bg-[#111113] border border-[#1e1e24] rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+        <div class="p-6 border-b border-[#1e1e24] flex items-center justify-between">
             <div>
                 <h3 class="text-lg font-extrabold text-white tracking-tight">Test Barcode</h3>
                 <p id="barcode-sku" class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1"></p>
@@ -526,7 +533,7 @@
             <svg id="barcode-canvas"></svg>
             <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Point scanner at screen to test</p>
         </div>
-        <div class="p-4 bg-[#0c0c0e] text-center">
+        <div class="p-4 bg-[#111113] text-center">
              <button onclick="document.getElementById('modal-barcode').classList.add('hidden')" class="w-full py-3 rounded-xl bg-slate-800 text-white text-sm font-bold hover:bg-slate-700 transition-all">Close Preview</button>
         </div>
     </div>
@@ -600,7 +607,7 @@
                                 ${p.category ? p.category.name : 'General'}
                             </span>
                         </td>
-                        <td class="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 text-right">$${parseFloat(p.price).toFixed(2)}</td>
+                        <td class="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 text-right">₱${parseFloat(p.price).toFixed(2)}</td>
                         <td class="px-6 py-4 text-right">
                             <button onclick="restoreProduct(${p.id}, '${p.name.replace("'","\\\'")}')" title="Restore Gadget"
                                     class="p-2 rounded-lg bg-amber-50 dark:bg-amber-500/10 text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-all border-none outline-none">
@@ -674,7 +681,9 @@
         document.getElementById('modal-edit-product').classList.remove('hidden');
     }
 
-    function triggerArchive(id, itemName) {
+    function triggerArchive(id) {
+        const row = document.querySelector(`.prod-row[data-id="${id}"]`);
+        const itemName = row ? row.dataset.rawName : "this item";
         if (typeof showConfirm === 'function') {
             showConfirm("Archive Product", "Archive \"" + itemName + "\"? It will be hidden from active views but preserved for reporting.", function() {
                 fetch(`/Product/Archive/${id}`, { method: 'POST' })
@@ -693,6 +702,11 @@
         if (toast) setTimeout(() => toast.style.opacity = '0', 3500);
     });
 </script>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
+
 
 
 

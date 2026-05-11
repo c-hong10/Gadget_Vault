@@ -11,7 +11,8 @@ namespace GadgetVault.Models
         Ordered,
         Acknowledged,
         Received,
-        Cancelled
+        Cancelled,
+        Shipped
     }
 
     public class PurchaseOrder

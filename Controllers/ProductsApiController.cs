@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using GadgetVault.Models;
 using GadgetVault.Data;
 
@@ -7,6 +8,7 @@ namespace GadgetVault.Controllers
 {
     [Route("api/products")]
     [ApiController]
+    [Authorize]
     public class ProductsApiController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -36,7 +38,7 @@ namespace GadgetVault.Controllers
 
             var reserved = await _context.SalesOrderItems
                 .Where(i => i.ProductId == id && 
-                           (i.SalesOrder.Status == SOStatus.Draft || 
+                           (i.SalesOrder!.Status == SOStatus.Draft || 
                             i.SalesOrder.Status == SOStatus.Pending || 
                             i.SalesOrder.Status == SOStatus.Picking || 
                             i.SalesOrder.Status == SOStatus.Packed))

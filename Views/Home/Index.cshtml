@@ -440,7 +440,7 @@
     .lp-section-title {
         font-size: 2.8rem;
         font-weight: 900;
-        color: var(--primary-green);
+        color: #1e293b;
         letter-spacing: -0.04em;
         line-height: 1.15;
         margin-bottom: 16px;
@@ -448,7 +448,7 @@
 
     .lp-section-subtitle {
         font-size: 1.05rem;
-        color: #5d7068;
+        color: #475569;
         max-width: 560px;
         margin: 0 auto;
         line-height: 1.72;
@@ -545,7 +545,7 @@
     .lp-feat-title {
         font-size: 1.3rem;
         font-weight: 800;
-        color: var(--primary-green);
+        color: #1e293b;
         margin-bottom: 14px;
         letter-spacing: -0.02em;
         line-height: 1.3;
@@ -644,7 +644,7 @@
     .lp-role-name {
         font-size: 1.05rem;
         font-weight: 800;
-        color: var(--primary-green);
+        color: #1e293b;
         margin-bottom: 12px;
         letter-spacing: -0.01em;
     }
@@ -892,8 +892,8 @@
                     <!-- CTAs -->
                     <div class="lp-hero-ctas flex flex-col sm:flex-row items-center justify-start gap-4 mt-8">
                         <!-- Get Started → SignUp -->
-                        <a asp-controller="Account" asp-action="SignUp" class="lp-btn lp-btn-primary" id="hero-get-started">
-                            Get Started
+                        <a asp-controller="Account" asp-action="Login" class="lp-btn lp-btn-primary" id="hero-get-started">
+                            Sign In
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                 <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
@@ -939,7 +939,7 @@
                                      Demo as Warehouse Manager
                                 </a>
 
-                                <a href="/Dashboard/WarehouseStaff"
+                                <a href="/Warehouse/LiveInventory"
                                    class="lp-demo-link" role="menuitem">
                                     <span class="lp-demo-dot" style="background:#f59e0b;"></span>
                                      Demo as Warehouse Staff
@@ -1238,16 +1238,10 @@
                 Sign in to your GadgetVault tenant and start managing inventory, orders,
                 and warehouse operations from a single pane of glass.
             </p>
-            <!-- Primary CTA → SignUp; existing users use navbar Sign In -->
-            <a class="lp-btn lp-btn-primary" asp-controller="Account" asp-action="SignUp">
-                Get Started Free →
+            <!-- Primary CTA → Login -->
+            <a class="lp-btn lp-btn-primary" asp-controller="Account" asp-action="Login">
+                Sign In to Your Workspace →
             </a>
-            <div style="margin-top: 14px;">
-                <a asp-controller="Account" asp-action="Login"
-                   style="font-family:'Inter',sans-serif; font-size:0.85rem; color:rgba(168,220,200,0.7); font-weight:500; text-decoration:none;">
-                    Already have an account? <span style="color:#2ecc9a; font-weight:700;">Sign In →</span>
-                </a>
-            </div>
         </div>
     </section>
 

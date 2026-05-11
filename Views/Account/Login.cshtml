@@ -1,6 +1,13 @@
+@using Microsoft.Extensions.Configuration
+@using GadgetVault.Data
+@inject IConfiguration Configuration
+@inject ApplicationDbContext DbContext
 @{
     ViewData["Title"] = "Sign In";
     Layout = null; // Standalone — no header/footer from _Layout
+    var recaptchaSiteKey = Configuration["RECAPTCHA_SITE_KEY"];
+    var settings = DbContext.SystemSettings.FirstOrDefault();
+    var brandColor = settings?.PrimaryColorHex ?? "#23a476";
 }
 <!DOCTYPE html>
 <html lang="en" class="h-full">
@@ -11,7 +18,9 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
+        :root { --brand-color: @brandColor; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { height: 100%; font-family: 'Inter', 'Segoe UI', sans-serif; }
 
@@ -55,12 +64,12 @@
         .logo-icon {
             width: 36px;
             height: 36px;
-            background-color: #23a476;
+            background-color: var(--brand-color);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 20px rgba(35,164,118,0.35);
+            box-shadow: 0 0 20px color-mix(in srgb, var(--brand-color) 35%, transparent);
         }
         .logo-text {
             font-size: 1.35rem;
@@ -68,7 +77,7 @@
             color: #fff;
             letter-spacing: -0.03em;
         }
-        .logo-text span { color: #23a476; }
+        .logo-text span { color: var(--brand-color); }
 
         /* Card */
         .login-card {
@@ -137,29 +146,15 @@
         }
         .auth-input::placeholder { color: #334155; }
         .auth-input:focus {
-            border-color: #23a476;
-            box-shadow: 0 0 0 3px rgba(35,164,118,0.15);
+            border-color: var(--brand-color);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-color) 15%, transparent);
         }
-
-        .field-row-end {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: -10px;
-            margin-bottom: 24px;
-        }
-        .forgot-link {
-            font-size: 0.78rem;
-            color: #23a476;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .forgot-link:hover { color: #2dd480; }
 
         /* Primary button */
         .btn-signin {
             width: 100%;
             padding: 12px 20px;
-            background: #23a476;
+            background: var(--brand-color);
             color: #fff;
             font-family: 'Inter', sans-serif;
             font-size: 0.875rem;
@@ -168,12 +163,12 @@
             border-radius: 10px;
             cursor: pointer;
             transition: background 0.18s, box-shadow 0.18s, transform 0.15s;
-            box-shadow: 0 4px 14px rgba(35,164,118,0.3);
+            box-shadow: 0 4px 14px color-mix(in srgb, var(--brand-color) 30%, transparent);
             letter-spacing: 0.01em;
         }
         .btn-signin:hover {
-            background: #1e8f66;
-            box-shadow: 0 6px 20px rgba(35,164,118,0.4);
+            background: color-mix(in srgb, var(--brand-color) 80%, black);
+            box-shadow: 0 6px 20px color-mix(in srgb, var(--brand-color) 40%, transparent);
             transform: translateY(-1px);
         }
         .btn-signin:active { transform: translateY(0); }
@@ -187,22 +182,6 @@
         }
         .divider hr { flex: 1; border: none; border-top: 1px solid #1e1e24; }
         .divider span { font-size: 0.72rem; color: #334155; font-weight: 500; }
-
-        /* Footer links */
-        .card-footer-links {
-            text-align: center;
-            margin-top: 24px;
-        }
-        .card-footer-links p {
-            font-size: 0.82rem;
-            color: #475569;
-        }
-        .card-footer-links a {
-            color: #23a476;
-            font-weight: 600;
-            text-decoration: none;
-        }
-        .card-footer-links a:hover { color: #2dd480; }
 
         .back-link {
             display: flex;
@@ -253,16 +232,15 @@
                 <label class="field-label" for="login-password">Password</label>
                 <input id="login-password" class="auth-input" type="password" name="password" placeholder="••••••••••" required autocomplete="current-password" style="margin-bottom:10px;" />
 
-                <div class="field-row-end">
-                    <a href="#" class="forgot-link">Forgot password?</a>
+
+                <!-- Google reCAPTCHA v2 -->
+                <div class="mb-5 flex justify-center" style="margin-bottom: 24px;">
+                    <div class="g-recaptcha" data-sitekey="@recaptchaSiteKey" data-theme="dark"></div>
                 </div>
 
                 <button type="submit" class="btn-signin">Sign In</button>
             </form>
 
-            <div class="card-footer-links">
-                <p>Don't have an account? <a asp-controller="Account" asp-action="SignUp">Sign Up</a></p>
-            </div>
         </div>
 
         <a href="/" class="back-link">

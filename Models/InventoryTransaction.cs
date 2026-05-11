@@ -47,5 +47,9 @@ namespace GadgetVault.Models
         
         [ForeignKey(nameof(PurchaseOrderId))]
         public virtual PurchaseOrder? PurchaseOrder { get; set; }
+
+        // Phase 5 — Approval Workflow
+        public bool IsApproved { get; set; } = false;
+        public string? ApprovedBy { get; set; }
     }
 }

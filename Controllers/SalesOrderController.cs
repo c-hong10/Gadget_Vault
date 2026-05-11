@@ -40,7 +40,7 @@ namespace GadgetVault.Controllers
                 query = query.Where(o => o.Status == statusEnum);
             }
 
-            var orders = await query.OrderByDescending(o => o.OrderDate).ToListAsync();
+            var orders = await query.OrderByDescending(o => o.Id).ToListAsync();
 
             // Populate view data for the creation modal
             // CRITICAL LINK: Exclusive to Customers
@@ -99,7 +99,7 @@ namespace GadgetVault.Controllers
 
                     var reserved = await _context.SalesOrderItems
                         .Where(i => i.ProductId == item.ProductId && 
-                                   (i.SalesOrder.Status == SOStatus.Draft || 
+                                   (i.SalesOrder!.Status == SOStatus.Draft || 
                                     i.SalesOrder.Status == SOStatus.Pending || 
                                     i.SalesOrder.Status == SOStatus.Picking || 
                                     i.SalesOrder.Status == SOStatus.Packed))
@@ -167,7 +167,7 @@ namespace GadgetVault.Controllers
 
                     var reserved = await _context.SalesOrderItems
                         .Where(i => i.ProductId == item.ProductId && i.SalesOrderId != id &&
-                                   (i.SalesOrder.Status == SOStatus.Draft || 
+                                   (i.SalesOrder!.Status == SOStatus.Draft || 
                                     i.SalesOrder.Status == SOStatus.Pending || 
                                     i.SalesOrder.Status == SOStatus.Picking || 
                                     i.SalesOrder.Status == SOStatus.Packed))

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using GadgetVault.Models;
 using GadgetVault.Data;
 
@@ -7,6 +8,7 @@ namespace GadgetVault.Controllers
 {
     [Route("api/stocklevels")]
     [ApiController]
+    [Authorize(Roles = "Admin, SystemManager, WarehouseManager, WarehouseStaff, SalesAndProcurement")]
     public class StockLevelsApiController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

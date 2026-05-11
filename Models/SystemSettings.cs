@@ -16,6 +16,9 @@ namespace GadgetVault.Models
         [MaxLength(7)]
         public string? PrimaryColorHex { get; set; }
 
+        public int LowStockThreshold { get; set; } = 10;
+        public int InStockThreshold { get; set; } = 20;
+
         public int? UpdatedByUserId { get; set; }
         public virtual User? UpdatedBy { get; set; }
     }

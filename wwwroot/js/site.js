@@ -108,3 +108,25 @@ function closeConfirm() {
         if (modal) modal.style.display = 'none';
     }, 180);
 }
+
+// ─────────────────────────────────────────────────────
+// GLOBAL INPUT VALIDATION
+// Prevents invalid characters in numeric fields
+// ─────────────────────────────────────────────────────
+document.addEventListener('keydown', function(e) {
+    const target = e.target;
+    if (target.tagName === 'INPUT' && target.type === 'number') {
+        // Characters to block
+        const invalidChars = ['e', 'E', '+'];
+        
+        // Block '-' unless it's a field that explicitly allows negative values (like Stock Adjustment)
+        const isStockAdj = target.name === 'quantityChange';
+        if (!isStockAdj) {
+            invalidChars.push('-');
+        }
+
+        if (invalidChars.includes(e.key)) {
+            e.preventDefault();
+        }
+    }
+});

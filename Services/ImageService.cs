@@ -43,5 +43,41 @@ namespace GadgetVault.Services
 
             return uploadResult.SecureUrl.ToString();
         }
+
+        public async Task<string?> UploadProfilePictureAsync(IFormFile file)
+        {
+            if (file == null || file.Length == 0) return null;
+
+            using var stream = file.OpenReadStream();
+            var uploadParams = new ImageUploadParams
+            {
+                File = new FileDescription(file.FileName, stream),
+                Folder = "GadgetVault/Profiles",
+                Transformation = new Transformation().Width(250).Height(250).Crop("fill").Gravity("face")
+            };
+
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+            return uploadResult.SecureUrl?.ToString();
+        }
+
+        public async Task DeleteImageAsync(string? imageUrl)
+        {
+            if (string.IsNullOrEmpty(imageUrl)) return;
+
+            try
+            {
+                // Extract PublicID from URL
+                // Example: https://res.cloudinary.com/demo/image/upload/v12345678/GadgetVault/Profiles/xyz.png
+                var parts = imageUrl.Split('/');
+                var filenameWithExtension = parts[^1];
+                var filename = filenameWithExtension.Split('.')[0];
+                
+                // We need the full path in the folder
+                var publicId = $"GadgetVault/Profiles/{filename}";
+                
+                await _cloudinary.DestroyAsync(new DeletionParams(publicId));
+            }
+            catch { /* Best effort deletion */ }
+        }
     }
 }

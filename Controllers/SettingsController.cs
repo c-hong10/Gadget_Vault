@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using GadgetVault.Models;
 using GadgetVault.Data;
 using GadgetVault.Services;
@@ -8,6 +9,7 @@ using System.Linq;
 
 namespace GadgetVault.Controllers
 {
+    [Authorize(Roles = "Admin, SystemManager, System Manager, WarehouseManager")]
     public class SettingsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -53,6 +55,8 @@ namespace GadgetVault.Controllers
                 {
                     existing.CompanyName = model.CompanyName;
                     existing.PrimaryColorHex = model.PrimaryColorHex;
+                    existing.LowStockThreshold = model.LowStockThreshold;
+                    existing.InStockThreshold = model.InStockThreshold;
                     if (logoUrl != null)
                     {
                         existing.LogoUrl = logoUrl;
@@ -70,6 +74,17 @@ namespace GadgetVault.Controllers
                 }
 
                 TempData["SuccessMessage"] = "Settings updated successfully.";
+
+                // Record SETTINGS_UPDATED event
+                _context.AuditLogs.Add(new AuditLog
+                {
+                    Action = "SETTINGS_UPDATED",
+                    PerformedBy = User.Identity?.Name ?? "System",
+                    Timestamp = System.DateTime.UtcNow,
+                    Details = $"Updated global system settings (Company: {model.CompanyName})"
+                });
+                _context.SaveChanges();
+
                 return RedirectToAction("Index");
             }
 

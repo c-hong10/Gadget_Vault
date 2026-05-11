@@ -9,9 +9,11 @@ namespace GadgetVault.Models
         public int Id { get; set; }
 
         [Required, MaxLength(200)]
+        [RegularExpression(@"^[a-zA-Z0-9\s\-\.]+$", ErrorMessage = "Only letters, numbers, spaces, hyphens, and periods are allowed.")]
         public string Name { get; set; } = string.Empty;
 
         [Required, MaxLength(100)]
+        [RegularExpression(@"^[a-zA-Z0-9\s\-\.]+$", ErrorMessage = "Only letters, numbers, spaces, hyphens, and periods are allowed.")]
         public string SKU { get; set; } = string.Empty;
 
         [MaxLength(100)]
@@ -45,5 +47,8 @@ namespace GadgetVault.Models
         public BusinessPartner? Supplier { get; set; }
 
         public bool IsActive { get; set; } = true;
+
+        // Phase 5 — Alerts
+        public int ReorderThreshold { get; set; } = 10;
     }
 }

@@ -71,7 +71,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
 
             <!-- Card 1: Total Inventory Value -->
-            <a href="/Dashboard/WarehouseStaff" class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800 relative overflow-hidden flex flex-col justify-between min-h-[140px]
+            <a href="/Warehouse/LiveInventory" class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none border border-slate-200 dark:border-[#1e1e24] relative overflow-hidden flex flex-col justify-between min-h-[140px]
                         hover:scale-105 hover:shadow-xl transition-all duration-300 group">
                 <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gv-brand to-emerald-400 rounded-t-2xl"></div>
                 <div class="flex items-start justify-between">
@@ -93,7 +93,7 @@
             </a>
 
             <!-- Card 2: Low Stock Alerts (yellow) -->
-            <a href="/Dashboard/PurchaseOrders" class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800 relative overflow-hidden flex flex-col justify-between min-h-[140px]
+            <a href="/Dashboard/PurchaseOrders" class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none border border-slate-200 dark:border-[#1e1e24] relative overflow-hidden flex flex-col justify-between min-h-[140px]
                         hover:scale-105 hover:shadow-xl transition-all duration-300 group">
                 <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 to-amber-400 rounded-t-2xl"></div>
                 <div class="flex items-start justify-between">
@@ -116,7 +116,7 @@
             </a>
 
             <!-- Card 3: Pending Orders (blue) -->
-            <a href="/Dashboard/PurchaseOrders" class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800 relative overflow-hidden flex flex-col justify-between min-h-[140px]
+            <a href="/Dashboard/PurchaseOrders" class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none border border-slate-200 dark:border-[#1e1e24] relative overflow-hidden flex flex-col justify-between min-h-[140px]
                         hover:scale-105 hover:shadow-xl transition-all duration-300 group">
                 <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 to-sky-500 rounded-t-2xl"></div>
                 <div class="flex items-start justify-between">
@@ -139,7 +139,7 @@
             </a>
 
             <!-- Card 4: Active Floor Staff (purple) - Static Info Card -->
-            <div class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800 relative overflow-hidden flex flex-col justify-between min-h-[140px] transition-all duration-300">
+            <div class="bg-white dark:bg-[#111113] rounded-2xl p-6 shadow-sm dark:shadow-none border border-slate-200 dark:border-[#1e1e24] relative overflow-hidden flex flex-col justify-between min-h-[140px] transition-all duration-300">
                 <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-400 to-purple-500 rounded-t-2xl"></div>
                 <div class="flex items-start justify-between">
                     <div class="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
@@ -169,12 +169,12 @@
             <!-- ╔══════════════════════════════════════════════════
                  ║  LEFT — LIVE PICK-PACK-SHIP OPERATIONS
                  ╚══════════════════════════════════════════════════ -->
-            <section class="bg-white dark:bg-[#111113] rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800
+            <section class="bg-white dark:bg-[#111113] rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-[#1e1e24]
                             overflow-hidden flex flex-col"
                      aria-labelledby="ops-heading">
 
                 <!-- card header -->
-                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-[#1e1e24]">
                     <div class="flex items-center gap-3">
                         <div class="w-1 h-7 rounded-full bg-blue-500 shrink-0"></div>
                         <div>
@@ -196,7 +196,7 @@
                 <div class="overflow-x-auto flex-1">
                     <table class="w-full text-sm" aria-label="Active floor operations">
                         <thead>
-                            <tr class="bg-slate-50 dark:bg-black/30 border-b border-slate-200 dark:border-slate-800">
+                            <tr class="bg-slate-50 dark:bg-[#111113]/30 border-b border-slate-200 dark:border-[#1e1e24]">
                                 <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3 whitespace-nowrap">Task ID</th>
                                 <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3 whitespace-nowrap">Customer</th>
                                 <th class="text-center text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3 whitespace-nowrap">Type</th>
@@ -204,10 +204,10 @@
                                 <th class="text-left text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-5 py-3 whitespace-nowrap">Date</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                        <tbody class="divide-y divide-slate-100 dark:divide-[#1e1e24]/60">
                             @foreach (var order in (List<SalesOrder>)ViewBag.ActiveOperations)
                             {
-                                <tr class="hover:bg-slate-50/70 dark:bg-slate-800/30 transition-colors duration-150 group">
+                                <tr class="hover:bg-slate-50/70 dark:bg-[#111113]/30 transition-colors duration-150 group">
                                     <td class="px-5 py-4">
                                         <span class="font-bold text-slate-900 dark:text-white text-xs group-hover:text-gv-brand transition-colors">#@order.SONumber</span>
                                     </td>
@@ -224,7 +224,7 @@
                                     </td>
                                     <td class="px-5 py-4 text-center">
                                         <span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider
-                                                     bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700">
+                                                     bg-slate-100 text-slate-600 border border-slate-200 dark:bg-[#1e1e24] dark:text-slate-400 dark:border-[#1e1e24]">
                                             Standard
                                         </span>
                                     </td>
@@ -251,7 +251,7 @@
                 </div>
 
                 <!-- card footer -->
-                <div class="px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0c0e]/50
+                <div class="px-6 py-3 border-t border-slate-200 dark:border-[#1e1e24] bg-slate-50/50 dark:bg-[#111113]/50
                             flex items-center justify-between">
                     <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">Showing 5 most recent activities</span>
                     <a href="/Dashboard/StockAdjustments" class="text-xs font-bold text-gv-brand hover:text-gv-mid transition-colors">
@@ -263,12 +263,12 @@
             <!-- ╔══════════════════════════════════════════════════
                  ║  RIGHT — SYSTEM ACTIVITY FEED
                  ╚══════════════════════════════════════════════════ -->
-            <section class="bg-white dark:bg-[#111113] rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800
+            <section class="bg-white dark:bg-[#111113] rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-[#1e1e24]
                             overflow-hidden flex flex-col"
                      aria-labelledby="adj-heading">
 
                 <!-- card header -->
-                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-[#1e1e24]">
                     <div class="flex items-center gap-3">
                         <div class="w-1 h-7 rounded-full bg-orange-500 shrink-0"></div>
                         <div>
@@ -285,10 +285,10 @@
                 </div>
 
                 <!-- transactions feed -->
-                <div class="flex-1 divide-y divide-slate-100 dark:divide-slate-800/60 overflow-y-auto">
+                <div class="flex-1 divide-y divide-slate-100 dark:divide-[#1e1e24]/60 overflow-y-auto">
                     @foreach (var t in (List<InventoryTransaction>)ViewBag.RecentActivity)
                     {
-                        <div class="px-6 py-5 flex gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors duration-150">
+                        <div class="px-6 py-5 flex gap-4 hover:bg-slate-50 dark:hover:bg-[#1e1e24]/20 transition-colors duration-150">
                             <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 
                                         @(t.Type == TransactionType.StockIn ? "bg-emerald-100 text-emerald-600" : "bg-red-100 text-red-600")">
                                 @if (t.Type == TransactionType.StockIn) {
@@ -328,7 +328,7 @@
                 </div>
 
                 <!-- card footer -->
-                <div class="px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0c0e]/50
+                <div class="px-6 py-3 border-t border-slate-200 dark:border-[#1e1e24] bg-slate-50/50 dark:bg-[#111113]/50
                             flex items-center justify-between">
                     <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">Latest ledger updates</span>
                     <a href="/Dashboard/StockAdjustments" class="text-xs font-bold text-gv-brand hover:text-gv-mid transition-colors">

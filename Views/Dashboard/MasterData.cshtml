@@ -40,10 +40,10 @@
     }
 
     <!-- MAIN CARD -->
-    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm flex flex-col">
+    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-2xl overflow-hidden shadow-sm flex flex-col">
 
         <!-- TABS -->
-        <div class="flex items-center gap-6 px-6 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex items-center gap-6 px-6 border-b border-slate-200 dark:border-[#1e1e24]">
             <button id="tab-btn-categories" onclick="switchTab('categories')"
                 class="py-4 text-sm font-bold border-b-2 -mb-px transition-colors"
                 style="color: var(--brand-color); border-color: var(--brand-color);">
@@ -58,18 +58,18 @@
         <!-- TAB: CATEGORIES -->
         <div id="tab-content-categories" class="flex flex-col">
             <!-- Toolbar -->
-            <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-[#0c0c0e]/50">
+            <div class="p-6 border-b border-slate-200 dark:border-[#1e1e24] flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-[#111113]/50">
                 <div class="relative w-full sm:w-80">
                     <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
                          width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
                     </svg>
                     <input type="text" id="cat-search" oninput="filterCategories()" placeholder="Search categories..."
-                           class="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                           class="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
                     <button onclick="toggleVault('cat')" id="cat-vault-btn"
-                            class="flex items-center gap-2 px-4 py-2 text-slate-600 dark:text-slate-300 text-sm font-bold rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">
+                            class="flex items-center gap-2 px-4 py-2 text-slate-600 dark:text-slate-300 text-sm font-bold rounded-xl bg-slate-100 dark:bg-[#1e1e24] hover:bg-slate-200 dark:hover:bg-[#1e1e24] transition-all border-none outline-none">
                         <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                         <span id="cat-vault-label">View Archive Vault</span>
                     </button>
@@ -88,17 +88,17 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm whitespace-nowrap">
                     <thead>
-                        <tr class="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+                        <tr class="bg-slate-50/80 dark:bg-[#111113]/50 border-b border-slate-100 dark:border-[#1e1e24]">
                             <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Category Name</th>
                             <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Description</th>
                             <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Total SKUs</th>
                             <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="cat-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tbody id="cat-table-body" class="divide-y divide-slate-100 dark:divide-[#1e1e24]">
                         @foreach (var cat in categories)
                         {
-                            <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group cat-row"
+                            <tr class="hover:bg-slate-50/60 dark:hover:bg-[#1e1e24]/30 transition-colors group cat-row"
                                 data-id="@cat.Id" data-name="@cat.Name" data-desc="@cat.Description">
                                 <td class="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200 cat-name">@cat.Name</td>
                                 <td class="px-6 py-4 text-slate-500 dark:text-slate-400 truncate max-w-[280px]">@(cat.Description ?? "—")</td>
@@ -107,12 +107,12 @@
                                     <div class="flex items-center justify-end gap-2">
                                         <button onclick="openEditCategoryModal(this)"
                                                 title="Edit Category"
-                                                class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-gv-brand hover:bg-gv-brand-light transition-all border-none outline-none">
+                                                class="p-2 rounded-lg bg-slate-100 dark:bg-[#1e1e24] text-slate-600 dark:text-slate-400 hover:text-gv-brand hover:bg-gv-brand-light transition-all border-none outline-none">
                                             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                         </button>
                                         <button onclick="triggerArchive('@cat.Id', '@cat.Name')"
                                                 title="Archive Category"
-                                                class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-all border-none outline-none">
+                                                class="p-2 rounded-lg bg-slate-100 dark:bg-[#1e1e24] text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-all border-none outline-none">
                                             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                                         </button>
                                     </div>
@@ -160,18 +160,18 @@
             </div>
 
             <!-- Footer -->
-            <div class="px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0c0e]/50">
+            <div class="px-6 py-3 border-t border-slate-200 dark:border-[#1e1e24] bg-slate-50/50 dark:bg-[#111113]/50">
                 <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">@categories.Count() active categories</span>
             </div>
         </div>
 
         <!-- TAB: WAREHOUSE ZONES -->
         <div id="tab-content-zones" class="hidden flex-col">
-            <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-[#0c0c0e]/50">
+            <div class="p-6 border-b border-slate-200 dark:border-[#1e1e24] flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-[#111113]/50">
                 <p class="text-sm font-medium text-slate-500 dark:text-slate-400 flex-1">Manage logical areas within the physical warehouse.</p>
                 <div class="flex items-center gap-2 shrink-0">
                     <button onclick="toggleVault('zone')" id="zone-vault-btn"
-                            class="flex items-center gap-2 px-4 py-2 text-slate-600 dark:text-slate-300 text-sm font-bold rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">
+                            class="flex items-center gap-2 px-4 py-2 text-slate-600 dark:text-slate-300 text-sm font-bold rounded-xl bg-slate-100 dark:bg-[#1e1e24] hover:bg-slate-200 dark:hover:bg-[#1e1e24] transition-all border-none outline-none">
                         <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                         <span id="zone-vault-label">View Archive Vault</span>
                     </button>
@@ -188,17 +188,17 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm whitespace-nowrap">
                     <thead>
-                        <tr class="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+                        <tr class="bg-slate-50/80 dark:bg-[#111113]/50 border-b border-slate-100 dark:border-[#1e1e24]">
                             <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Zone Code</th>
                             <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Zone Name</th>
                             <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Aisle Count</th>
                             <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tbody class="divide-y divide-slate-100 dark:divide-[#1e1e24]">
                         @foreach (var row in locations)
                         {
-                            <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group"
+                            <tr class="hover:bg-slate-50/60 dark:hover:bg-[#1e1e24]/30 transition-colors group"
                                 data-id="@row.Id" data-zone="@row.Zone" data-aisle="@row.Aisle" data-rack="@row.Rack">
                                 <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-200">@row.Zone</td>
                                 <td class="px-6 py-4 text-slate-500 dark:text-slate-400">@row.Aisle</td>
@@ -207,12 +207,12 @@
                                     <div class="flex items-center justify-end gap-2">
                                         <button onclick="openEditZoneModal(this)"
                                                 title="Edit Zone"
-                                                class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-gv-brand hover:bg-gv-brand-light transition-all border-none outline-none">
+                                                class="p-2 rounded-lg bg-slate-100 dark:bg-[#1e1e24] text-slate-600 dark:text-slate-400 hover:text-gv-brand hover:bg-gv-brand-light transition-all border-none outline-none">
                                             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                         </button>
                                         <button onclick="triggerArchiveZone('@row.Id', '@row.Zone')"
                                                 title="Archive Zone"
-                                                class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-all border-none outline-none">
+                                                class="p-2 rounded-lg bg-slate-100 dark:bg-[#1e1e24] text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-all border-none outline-none">
                                             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                                         </button>
                                     </div>
@@ -257,7 +257,7 @@
                 </div>
             </div>
             <!-- Footer -->
-            <div class="px-6 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0c0e]/50">
+            <div class="px-6 py-3 border-t border-slate-200 dark:border-[#1e1e24] bg-slate-50/50 dark:bg-[#111113]/50">
                 <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">@locations.Count() active zones</span>
             </div>
         </div>
@@ -268,8 +268,8 @@
      ADD CATEGORY MODAL
      ══════════════════════════════════════ -->
 <div id="modal-add-category"
-     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-6">
+     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0c0c0e]/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-2xl shadow-2xl w-full max-w-md p-6">
         <div class="flex items-center justify-between mb-5">
             <h2 class="text-base font-extrabold text-slate-900 dark:text-white">New Product Category</h2>
             <button onclick="document.getElementById('modal-add-category').classList.add('hidden')"
@@ -286,16 +286,16 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Category Name <span class="text-red-500">*</span></label>
                     <input type="text" name="name" required placeholder="e.g. Enterprise Networking"
-                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24]/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Description <span class="text-slate-400 font-normal">(optional)</span></label>
                     <textarea name="description" rows="3" placeholder="Brief description of this category..."
-                              class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all resize-none"></textarea>
+                              class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24]/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all resize-none"></textarea>
                 </div>
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="document.getElementById('modal-add-category').classList.add('hidden')"
-                            class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">
+                            class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#1e1e24] hover:bg-slate-200 dark:hover:bg-[#1e1e24] transition-all border-none outline-none">
                         Cancel
                     </button>
                     <button type="submit"
@@ -313,8 +313,8 @@
      EDIT CATEGORY MODAL
      ══════════════════════════════════════ -->
 <div id="modal-edit-category"
-     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-6">
+     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0c0c0e]/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-2xl shadow-2xl w-full max-w-md p-6">
         <div class="flex items-center justify-between mb-5">
             <h2 class="text-base font-extrabold text-slate-900 dark:text-white">Edit Product Category</h2>
             <button onclick="document.getElementById('modal-edit-category').classList.add('hidden')"
@@ -332,16 +332,16 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Category Name <span class="text-red-500">*</span></label>
                     <input type="text" name="name" id="edit-cat-name" required placeholder="e.g. Enterprise Networking"
-                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24]/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Description <span class="text-slate-400 font-normal">(optional)</span></label>
                     <textarea name="description" id="edit-cat-desc" rows="3" placeholder="Brief description of this category..."
-                              class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all resize-none"></textarea>
+                              class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24]/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all resize-none"></textarea>
                 </div>
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="document.getElementById('modal-edit-category').classList.add('hidden')"
-                            class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">
+                            class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#1e1e24] hover:bg-slate-200 dark:hover:bg-[#1e1e24] transition-all border-none outline-none">
                         Cancel
                     </button>
                     <button type="submit"
@@ -359,8 +359,8 @@
      ADD ZONE MODAL
      ══════════════════════════════════════ -->
 <div id="modal-add-zone"
-     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-6">
+     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0c0c0e]/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-2xl shadow-2xl w-full max-w-md p-6">
         <div class="flex items-center justify-between mb-5">
             <h2 class="text-base font-extrabold text-slate-900 dark:text-white">Add New Zone</h2>
             <button onclick="document.getElementById('modal-add-zone').classList.add('hidden')"
@@ -377,21 +377,21 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Zone Code <span class="text-red-500">*</span></label>
                     <input type="text" name="zone" required placeholder="e.g. Z-A"
-                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24]/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Zone Name <span class="text-red-500">*</span></label>
                     <input type="text" name="aisle" required placeholder="e.g. High-Value Electronics"
-                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24]/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Aisle Count <span class="text-slate-400 font-normal">(optional)</span></label>
                     <input type="text" name="rack" placeholder="e.g. 4 Aisles"
-                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24]/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                 </div>
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="document.getElementById('modal-add-zone').classList.add('hidden')"
-                            class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">
+                            class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#1e1e24] hover:bg-slate-200 dark:hover:bg-[#1e1e24] transition-all border-none outline-none">
                         Cancel
                     </button>
                     <button type="submit"
@@ -409,8 +409,8 @@
      EDIT ZONE MODAL
      ══════════════════════════════════════ -->
 <div id="modal-edit-zone"
-     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-6">
+     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0c0c0e]/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24] rounded-2xl shadow-2xl w-full max-w-md p-6">
         <div class="flex items-center justify-between mb-5">
             <h2 class="text-base font-extrabold text-slate-900 dark:text-white">Edit Zone</h2>
             <button onclick="document.getElementById('modal-edit-zone').classList.add('hidden')"
@@ -428,21 +428,21 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Zone Code <span class="text-red-500">*</span></label>
                     <input type="text" name="zone" id="edit-zone-code" required placeholder="e.g. Z-A"
-                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24]/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Zone Name <span class="text-red-500">*</span></label>
                     <input type="text" name="aisle" id="edit-zone-name" required placeholder="e.g. High-Value Electronics"
-                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24]/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Aisle Count <span class="text-slate-400 font-normal">(optional)</span></label>
                     <input type="text" name="rack" id="edit-zone-rack" placeholder="e.g. 4 Aisles"
-                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
+                           class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24]/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                 </div>
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="document.getElementById('modal-edit-zone').classList.add('hidden')"
-                            class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">
+                            class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#1e1e24] hover:bg-slate-200 dark:hover:bg-[#1e1e24] transition-all border-none outline-none">
                         Cancel
                     </button>
                     <button type="submit"

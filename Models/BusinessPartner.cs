@@ -24,7 +24,8 @@ namespace GadgetVault.Models
         [StringLength(100)]
         public string? Email { get; set; }
 
-        [Phone]
+        [Required]
+        [RegularExpression(@"^\d{11}$", ErrorMessage = "Phone Number must be exactly 11 digits.")]
         [StringLength(50)]
         public string? Phone { get; set; }
 

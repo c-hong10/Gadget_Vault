@@ -1,0 +1,66 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "System Error";
+    Layout = null; // No layout for error page to ensure it loads even if layout fails
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Something Went Wrong - GadgetVault</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#09090b] text-white flex items-center justify-center min-h-screen overflow-hidden">
+    <!-- Background Decor -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-red-500/10 blur-[120px] rounded-full"></div>
+        <div class="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-red-600/10 blur-[120px] rounded-full"></div>
+    </div>
+
+    <div class="relative z-10 text-center px-6 max-w-xl">
+        <!-- Icon -->
+        <div class="w-24 h-24 bg-red-500/10 border border-red-500/20 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl">
+            <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="#ef4444" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        </div>
+
+        <h1 class="text-4xl font-black tracking-tight mb-4 leading-tight">
+            Oops! <span class="text-red-500">Something</span> went wrong.
+        </h1>
+        
+        <p class="text-slate-400 text-lg font-medium mb-10 leading-relaxed">
+            @if (ViewBag.StatusCode == 404)
+            {
+                <span>The page you are looking for has moved or no longer exists. Our systems have logged this anomaly.</span>
+            }
+            else
+            {
+                <span>We encountered an unexpected error while processing your request. Our engineering team has been notified.</span>
+            }
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="/Dashboard" class="w-full sm:w-auto px-10 py-4 bg-white text-black font-black text-sm rounded-2xl hover:scale-105 transition-all shadow-xl shadow-white/5">
+                RETURN TO DASHBOARD
+            </a>
+            <button onclick="window.history.back()" class="w-full sm:w-auto px-10 py-4 bg-slate-900 border border-slate-800 text-slate-400 font-bold text-sm rounded-2xl hover:bg-slate-800 transition-all">
+                GO BACK
+            </button>
+        </div>
+
+        @if (Model != null && !string.IsNullOrEmpty(Model.RequestId))
+        {
+            <div class="mt-16 pt-8 border-t border-slate-800/50">
+                <p class="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em]">Reference ID: @Model.RequestId</p>
+            </div>
+        }
+    </div>
+</body>
+</html>

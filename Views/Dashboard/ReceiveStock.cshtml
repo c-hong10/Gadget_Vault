@@ -34,7 +34,7 @@
     </div>
 
     <!-- TOUCH-FRIENDLY ACTION BAR (Warehouse Staff) -->
-    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm dark:shadow-none transition-colors duration-300">
+    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-2xl p-5 shadow-sm dark:shadow-none transition-colors duration-300">
         <p class="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3">Quick Actions</p>
         <div class="flex flex-col sm:flex-row gap-3">
             <!-- Primary: Scan Incoming PO -->
@@ -50,28 +50,6 @@
                 </svg>
                 Scan Incoming PO
             </button>
-            <!-- Secondary: Manual Entry -->
-            <button id="btn-manual-entry"
-                    class="flex-1 flex items-center justify-center gap-3 py-5 rounded-xl
-                           bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-extrabold text-base
-                           hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-[0.98]
-                           transition-all duration-200 outline-none border-none">
-                <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                </svg>
-                Manual Entry
-            </button>
-            <!-- Tertiary: Print GRN -->
-            <button id="btn-print-grn"
-                    class="sm:w-auto flex items-center justify-center gap-2 px-6 py-5 rounded-xl
-                           bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-sm
-                           hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-[0.98]
-                           transition-all duration-200 outline-none border-none">
-                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-                </svg>
-                Print GRN
-            </button>
         </div>
     </div>
 
@@ -83,8 +61,8 @@
         <div class="lg:col-span-1 flex flex-col gap-6">
             
             <!-- MANUAL LOGGING FORM -->
-            <div id="manual-form-container" class="bg-white dark:bg-[#111113] rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-5 transition-colors duration-300">
-                <h2 class="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight border-b border-slate-200 dark:border-slate-800 pb-3 transition-colors duration-300">
+            <div id="manual-form-container" class="bg-white dark:bg-[#111113] rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-[#1e1e24] p-6 flex flex-col gap-5 transition-colors duration-300">
+                <h2 class="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight border-b border-slate-200 dark:border-[#1e1e24] pb-3 transition-colors duration-300">
                     Log Manual Shipment
                 </h2>
 
@@ -93,7 +71,7 @@
                     
                     <div class="flex flex-col gap-1.5">
                         <label class="text-xs font-bold text-slate-900 dark:text-white">Product (SKU)</label>
-                        <select name="productId" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/50 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)]">
+                        <select name="productId" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-300 dark:border-[#1e1e24] rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)]">
                             <option value="">-- Choose Product --</option>
                             @foreach (var p in (List<Product>)ViewBag.Products) {
                                 <option value="@p.Id">@p.Name (@p.SKU)</option>
@@ -103,12 +81,12 @@
 
                     <div class="flex flex-col gap-1.5">
                         <label class="text-xs font-bold text-slate-900 dark:text-white">Quantity</label>
-                        <input type="number" name="quantity" min="1" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/50 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white" />
+                        <input type="number" name="quantity" min="1" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-300 dark:border-[#1e1e24] rounded-xl text-sm text-slate-900 dark:text-white" />
                     </div>
 
                     <div class="flex flex-col gap-1.5">
                         <label class="text-xs font-bold text-slate-900 dark:text-white">Storage Zone</label>
-                        <select name="locationId" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/50 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)]">
+                        <select name="locationId" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-300 dark:border-[#1e1e24] rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)]">
                             <option value="">-- Select Zone --</option>
                             @foreach (var loc in (List<WarehouseLocation>)ViewBag.Locations) {
                                 <option value="@loc.Id">@loc.Zone - @loc.Aisle</option>
@@ -118,7 +96,7 @@
 
                     <div class="flex flex-col gap-1.5">
                         <label class="text-xs font-bold text-slate-900 dark:text-white">Supplier</label>
-                        <select name="supplierId" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/50 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)]">
+                        <select name="supplierId" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#111113] border border-slate-300 dark:border-[#1e1e24] rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)]">
                             <option value="">-- Select Supplier --</option>
                             @foreach (var s in (List<BusinessPartner>)ViewBag.Suppliers) {
                                 <option value="@s.Id">@s.CompanyName</option>
@@ -133,44 +111,48 @@
             </div>
 
             <!-- PO RECEIVING SECTION (Minimized) -->
-            <div class="bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-slate-800 p-5">
+            <div class="bg-slate-50 dark:bg-black/40 rounded-2xl border border-slate-200 dark:border-[#1e1e24] p-5">
                 <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Or Receive via PO</h3>
                 <form asp-controller="Warehouse" asp-action="ConfirmReceipt" method="post" class="flex flex-col gap-3">
                     @Html.AntiForgeryToken()
-                    <select name="poId" required class="w-full px-4 py-2 bg-white dark:bg-black/30 border border-slate-300 dark:border-slate-700 rounded-lg text-xs">
+                    <select name="poId" required class="w-full px-4 py-2 bg-white dark:bg-[#111113]/30 border border-slate-300 dark:border-[#1e1e24] rounded-lg text-xs">
                         <option value="">-- Select Acknowledged PO --</option>
                         @foreach (var po in (List<PurchaseOrder>)ViewBag.AcknowledgedOrders) {
                             <option value="@po.Id">@po.PONumber (@po.Supplier?.CompanyName)</option>
                         }
                     </select>
-                    <select name="locationId" required class="w-full px-4 py-2 bg-white dark:bg-black/30 border border-slate-300 dark:border-slate-700 rounded-lg text-xs">
+                    <select name="locationId" required class="w-full px-4 py-2 bg-white dark:bg-[#111113]/30 border border-slate-300 dark:border-[#1e1e24] rounded-lg text-xs">
                         <option value="">-- Select Destination Location --</option>
                         @foreach (var loc in (List<WarehouseLocation>)ViewBag.Locations) {
                             <option value="@loc.Id">@loc.Zone - @loc.Aisle</option>
                         }
                     </select>
-                    <button type="submit" class="w-full py-2 bg-slate-800 text-white text-xs font-bold rounded-lg hover:bg-black">Receive PO</button>
+                    <button type="submit" class="w-full py-2 bg-slate-800 dark:bg-[#1e1e24] text-white text-xs font-bold rounded-lg hover:bg-black">Receive PO</button>
                 </form>
             </div>
         </div>
 
         <!-- ════════ RIGHT COLUMN: INBOUND LOGS ════════ -->
         <div class="lg:col-span-2">
-            <div class="bg-white dark:bg-[#111113] rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-slate-800 flex flex-col h-full overflow-hidden transition-colors duration-300">
+            <div class="bg-white dark:bg-[#111113] rounded-2xl shadow-sm dark:shadow-none border border-slate-200 dark:border-[#1e1e24] flex flex-col h-full overflow-hidden transition-colors duration-300">
                 
-                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 transition-colors duration-300">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-[#1e1e24] transition-colors duration-300">
+                    @{
+                        var recentLogs = (List<InventoryTransaction>)ViewBag.RecentTransactions;
+                        var todayCount = recentLogs.Sum(t => t.Quantity);
+                    }
                     <h2 class="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight transition-colors duration-300">
                         Recent Inbound Logs
                     </h2>
                     <span class="px-2.5 py-1 rounded-full bg-gv-brand-light dark:bg-gv-brand/10 border border-gv-brand-light dark:border-gv-brand/20 text-xs font-bold text-gv-brand dark:text-gv-brand-light transition-colors duration-300">
-                        Today: 154 Items
+                        Today: @todayCount Items
                     </span>
                 </div>
 
                 <div class="overflow-x-auto flex-1">
                     <table class="w-full text-left text-sm whitespace-nowrap">
                         <thead>
-                            <tr class="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 transition-colors duration-300">
+                            <tr class="bg-slate-50/80 dark:bg-[#111113]/50 border-b border-slate-100 dark:border-[#1e1e24] transition-colors duration-300">
                                 <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Timestamp</th>
                                 <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">SKU</th>
                                 <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Product Name</th>
@@ -179,10 +161,10 @@
                                 <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Received By</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800 transition-colors duration-300">
+                        <tbody class="divide-y divide-slate-100 dark:divide-[#1e1e24] transition-colors duration-300" id="inbound-tbody">
                             @foreach (var t in (List<InventoryTransaction>)ViewBag.RecentTransactions)
                             {
-                                <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors duration-150">
+                                <tr class="inbound-row hover:bg-slate-50/60 dark:hover:bg-[#1e1e24]/30 transition-colors duration-150">
                                     <td class="px-6 py-4 font-mono text-xs text-slate-500 dark:text-slate-400 transition-colors duration-300">@t.Timestamp.ToLocalTime().ToString("hh:mm tt")</td>
                                     <td class="px-6 py-4 font-mono text-xs font-semibold text-slate-700 dark:text-slate-300 transition-colors duration-300">@t.Product?.SKU</td>
                                     <td class="px-6 py-4 font-semibold text-slate-900 dark:text-slate-200 transition-colors duration-300">@t.Product?.Name</td>
@@ -194,7 +176,7 @@
                                     </td>
                                     <td class="px-6 py-4 text-slate-600 dark:text-slate-400 text-xs font-bold transition-colors duration-300">@t.Location?.Zone</td>
                                     <td class="px-6 py-4">
-                                        <span class="inline-block px-2.5 py-1 text-xs font-semibold rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors duration-300">@t.ReferenceId</span>
+                                        <span class="inline-block px-2.5 py-1 text-xs font-semibold rounded-md bg-slate-100 dark:bg-[#1e1e24] text-slate-700 dark:text-slate-300 transition-colors duration-300">@t.ReferenceId</span>
                                     </td>
                                 </tr>
                             }
@@ -208,6 +190,24 @@
                     </table>
                 </div>
 
+                <!-- Table Footer / Pagination -->
+                <div class="px-6 py-4 border-t border-slate-200 dark:border-[#1e1e24] bg-slate-50/50 dark:bg-[#111113]/30 flex items-center justify-between">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" id="pagination-info">
+                        Showing 1-10 of @recentLogs.Count() logs
+                    </p>
+                    <div class="flex items-center gap-2">
+                        <button onclick="changePage(-1)" id="btn-prev" class="p-2 rounded-lg bg-white dark:bg-[#1e1e24] border border-slate-200 dark:border-[#1e1e24] text-slate-400 hover:text-slate-900 dark:hover:text-white disabled:opacity-50 transition-all">
+                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M15 19l-7-7 7-7"/></svg>
+                        </button>
+                        <div id="page-numbers" class="flex items-center gap-1">
+                            <!-- Page numbers injected here -->
+                        </div>
+                        <button onclick="changePage(1)" id="btn-next" class="p-2 rounded-lg bg-white dark:bg-[#1e1e24] border border-slate-200 dark:border-[#1e1e24] text-slate-400 hover:text-slate-900 dark:hover:text-white disabled:opacity-50 transition-all">
+                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -215,16 +215,16 @@
 </div>
 
 <!-- SCANNER MODAL -->
-<div id="scanner-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md transition-all duration-300">
-    <div class="relative w-full max-w-lg bg-[#111113] border border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col mx-4">
+<div id="scanner-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-[#0c0c0e]/80 backdrop-blur-md transition-all duration-300">
+    <div class="relative w-full max-w-lg bg-[#0c0c0e] border border-slate-800 dark:border-[#1e1e24] rounded-3xl shadow-2xl overflow-hidden flex flex-col mx-4">
         
         <!-- Header -->
-        <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+        <div class="p-6 border-b border-slate-800 dark:border-[#1e1e24] flex items-center justify-between">
             <div>
                 <h3 class="text-xl font-extrabold text-white tracking-tight">Barcode Scanner</h3>
                 <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1">Ready for capture</p>
             </div>
-            <button onclick="stopScanner()" class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-colors">
+            <button onclick="stopScanner()" class="p-2 rounded-xl bg-slate-800 dark:bg-[#1e1e24] dark:bg-[#1e1e24] text-slate-400 hover:text-white transition-colors">
                 <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
@@ -252,8 +252,8 @@
         </div>
 
         <!-- Controls -->
-        <div class="p-6 bg-[#0c0c0e] border-t border-slate-800 flex items-center justify-between">
-            <button id="btn-torch" onclick="toggleTorch()" class="flex items-center gap-3 px-5 py-3 rounded-2xl bg-slate-800 text-slate-300 font-bold text-sm hover:bg-slate-700 transition-all">
+        <div class="p-6 bg-[#0c0c0e] border-t border-slate-800 dark:border-[#1e1e24] flex items-center justify-between">
+            <button id="btn-torch" onclick="toggleTorch()" class="flex items-center gap-3 px-5 py-3 rounded-2xl bg-slate-800 dark:bg-[#1e1e24] dark:bg-[#1e1e24] text-slate-300 font-bold text-sm dark:hover:bg-[#1e1e24] transition-all">
                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 Torch Off
             </button>
@@ -267,6 +267,9 @@
     let html5QrCode;
     let isTorchOn = false;
 
+    let currentPage = 1;
+    const pageSize = 10;
+
     document.addEventListener('DOMContentLoaded', function() {
         // Wire up main scanner button
         const btnScan = document.getElementById('btn-scan-po');
@@ -279,7 +282,56 @@
         if (productSelect) {
             productSelect.focus();
         }
+
+        // Initial table render
+        renderTable();
     });
+
+    function renderTable() {
+        const rows = Array.from(document.querySelectorAll('.inbound-row'));
+        
+        // Hide all rows first
+        rows.forEach(row => row.classList.add('hidden'));
+
+        // Paginate
+        const start = (currentPage - 1) * pageSize;
+        const end = start + pageSize;
+        const pageRows = rows.slice(start, end);
+
+        pageRows.forEach(row => row.classList.remove('hidden'));
+
+        // Update Info
+        const total = rows.length;
+        const infoEl = document.getElementById('pagination-info');
+        if (infoEl) {
+            infoEl.innerText = `Showing ${total === 0 ? 0 : start + 1}-${Math.min(end, total)} of ${total} logs`;
+        }
+
+        // Update Buttons
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        if (btnPrev) btnPrev.disabled = currentPage === 1;
+        if (btnNext) btnNext.disabled = end >= total;
+
+        // Render Page Numbers
+        const totalPages = Math.ceil(total / pageSize);
+        const pageContainer = document.getElementById('page-numbers');
+        if (pageContainer) {
+            pageContainer.innerHTML = '';
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.innerText = i;
+                btn.className = `w-8 h-8 rounded-lg text-xs font-bold transition-all ${i === currentPage ? 'bg-gv-brand text-white shadow-md shadow-gv-brand/20' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1e1e24]'}`;
+                btn.onclick = () => { currentPage = i; renderTable(); };
+                pageContainer.appendChild(btn);
+            }
+        }
+    }
+
+    function changePage(dir) {
+        currentPage += dir;
+        renderTable();
+    }
 
     async function startScanner() {
         const modal = document.getElementById('scanner-modal');
@@ -360,7 +412,7 @@
                 : '<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Torch Off';
             
             btn.classList.toggle('bg-gv-brand', isTorchOn);
-            btn.classList.toggle('bg-slate-800', !isTorchOn);
+            btn.classList.toggle('bg-slate-800 dark:bg-[#1e1e24]', !isTorchOn);
         } catch (err) {
             console.error("Torch not supported on this device", err);
         }

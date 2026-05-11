@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using GadgetVault.Data;
 using GadgetVault.Models;
 
 namespace GadgetVault.Controllers
 {
+    [Authorize(Roles = "Admin, SystemManager, WarehouseManager")]
     public class WarehouseLocationController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -33,6 +35,17 @@ namespace GadgetVault.Controllers
             });
 
             await _context.SaveChangesAsync();
+
+            // Record MASTERDATA_ADDED event
+            _context.AuditLogs.Add(new AuditLog
+            {
+                Action = "MASTERDATA_ADDED",
+                PerformedBy = User.Identity?.Name ?? "System",
+                Timestamp = DateTime.UtcNow,
+                Details = $"Created Warehouse Zone: {zone.Trim()} ({aisle.Trim()})"
+            });
+            await _context.SaveChangesAsync();
+
             TempData["Success"] = $"Zone \"{zone.Trim()}\" created successfully.";
             return RedirectToAction("MasterData", "Dashboard");
         }

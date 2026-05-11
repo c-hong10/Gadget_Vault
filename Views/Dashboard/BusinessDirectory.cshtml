@@ -16,7 +16,7 @@
     </div>
   </div>
 
-  <!-- SERVER TOAST -->
+  <!-- SERVER MESSAGES -->
   @if (TempData["Success"] != null) {
   <div id="toast-success" class="flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-semibold shadow-sm transition-opacity duration-500"
        style="background-color:color-mix(in srgb,var(--brand-color) 10%,transparent);border:1px solid color-mix(in srgb,var(--brand-color) 30%,transparent);color:var(--brand-color);">
@@ -24,16 +24,22 @@
     @TempData["Success"]
   </div>
   }
+  @if (TempData["Error"] != null) {
+  <div class="flex items-center gap-3 px-5 py-3.5 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400 text-sm font-semibold shadow-sm">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+    @TempData["Error"]
+  </div>
+  }
 
   <!-- MAIN CARD -->
-  <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm flex flex-col">
+  <div class="bg-white dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24] rounded-2xl overflow-hidden shadow-sm flex flex-col">
 
     <!-- TOOLBAR -->
-    <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-[#0c0c0e]/50">
+    <div class="p-6 border-b border-slate-200 dark:border-[#1e1e24] flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-[#0c0c0e]/50">
       <div class="relative w-full sm:w-80">
         <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
         <input type="text" id="partner-search" oninput="filterPartners()" placeholder="Search directory..."
-               class="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none transition-all"/>
+               class="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none transition-all"/>
       </div>
       <div class="flex items-center gap-3">
         <button id="btn-vault-toggle" onclick="toggleVault()"
@@ -55,7 +61,7 @@
     <div id="active-table" class="overflow-x-auto">
       <table class="w-full text-left text-sm whitespace-nowrap">
         <thead>
-          <tr class="bg-slate-50/80 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+          <tr class="bg-slate-50/80 dark:bg-[#0c0c0e]/50 border-b border-slate-100 dark:border-[#1e1e24]">
             <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Company Name</th>
             <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Contact</th>
             <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Email</th>
@@ -63,9 +69,17 @@
             <th class="px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody id="partner-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+        <tbody id="partner-table-body" class="divide-y divide-slate-100 dark:divide-[#1e1e24]">
           @foreach (var p in partners) {
-          <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors group partner-row" data-name="@p.CompanyName.ToLower()">
+          <tr class="hover:bg-slate-50/60 dark:hover:bg-[#1e1e24]/30 transition-colors group partner-row" 
+              data-id="@p.Id"
+              data-name="@p.CompanyName.ToLower()" 
+              data-raw-company="@p.CompanyName"
+              data-raw-contact="@p.ContactPerson"
+              data-raw-email="@p.Email"
+              data-raw-phone="@p.Phone"
+              data-raw-address="@p.Address"
+              data-type="@p.PartnerType">
             <td class="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200">@p.CompanyName</td>
             <td class="px-6 py-4 text-slate-600 dark:text-slate-400">@p.ContactPerson</td>
             <td class="px-6 py-4 text-slate-600 dark:text-slate-400">@p.Email</td>
@@ -78,14 +92,14 @@
             </td>
             <td class="px-6 py-4 text-right">
               <div class="flex items-center justify-end gap-2">
-                <button onclick="openModal(@p.Id, '@Html.Raw(p.CompanyName.Replace("'","\\\'"))', '@Html.Raw((p.ContactPerson??"").Replace("'","\\\'"))', '@Html.Raw((p.Email??"").Replace("'","\\\'"))', '@Html.Raw((p.Phone??"").Replace("'","\\\'"))', '@Html.Raw((p.Address??"").Replace("'","\\\'"))', '@p.PartnerType')"
+                <button onclick="openModal(@p.Id)"
                         title="Edit Partner"
-                        class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-gv-brand hover:bg-gv-brand-light transition-all">
+                        class="p-2 rounded-lg bg-slate-100 dark:bg-[#1e1e24] text-slate-600 dark:text-slate-400 hover:text-gv-brand hover:bg-gv-brand-light transition-all">
                   <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                 </button>
-                <button onclick="openArchiveConfirm(@p.Id, '@Html.Raw(p.CompanyName.Replace("'","\\\'"))')"
+                <button onclick="openArchiveConfirm(@p.Id)"
                         title="Archive Partner"
-                        class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-all">
+                        class="p-2 rounded-lg bg-slate-100 dark:bg-[#1e1e24] text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-all">
                   <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                 </button>
               </div>
@@ -98,10 +112,27 @@
         </tbody>
       </table>
     </div>
+    <!-- Table Footer / Pagination -->
+    <div class="px-6 py-4 border-t border-slate-200 dark:border-[#1e1e24] bg-slate-50/50 dark:bg-[#0c0c0e]/30 flex items-center justify-between">
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" id="pagination-info">
+            Showing 1-10 of @partners.Count() partners
+        </p>
+        <div class="flex items-center gap-2">
+            <button onclick="changePage(-1)" id="btn-prev" class="p-2 rounded-lg bg-white dark:bg-[#1e1e24] border border-slate-200 dark:border-[#1e1e24] text-slate-400 hover:text-slate-900 dark:hover:text-white disabled:opacity-50 transition-all shadow-sm">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <div id="page-numbers" class="flex items-center gap-1">
+                <!-- Page numbers injected here -->
+            </div>
+            <button onclick="changePage(1)" id="btn-next" class="p-2 rounded-lg bg-white dark:bg-[#1e1e24] border border-slate-200 dark:border-[#1e1e24] text-slate-400 hover:text-slate-900 dark:hover:text-white disabled:opacity-50 transition-all shadow-sm">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg>
+            </button>
+        </div>
+    </div>
 
     <!-- ARCHIVE VAULT PANEL (hidden by default) -->
     <div id="vault-panel" style="display:none;">
-      <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-amber-50/50 dark:bg-amber-500/5 flex items-center gap-3">
+      <div class="px-6 py-4 border-t border-slate-200 dark:border-[#1e1e24] bg-amber-50/50 dark:bg-amber-500/5 flex items-center gap-3">
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
         <span class="text-sm font-bold text-amber-700 dark:text-amber-400">Archive Vault</span>
         <span class="text-xs text-amber-600 dark:text-amber-500 ml-1">Partners here are hidden from active orders. Restore them to bring them back.</span>
@@ -128,8 +159,8 @@
 </div>
 
 <!-- ARCHIVE CONFIRMATION MODAL -->
-<div id="modal-archive" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-  <div class="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-6">
+<div id="modal-archive" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0c0c0e]/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24] rounded-2xl shadow-2xl w-full max-w-md p-6">
     <div class="flex items-start gap-4 mb-5">
       <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style="background:rgba(245,158,11,0.15);">
         <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
@@ -146,7 +177,7 @@
       <input type="hidden" name="id" id="archive-partner-id" value="0" />
       <div class="flex gap-3">
         <button type="button" onclick="closeArchiveModal()"
-                class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">Cancel</button>
+                class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#1e1e24] hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">Cancel</button>
         <button type="submit"
                 class="flex-1 py-2.5 rounded-xl text-sm font-bold text-white border-none outline-none transition-all"
                 style="background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 4px 14px rgba(245,158,11,0.35);">
@@ -158,8 +189,8 @@
 </div>
 
 <!-- RESTORE CONFIRMATION MODAL -->
-<div id="modal-restore" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-  <div class="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-6">
+<div id="modal-restore" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0c0c0e]/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24] rounded-2xl shadow-2xl w-full max-w-md p-6">
     <div class="flex items-start gap-4 mb-5">
       <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style="background:color-mix(in srgb,var(--brand-color) 15%,transparent);">
         <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2.5" style="color:var(--brand-color);stroke:var(--brand-color);">
@@ -175,7 +206,7 @@
     </div>
     <div class="flex gap-3">
       <button type="button" onclick="closeRestoreModal()"
-              class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">Cancel</button>
+              class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#1e1e24] hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">Cancel</button>
       <button type="button" onclick="confirmRestore()"
               class="flex-1 py-2.5 rounded-xl text-sm font-bold text-white border-none outline-none transition-all"
               style="background-color:var(--brand-color)!important;box-shadow:0 4px 14px color-mix(in srgb,var(--brand-color) 35%,transparent)!important;">
@@ -186,8 +217,8 @@
 </div>
 
 <!-- HARD DELETE CONFIRMATION MODAL -->
-<div id="modal-hard-delete" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-  <div class="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-6">
+<div id="modal-hard-delete" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0c0c0e]/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24] rounded-2xl shadow-2xl w-full max-w-md p-6">
     <div class="flex items-start gap-4 mb-5">
       <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-red-100 dark:bg-red-500/15">
         <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#ef4444" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
@@ -204,7 +235,7 @@
       <input type="hidden" name="id" id="hard-delete-partner-id" value="0" />
       <div class="flex gap-3">
         <button type="button" onclick="closeHardDeleteModal()"
-                class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">Cancel</button>
+                class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#1e1e24] hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">Cancel</button>
         <button type="submit"
                 class="flex-1 py-2.5 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 shadow-lg shadow-red-500/20 transition-all border-none outline-none">
           Yes, Delete Forever
@@ -215,8 +246,8 @@
 </div>
 
 <!-- EDIT/ADD PARTNER MODAL -->
-<div id="modal-partner" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-  <div class="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-lg p-6">
+<div id="modal-partner" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0c0c0e]/60 backdrop-blur-sm">
+  <div class="bg-white dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24] rounded-2xl shadow-2xl w-full max-w-lg p-6">
     <div class="flex items-center justify-between mb-5">
       <h2 id="modal-title" class="text-base font-extrabold text-slate-900 dark:text-white">Add New Partner</h2>
       <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-transparent border-none outline-none transition-colors">
@@ -229,16 +260,16 @@
       <div class="flex flex-col gap-4">
         <div>
           <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Company Name <span class="text-red-500">*</span></label>
-          <input type="text" name="CompanyName" id="partner-company" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all"/>
+          <input type="text" name="CompanyName" id="partner-company" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all"/>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Contact Person</label>
-            <input type="text" name="ContactPerson" id="partner-contact" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all"/>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Contact Person <span class="text-red-500">*</span></label>
+            <input type="text" name="ContactPerson" id="partner-contact" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all"/>
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Partner Type</label>
-            <select name="PartnerType" id="partner-type" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all cursor-pointer">
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Partner Type <span class="text-red-500">*</span></label>
+            <select name="PartnerType" id="partner-type" onchange="toggleRequirements()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all cursor-pointer">
               <option value="Supplier">Supplier</option>
               <option value="Customer">Customer</option>
             </select>
@@ -246,20 +277,22 @@
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Email</label>
-            <input type="email" name="Email" id="partner-email" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all"/>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Email <span id="req-email" class="text-red-500">*</span></label>
+            <input type="email" name="Email" id="partner-email" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all"/>
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Phone</label>
-            <input type="text" name="Phone" id="partner-phone" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all"/>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Phone <span class="text-red-500">*</span></label>
+            <input type="text" name="Phone" id="partner-phone" required maxlength="11" placeholder="e.g. 09123456789"
+                   oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                   class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all"/>
           </div>
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Address</label>
-          <textarea name="Address" id="partner-address" rows="2" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all resize-none"></textarea>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Address <span id="req-address" class="text-red-500">*</span></label>
+          <textarea name="Address" id="partner-address" rows="2" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-[#0c0c0e] border border-slate-200 dark:border-[#1e1e24] rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all resize-none"></textarea>
         </div>
         <div class="flex gap-3 pt-2">
-          <button type="button" onclick="closeModal()" class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">Cancel</button>
+          <button type="button" onclick="closeModal()" class="flex-1 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#1e1e24] hover:bg-slate-200 dark:hover:bg-slate-700 transition-all border-none outline-none">Cancel</button>
           <button type="submit" class="flex-1 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg transition-all border-none outline-none" style="background-color:var(--brand-color)!important;">Save Partner</button>
         </div>
       </div>
@@ -268,30 +301,113 @@
 </div>
 
 <script>
+// ── Dynamic Requirements & Formatting ───────────────────────────────
+function toggleRequirements() {
+  const type = document.getElementById('partner-type').value;
+  const emailInput = document.getElementById('partner-email');
+  const addressInput = document.getElementById('partner-address');
+  const emailReq = document.getElementById('req-email');
+  const addressReq = document.getElementById('req-address');
+
+  if (type === 'Supplier') {
+    emailInput.required = true;
+    addressInput.required = true;
+    emailReq.classList.remove('hidden');
+    addressReq.classList.remove('hidden');
+  } else {
+    emailInput.required = false;
+    addressInput.required = false;
+    emailReq.classList.add('hidden');
+    addressReq.classList.add('hidden');
+  }
+}
+
 // ── Search ────────────────────────────────────────────────────────────
 function filterPartners() {
-  const q = document.getElementById('partner-search').value.toLowerCase();
-  document.querySelectorAll('.partner-row').forEach(r => {
-    r.style.display = r.dataset.name.includes(q) ? '' : 'none';
-  });
+  currentPage = 1;
+  renderTable();
+}
+
+// ── Pagination Logic (Gold Standard) ──────────────────────────────────
+let currentPage = 1;
+const pageSize = 10;
+
+function renderTable() {
+    const rows = Array.from(document.querySelectorAll('.partner-row'));
+    const q = document.getElementById('partner-search').value.toLowerCase();
+    
+    const filteredRows = rows.filter(r => r.dataset.name.includes(q));
+
+    // Hide all rows first
+    rows.forEach(row => row.classList.add('hidden'));
+
+    // Paginate
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    const pageRows = filteredRows.slice(start, end);
+
+    pageRows.forEach(row => row.classList.remove('hidden'));
+
+    // Update Info
+    const total = filteredRows.length;
+    document.getElementById('pagination-info').innerText = `Showing ${Math.min(start + 1, total)}-${Math.min(end, total)} of ${total} partners`;
+
+    // Update Buttons
+    document.getElementById('btn-prev').disabled = currentPage === 1;
+    document.getElementById('btn-next').disabled = end >= total;
+
+    // Render Page Numbers
+    const totalPages = Math.ceil(total / pageSize);
+    const pageContainer = document.getElementById('page-numbers');
+    pageContainer.innerHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.innerText = i;
+        btn.className = `w-8 h-8 rounded-lg text-xs font-bold transition-all ${i === currentPage ? 'bg-gv-brand text-white shadow-md shadow-gv-brand/20' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1e1e24]'}`;
+        btn.onclick = () => { currentPage = i; renderTable(); };
+        pageContainer.appendChild(btn);
+    }
+}
+
+function changePage(dir) {
+    currentPage += dir;
+    renderTable();
 }
 
 // ── Edit/Add Modal ────────────────────────────────────────────────────
-function openModal(id, company, contact, email, phone, address, type) {
-  document.getElementById('partner-id').value = id;
-  document.getElementById('partner-company').value = company;
-  document.getElementById('partner-contact').value = contact;
-  document.getElementById('partner-email').value = email;
-  document.getElementById('partner-phone').value = phone;
-  document.getElementById('partner-address').value = address;
-  document.getElementById('partner-type').value = type;
-  document.getElementById('modal-title').innerText = id == 0 ? 'Add New Partner' : 'Edit Partner';
+function openModal(id) {
+  if (id === 0) {
+    document.getElementById('partner-id').value = 0;
+    document.getElementById('partner-company').value = '';
+    document.getElementById('partner-contact').value = '';
+    document.getElementById('partner-email').value = '';
+    document.getElementById('partner-phone').value = '';
+    document.getElementById('partner-address').value = '';
+    document.getElementById('partner-type').value = 'Supplier';
+    document.getElementById('modal-title').innerText = 'Add New Partner';
+  } else {
+    const row = document.querySelector(`.partner-row[data-id="${id}"]`);
+    if (row) {
+      document.getElementById('partner-id').value = id;
+      document.getElementById('partner-company').value = row.dataset.rawCompany;
+      document.getElementById('partner-contact').value = row.dataset.rawContact;
+      document.getElementById('partner-email').value = row.dataset.rawEmail;
+      document.getElementById('partner-phone').value = row.dataset.rawPhone;
+      document.getElementById('partner-address').value = row.dataset.rawAddress;
+      document.getElementById('partner-type').value = row.dataset.type;
+      document.getElementById('modal-title').innerText = 'Edit Partner';
+    }
+  }
+  
+  toggleRequirements();
   document.getElementById('modal-partner').classList.remove('hidden');
 }
 function closeModal() { document.getElementById('modal-partner').classList.add('hidden'); }
 
 // ── Archive Confirm Modal ─────────────────────────────────────────────
-function openArchiveConfirm(id, name) {
+function openArchiveConfirm(id) {
+  const row = document.querySelector(`.partner-row[data-id="${id}"]`);
+  const name = row ? row.dataset.rawCompany : "this partner";
   document.getElementById('archive-partner-id').value = id;
   document.getElementById('archive-partner-name').innerText = name;
   document.getElementById('modal-archive').classList.remove('hidden');
@@ -350,7 +466,7 @@ function loadVault() {
           <td class="px-6 py-4 text-slate-400 dark:text-slate-500">${p.contactPerson || '—'}</td>
           <td class="px-6 py-4 text-slate-400 dark:text-slate-500">${p.email || '—'}</td>
           <td class="px-6 py-4">
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500">
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-[#1e1e24] text-slate-400 dark:text-slate-500">
               ${p.partnerType === 0 ? 'Supplier' : 'Customer'}
             </span>
           </td>
@@ -388,6 +504,7 @@ function recoverPartner(id) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  renderTable();
   const toast = document.getElementById('toast-success');
   if (toast) setTimeout(() => toast.style.opacity = '0', 3500);
 });
