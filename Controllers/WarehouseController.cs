@@ -20,10 +20,29 @@ namespace GadgetVault.Controllers
             _shippingService = shippingService;
         }
 
+        private bool HasPermission(string module, string permType)
+        {
+            if (User.IsInRole("Admin")) return true;
+            
+            var roleIdClaim = User.FindFirst("RoleId")?.Value;
+            if (string.IsNullOrEmpty(roleIdClaim)) return false;
+
+            var role = _context.Roles.Find(int.Parse(roleIdClaim));
+            if (role == null || string.IsNullOrEmpty(role.Permissions) || !role.Permissions.StartsWith("{")) return false;
+
+            try {
+                var perms = System.Text.Json.JsonSerializer.Deserialize<System.Collections.Generic.Dictionary<string, System.Collections.Generic.Dictionary<string, bool>>>(role.Permissions);
+                if (perms != null && perms.TryGetValue(module, out var m) && m.TryGetValue(permType, out var p)) return p;
+            } catch { }
+
+            return false;
+        }
+
         [HttpGet]
-        [Authorize(Roles = "Admin, WarehouseManager, WarehouseStaff, SalesAndProcurement")]
         public async Task<IActionResult> LiveInventory()
         {
+            if (!HasPermission("LiveInventory", "canView")) return RedirectToAction("Index", "Dashboard");
+
             var inventory = await _context.StockLevels
                 .Include(s => s.Product)
                     .ThenInclude(p => p!.Category)
@@ -40,6 +59,11 @@ namespace GadgetVault.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmReceipt(int poId, int locationId)
         {
+            if (!HasPermission("ReceiveStock", "canEdit")) {
+                TempData["Error"] = "Access Denied: You do not have permission to receive stock.";
+                return RedirectToAction("ReceiveStock", "Dashboard");
+            }
+
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
@@ -196,6 +220,8 @@ namespace GadgetVault.Controllers
         [HttpGet]
         public async Task<IActionResult> Fulfillment()
         {
+            if (!HasPermission("PickPack", "canView")) return RedirectToAction("Index", "Dashboard");
+
             var activeOrders = await _context.SalesOrders
                 .Include(o => o.Customer)
                 .Include(o => o.Items)
@@ -397,6 +423,11 @@ namespace GadgetVault.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Dispatch(int id)
         {
+            if (!HasPermission("PickPack", "canEdit")) {
+                TempData["Error"] = "Access Denied: You do not have permission to dispatch orders.";
+                return RedirectToAction("Fulfillment");
+            }
+
             var order = await _context.SalesOrders
                 .Include(o => o.Items)
                 .FirstOrDefaultAsync(o => o.Id == id);
@@ -524,6 +555,39 @@ namespace GadgetVault.Controllers
             await _context.SaveChangesAsync();
 
             return Json(new { success = true, message = "Empty location record successfully removed from inventory." });
+        }
+        [HttpPost]
+        [Authorize(Roles = "Admin, SystemManager")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateThresholds(int lowThreshold, int inStockThreshold)
+        {
+            var settings = await _context.SystemSettings.FirstOrDefaultAsync();
+            if (settings == null)
+            {
+                settings = new SystemSettings
+                {
+                    CompanyName = "GadgetVault",
+                    PrimaryColorHex = "#4F46E5"
+                };
+                _context.SystemSettings.Add(settings);
+            }
+
+            settings.LowStockThreshold = lowThreshold;
+            settings.InStockThreshold = inStockThreshold;
+
+            await _context.SaveChangesAsync();
+
+            // Record the change in audit logs
+            _context.AuditLogs.Add(new AuditLog
+            {
+                Action = "THRESHOLD_UPDATED",
+                PerformedBy = User.Identity?.Name ?? "Admin",
+                Timestamp = System.DateTime.UtcNow,
+                Details = $"Updated inventory thresholds: Low Stock = {lowThreshold}, In Stock = {inStockThreshold}."
+            });
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = "Inventory thresholds updated successfully." });
         }
     }
 }

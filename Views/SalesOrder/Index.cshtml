@@ -84,11 +84,9 @@
                 class="w-full sm:w-44 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-200 focus:outline-none transition-all cursor-pointer">
           <option value="">All Statuses</option>
           <option value="Draft"     selected="@(curStatus=="Draft")">Draft</option>
-          <option value="Pending"   selected="@(curStatus=="Pending")">Pending</option>
           <option value="Picking"   selected="@(curStatus=="Picking")">Picking</option>
           <option value="Packed"    selected="@(curStatus=="Packed")">Packed</option>
           <option value="Shipped"   selected="@(curStatus=="Shipped")">Shipped</option>
-          <option value="Cancelled" selected="@(curStatus=="Cancelled")">Cancelled</option>
         </select>
         <button type="submit" class="px-4 py-2 rounded-xl text-sm font-bold text-white border-none outline-none transition-all" style="background-color:var(--brand-color)!important;">Search</button>
       </div>

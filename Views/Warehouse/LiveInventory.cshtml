@@ -41,9 +41,52 @@
                     <input type="text" id="inventory-search" oninput="filterInventory()" placeholder="Search by SKU, name or zone..."
                            class="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#09090b] border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all"/>
                 </div>
+                
+                @if (User.IsInRole("Admin") || User.IsInRole("SystemManager"))
+                {
+                    <button onclick="openThresholdModal()" class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1c1c1f] border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Threshold Settings
+                    </button>
+                }
             </div>
             <div class="text-xs font-medium text-slate-400 dark:text-slate-500">
                 Displaying @inventory.Count() stock points
+            </div>
+        </div>
+
+        <!-- THRESHOLD SETTINGS MODAL -->
+        <div id="threshold-modal" class="fixed inset-0 z-50 hidden">
+            <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeThresholdModal()"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white dark:bg-[#111113] rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                <div class="px-8 pt-8 pb-4">
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">Inventory Thresholds</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Global alert settings for stock levels.</p>
+                </div>
+                
+                <div class="px-8 py-6 flex flex-col gap-5">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Low Stock Threshold (Orange Alert)</label>
+                        <input type="number" id="low-threshold-input" value="@settings.LowStockThreshold" 
+                               class="w-full px-4 py-3 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all" />
+                        <p class="text-[10px] text-slate-400">Products at or below this quantity will show as "Low Stock".</p>
+                    </div>
+                    
+                    <div class="flex flex-col gap-2">
+                        <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">In Stock Threshold (Green Active)</label>
+                        <input type="number" id="instock-threshold-input" value="@settings.InStockThreshold" 
+                               class="w-full px-4 py-3 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:border-gv-brand focus:ring-1 focus:ring-[var(--brand-color)] transition-all" />
+                        <p class="text-[10px] text-slate-400">Products above this quantity will show as "In Stock".</p>
+                    </div>
+                </div>
+
+                <div class="px-8 py-6 bg-slate-50 dark:bg-slate-900/50 flex justify-end gap-3">
+                    <button onclick="closeThresholdModal()" class="px-5 py-2 text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">Cancel</button>
+                    <button onclick="saveThresholds()" id="save-thresholds-btn" class="px-6 py-2 bg-gv-brand text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-500/20 hover:scale-105 transition-all">Save Changes</button>
+                </div>
             </div>
         </div>
 
@@ -142,6 +185,49 @@
 </div>
 
 <script>
+function openThresholdModal() {
+    document.getElementById('threshold-modal').classList.remove('hidden');
+}
+
+function closeThresholdModal() {
+    document.getElementById('threshold-modal').classList.add('hidden');
+}
+
+function saveThresholds() {
+    const low = document.getElementById('low-threshold-input').value;
+    const instock = document.getElementById('instock-threshold-input').value;
+    const btn = document.getElementById('save-thresholds-btn');
+    
+    btn.disabled = true;
+    btn.innerText = 'Saving...';
+
+    const formData = new FormData();
+    formData.append('lowThreshold', low);
+    formData.append('inStockThreshold', instock);
+    formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+
+    fetch('/Warehouse/UpdateThresholds', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.message);
+            btn.disabled = false;
+            btn.innerText = 'Save Changes';
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('An error occurred while saving.');
+        btn.disabled = false;
+        btn.innerText = 'Save Changes';
+    });
+}
+
 function filterInventory() {
     const search = document.getElementById('inventory-search').value.toLowerCase();
     const rows = document.querySelectorAll('.inventory-row');

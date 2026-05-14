@@ -41,18 +41,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="flex flex-col gap-2">
-                    <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Low Stock Threshold (Orange Alert)</label>
-                    <input type="number" asp-for="LowStockThreshold" class="px-4 py-2 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-[#1e1e24]/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-[var(--brand-color)] focus:ring-1 focus:ring-[var(--brand-color)] transition-all" />
-                    <span asp-validation-for="LowStockThreshold" class="text-red-500 text-xs"></span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <label class="text-sm font-bold text-slate-700 dark:text-slate-300">In Stock Threshold (Green Active)</label>
-                    <input type="number" asp-for="InStockThreshold" class="px-4 py-2 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-[#1e1e24]/60 rounded-xl text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-[var(--brand-color)] focus:ring-1 focus:ring-[var(--brand-color)] transition-all" />
-                    <span asp-validation-for="InStockThreshold" class="text-red-500 text-xs"></span>
-                </div>
-            </div>
+
 
             <div class="flex flex-col gap-2">
                 <label class="text-sm font-bold text-slate-700 dark:text-slate-300">Upload Custom Logo (Optional)</label>

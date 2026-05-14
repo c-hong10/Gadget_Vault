@@ -110,25 +110,25 @@
                 </form>
             </div>
 
-            <!-- PO RECEIVING SECTION (Minimized) -->
             <div class="bg-slate-50 dark:bg-black/40 rounded-2xl border border-slate-200 dark:border-[#1e1e24] p-5">
                 <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Or Receive via PO</h3>
-                <form asp-controller="Warehouse" asp-action="ConfirmReceipt" method="post" class="flex flex-col gap-3">
-                    @Html.AntiForgeryToken()
-                    <select name="poId" required class="w-full px-4 py-2 bg-white dark:bg-[#111113]/30 border border-slate-300 dark:border-[#1e1e24] rounded-lg text-xs">
-                        <option value="">-- Select Acknowledged PO --</option>
+
+                <div class="flex flex-col gap-3">
+                    <select id="po-select" name="poId" onchange="onPoDropdownChange()"
+                            class="w-full px-4 py-3 bg-white dark:bg-[#111113]/30 border border-slate-300 dark:border-[#1e1e24] rounded-xl text-sm font-semibold transition-all focus:border-gv-brand focus:ring-1 focus:ring-gv-brand outline-none">
+                        <option value="">-- Select Shipped / Acknowledged PO --</option>
                         @foreach (var po in (List<PurchaseOrder>)ViewBag.AcknowledgedOrders) {
-                            <option value="@po.Id">@po.PONumber (@po.Supplier?.CompanyName)</option>
+                            <option value="@po.Id" data-ponumber="@po.PONumber">@po.PONumber (@po.Supplier?.CompanyName)</option>
                         }
                     </select>
-                    <select name="locationId" required class="w-full px-4 py-2 bg-white dark:bg-[#111113]/30 border border-slate-300 dark:border-[#1e1e24] rounded-lg text-xs">
-                        <option value="">-- Select Destination Location --</option>
-                        @foreach (var loc in (List<WarehouseLocation>)ViewBag.Locations) {
-                            <option value="@loc.Id">@loc.Zone - @loc.Aisle</option>
-                        }
-                    </select>
-                    <button type="submit" class="w-full py-2 bg-slate-800 dark:bg-[#1e1e24] text-white text-xs font-bold rounded-lg hover:bg-black">Receive PO</button>
-                </form>
+                    <p class="text-[10px] text-slate-400 italic px-1">Selecting a PO will open the detailed receiving station.</p>
+                </div>
+
+                <!-- Hidden banner for scanner feedback in sidebar -->
+                <div id="scan-po-banner" class="hidden mt-3 flex items-start gap-2.5 px-4 py-3 rounded-xl border text-xs font-semibold">
+                    <svg class="shrink-0 mt-0.5" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    <span id="scan-po-banner-text"></span>
+                </div>
             </div>
         </div>
 
@@ -221,7 +221,7 @@
         <!-- Header -->
         <div class="p-6 border-b border-slate-800 dark:border-[#1e1e24] flex items-center justify-between">
             <div>
-                <h3 class="text-xl font-extrabold text-white tracking-tight">Barcode Scanner</h3>
+                <h3 class="text-xl font-extrabold text-white tracking-tight">QR Code Scanner</h3>
                 <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1">Ready for capture</p>
             </div>
             <button onclick="stopScanner()" class="p-2 rounded-xl bg-slate-800 dark:bg-[#1e1e24] dark:bg-[#1e1e24] text-slate-400 hover:text-white transition-colors">
@@ -262,163 +262,378 @@
     </div>
 </div>
 
+<!-- UNIFIED "ONE-STOP" RECEIVING MODAL -->
+<div id="modal-po-verify" class="hidden fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-md transition-all duration-300">
+    <div class="bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-[2rem] shadow-2xl w-full max-w-2xl mx-4 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
+        
+        <!-- Header -->
+        <div class="p-8 border-b border-slate-100 dark:border-[#1e1e24] flex items-center justify-between bg-slate-50/50 dark:bg-black/20">
+            <div>
+                <h3 id="verify-po-number" class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">PO-XXXX-XXX</h3>
+                <p id="verify-po-supplier" class="text-sm font-bold text-gv-brand uppercase tracking-widest mt-1">Supplier Name</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-8 flex flex-col gap-8">
+            
+            <!-- Items Section -->
+            <div>
+                <div class="flex items-center justify-between mb-4 px-1">
+                    <h4 class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Line Items to Verify</h4>
+                    <span id="verify-po-items-count" class="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-[#1e1e24] text-[10px] font-bold text-slate-500">0 Items</span>
+                </div>
+                
+                <div class="border border-slate-100 dark:border-[#1e1e24] rounded-2xl overflow-hidden bg-white dark:bg-black/10">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="bg-slate-50/50 dark:bg-[#1e1e24]/50 border-b border-slate-100 dark:border-[#1e1e24]">
+                                <th class="px-5 py-3 font-bold text-slate-400">Product</th>
+                                <th class="px-5 py-3 font-bold text-slate-400">SKU</th>
+                                <th class="px-5 py-3 font-bold text-slate-400 text-right">Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody id="verify-po-items-list" class="divide-y divide-slate-50 dark:divide-[#1e1e24]">
+                            <!-- Items injected here -->
+                        </tbody>
+                    </table>
+                    <div id="verify-loading" class="hidden p-8 flex flex-col items-center gap-3 text-slate-400">
+                        <div class="w-6 h-6 border-2 border-slate-300 border-t-gv-brand rounded-full animate-spin"></div>
+                        <span class="text-[10px] font-bold uppercase tracking-widest">Fetching Order Contents...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Destination Section -->
+            <div class="bg-slate-50 dark:bg-black/40 border border-slate-100 dark:border-[#1e1e24] rounded-3xl p-6 flex flex-col gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center text-xs font-black">!</div>
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-900 dark:text-white">Destination Location</h4>
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400">Choose where these items will be staged/stored.</p>
+                    </div>
+                </div>
+
+                <select id="verify-location-id" class="w-full px-4 py-3.5 bg-white dark:bg-[#111113] border border-slate-200 dark:border-[#1e1e24] rounded-2xl text-sm font-semibold shadow-sm outline-none focus:ring-2 focus:ring-gv-brand/20 focus:border-gv-brand transition-all">
+                    <option value="">-- Select Warehouse Zone --</option>
+                    @foreach (var loc in (List<WarehouseLocation>)ViewBag.Locations) {
+                        <option value="@loc.Id">@loc.Zone - @loc.Aisle (@loc.Rack)</option>
+                    }
+                </select>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="p-8 border-t border-slate-100 dark:border-[#1e1e24] flex gap-4 bg-slate-50/50 dark:bg-black/20">
+            <button onclick="closePoVerify()" class="flex-1 py-4 text-slate-500 dark:text-slate-400 font-bold text-sm hover:text-slate-800 dark:hover:text-white transition-all bg-transparent border-none">
+                Cancel
+            </button>
+            <button onclick="confirmAndReceivePO()" id="btn-confirm-receive" class="flex-[2] py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-sm rounded-2xl shadow-xl shadow-slate-900/10 dark:shadow-none hover:scale-[1.02] active:scale-[0.98] transition-all border-none">
+                Confirm & Receive Stock
+            </button>
+        </div>
+    </div>
+</div>
+
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <script>
     let html5QrCode;
-    let isTorchOn = false;
-
+    let isTorchOn   = false;
     let currentPage = 1;
-    const pageSize = 10;
+    const pageSize  = 10;
 
-    document.addEventListener('DOMContentLoaded', function() {
-        // Wire up main scanner button
+    document.addEventListener('DOMContentLoaded', function () {
         const btnScan = document.getElementById('btn-scan-po');
-        if (btnScan) {
-            btnScan.addEventListener('click', startScanner);
-        }
+        if (btnScan) btnScan.addEventListener('click', startScanner);
 
-        // Auto-focus the product selector for continuous logging
         const productSelect = document.querySelector('select[name="productId"]');
-        if (productSelect) {
-            productSelect.focus();
-        }
+        if (productSelect) productSelect.focus();
 
-        // Initial table render
         renderTable();
     });
 
+    /* ── Pagination ─────────────────────────────────────────────── */
     function renderTable() {
-        const rows = Array.from(document.querySelectorAll('.inbound-row'));
-        
-        // Hide all rows first
-        rows.forEach(row => row.classList.add('hidden'));
-
-        // Paginate
+        const rows  = Array.from(document.querySelectorAll('.inbound-row'));
+        rows.forEach(r => r.classList.add('hidden'));
         const start = (currentPage - 1) * pageSize;
-        const end = start + pageSize;
-        const pageRows = rows.slice(start, end);
-
-        pageRows.forEach(row => row.classList.remove('hidden'));
-
-        // Update Info
-        const total = rows.length;
+        const end   = start + pageSize;
+        rows.slice(start, end).forEach(r => r.classList.remove('hidden'));
+        const total  = rows.length;
         const infoEl = document.getElementById('pagination-info');
-        if (infoEl) {
-            infoEl.innerText = `Showing ${total === 0 ? 0 : start + 1}-${Math.min(end, total)} of ${total} logs`;
-        }
-
-        // Update Buttons
+        if (infoEl) infoEl.innerText = `Showing ${total === 0 ? 0 : start + 1}-${Math.min(end, total)} of ${total} logs`;
         const btnPrev = document.getElementById('btn-prev');
         const btnNext = document.getElementById('btn-next');
         if (btnPrev) btnPrev.disabled = currentPage === 1;
         if (btnNext) btnNext.disabled = end >= total;
-
-        // Render Page Numbers
-        const totalPages = Math.ceil(total / pageSize);
+        const totalPages    = Math.ceil(total / pageSize);
         const pageContainer = document.getElementById('page-numbers');
         if (pageContainer) {
             pageContainer.innerHTML = '';
             for (let i = 1; i <= totalPages; i++) {
-                const btn = document.createElement('button');
+                const btn   = document.createElement('button');
                 btn.innerText = i;
-                btn.className = `w-8 h-8 rounded-lg text-xs font-bold transition-all ${i === currentPage ? 'bg-gv-brand text-white shadow-md shadow-gv-brand/20' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1e1e24]'}`;
+                btn.className = `w-8 h-8 rounded-lg text-xs font-bold transition-all ${i === currentPage ? 'bg-gv-brand text-white' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1e1e24]'}`;
                 btn.onclick = () => { currentPage = i; renderTable(); };
                 pageContainer.appendChild(btn);
             }
         }
     }
+    function changePage(dir) { currentPage += dir; renderTable(); }
 
-    function changePage(dir) {
-        currentPage += dir;
-        renderTable();
-    }
+    /* ══════════════════════════════════════════════════════════════
+       SCANNER ENGINE  — PO-ONLY MODE
+    ══════════════════════════════════════════════════════════════ */
+    let isProcessingScan = false; // Global soft-lock — prevents duplicate frames & deadlocks
 
     async function startScanner() {
-        const modal = document.getElementById('scanner-modal');
-        modal.classList.remove('hidden');
-        
+        isProcessingScan = false; // Always reset lock when (re)opening scanner
+        document.getElementById('scanner-modal').classList.remove('hidden');
         html5QrCode = new Html5Qrcode("reader");
-        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+        // Square qrbox matches QR code geometry; QR_CODE only — no glare-prone 1D formats
+        const config = {
+            fps: 15,
+            qrbox: { width: 280, height: 280 },
+            formatsToSupport: [
+                Html5QrcodeSupportedFormats.QR_CODE
+            ]
+        };
 
         try {
-            await html5QrCode.start(
-                { facingMode: "environment" }, 
-                config,
-                onScanSuccess
-            );
+            await html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
         } catch (err) {
-            console.error("Unable to start scanner", err);
-            alert("Camera access denied or not available.");
-            stopScanner();
+            console.error("Scanner start failed:", err);
+            alert("Camera access denied or not available. Please allow camera permissions and try again.");
+            isProcessingScan = false;
+            document.getElementById('scanner-modal').classList.add('hidden');
         }
     }
 
-    function onScanSuccess(decodedText, decodedResult) {
-        // Visual feedback: Green Flash
-        const flash = document.getElementById('success-flash');
-        flash.classList.replace('bg-emerald-500/0', 'bg-emerald-500/40');
-        setTimeout(() => flash.classList.replace('bg-emerald-500/40', 'bg-emerald-500/0'), 300);
+    function stopScannerUI() {
+        // Hide the modal immediately — synchronous, no camera interaction
+        document.getElementById('scanner-modal').classList.add('hidden');
+        isTorchOn = false;
+    }
 
-        // Success Sound (simulated with vibration)
-        if (navigator.vibrate) navigator.vibrate(100);
-
-        // Stop scanning after success
-        stopScanner();
-
-        // Logic: Find matching PO in the dropdown
-        const poSelect = document.querySelector('select[name="poId"]');
-        let found = false;
-
-        for (let i = 0; i < poSelect.options.length; i++) {
-            const option = poSelect.options[i];
-            // Check if PO Number or Supplier Name contains the scanned text
-            if (option.text.toUpperCase().includes(decodedText.toUpperCase())) {
-                poSelect.selectedIndex = i;
-                found = true;
-                break;
-            }
-        }
-
-        if (found) {
-            alert(`Detected PO: ${decodedText}. Selected for receipt.`);
-        } else {
-            alert(`Scanned: ${decodedText}. No matching active Purchase Order found.`);
+    function stopScannerHardware() {
+        // Fire-and-forget camera stop — never await this inside onScanSuccess
+        if (html5QrCode && html5QrCode.isScanning) {
+            html5QrCode.stop().catch(err => console.warn("Camera stop (bg):", err));
         }
     }
 
     async function stopScanner() {
-        const modal = document.getElementById('scanner-modal');
-        modal.classList.add('hidden');
-        
+        // Full stop used by the X button — can safely await here
+        stopScannerUI();
         if (html5QrCode && html5QrCode.isScanning) {
-            await html5QrCode.stop();
+            try { await html5QrCode.stop(); } catch(e) { /* already stopped */ }
         }
-        isTorchOn = false;
-        document.getElementById('btn-torch').innerHTML = '<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Torch Off';
+        isProcessingScan = false;
     }
 
     async function toggleTorch() {
         if (!html5QrCode || !html5QrCode.isScanning) return;
-        
         try {
             isTorchOn = !isTorchOn;
-            await html5QrCode.applyVideoConstraints({
-                advanced: [{ torch: isTorchOn }]
-            });
-            
+            await html5QrCode.applyVideoConstraints({ advanced: [{ torch: isTorchOn }] });
             const btn = document.getElementById('btn-torch');
-            btn.innerHTML = isTorchOn 
-                ? '<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Torch On'
-                : '<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Torch Off';
+            if (btn) btn.innerText = isTorchOn ? 'Torch On' : 'Torch Off';
+        } catch (err) { console.error("Torch not supported:", err); }
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       SCAN SUCCESS — SOFT-LOCK PATTERN (UI first, hardware later)
+       Fixes the async deadlock: never await camera stop inside this
+       callback, or the Promise chain freezes and no modal fires.
+    ══════════════════════════════════════════════════════════════ */
+    function onScanSuccess(decodedText, decodedResult) {
+        // 1. Lock Guard: Instantly block duplicate frames to prevent race conditions
+        if (isProcessingScan) return;
+
+        const cleanCode = decodedText.trim().toUpperCase();
+        console.log("SUCCESSFUL DECODE:", cleanCode); 
+
+        if (cleanCode.startsWith("PO-")) {
+            isProcessingScan = true; // Lock logically
+
+            // 2. Feedback (Sync)
+            if (navigator.vibrate) navigator.vibrate(100);
             
-            btn.classList.toggle('bg-gv-brand', isTorchOn);
-            btn.classList.toggle('bg-slate-800 dark:bg-[#1e1e24]', !isTorchOn);
-        } catch (err) {
-            console.error("Torch not supported on this device", err);
+            // 3. PRIORITIZE UI: Hide scanner and trigger modal IMMEDIATELY
+            // This happens before we even touch the camera hardware stop logic
+            stopScannerUI();
+            handlePOScan(cleanCode);
+
+            // 4. SOFT-STOP CAMERA: Attempt to stop in background, ignoring all errors
+            // We do not await this, so a hardware deadlock won't freeze the UI
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop()
+                    .then(() => console.log("Camera stopped successfully."))
+                    .catch(err => console.warn("Camera stop ignored/deadlocked:", err));
+            }
+
+        } else {
+            // Invalid barcode handling with 2s cooldown
+            isProcessingScan = true;
+            showBanner('error', `❌ Invalid Barcode: "${decodedText.trim()}". Please scan a valid Purchase Order QR code.`);
+            setTimeout(() => { isProcessingScan = false; }, 2000);
         }
     }
-</script>
 
+    function handlePOScan(scannedUpper) {
+        const poSelect = document.getElementById('po-select');
+        let matchedOpt = null;
+
+        for (let i = 0; i < poSelect.options.length; i++) {
+            const attr = (poSelect.options[i].getAttribute('data-ponumber') || '').toUpperCase().trim();
+            if (attr === scannedUpper) { matchedOpt = poSelect.options[i]; break; }
+        }
+
+        if (matchedOpt) {
+            openPoVerifyModal(matchedOpt);
+        } else {
+            showBanner('error',
+                `Error: PO "${scannedUpper}" is not in a Shipped/Acknowledged status or does not exist.`
+            );
+        }
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       UNIFIED RECEIVING MODAL LOGIC
+    ══════════════════════════════════════════════════════════════ */
+    let _activePoId  = null;
+    let _activePoNum = null;
+
+    async function openPoVerifyModal(opt) {
+        _activePoId  = opt.value;
+        _activePoNum = opt.getAttribute('data-ponumber');
+
+        const rawText  = opt.innerText || '';
+        const supplier = rawText.includes('(')
+            ? rawText.split('(').pop().replace(')', '').trim()
+            : 'Unknown Supplier';
+
+        // Reset & Open Modal
+        document.getElementById('verify-po-number').innerText   = _activePoNum;
+        document.getElementById('verify-po-supplier').innerText = supplier;
+        document.getElementById('verify-po-items-list').innerHTML = '';
+        document.getElementById('verify-po-items-count').innerText = '0 Items';
+        document.getElementById('verify-location-id').value = '';
+        
+        document.getElementById('modal-po-verify').classList.remove('hidden');
+        document.getElementById('verify-loading').classList.remove('hidden');
+
+        try {
+            const res  = await fetch(`/Dashboard/GetPOItems/${_activePoId}`);
+            const data = await res.json();
+            
+            document.getElementById('verify-loading').classList.add('hidden');
+            document.getElementById('verify-po-items-count').innerText = `${data.length} line item${data.length !== 1 ? 's' : ''}`;
+
+            const listBody = document.getElementById('verify-po-items-list');
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-5 py-3 font-semibold text-slate-800 dark:text-slate-200">${item.name}</td>
+                    <td class="px-5 py-3 font-mono text-[10px] text-slate-500">${item.sku}</td>
+                    <td class="px-5 py-3 font-black text-slate-900 dark:text-white text-right">x${item.quantity}</td>
+                `;
+                listBody.appendChild(tr);
+            });
+        } catch(err) {
+            console.error("Failed to fetch PO items:", err);
+            document.getElementById('verify-loading').innerHTML = '<span class="text-red-500 font-bold p-4 block text-center">Failed to load order items.</span>';
+        }
+    }
+
+    function closePoVerify() {
+        document.getElementById('modal-po-verify').classList.add('hidden');
+        _activePoId  = null;
+        _activePoNum = null;
+        // Reset manual dropdown
+        document.getElementById('po-select').value = '';
+    }
+
+    async function confirmAndReceivePO() {
+        const locationId = document.getElementById('verify-location-id').value;
+        if (!locationId) {
+            alert("Please select a destination location for these items.");
+            return;
+        }
+
+        const btn = document.getElementById('btn-confirm-receive');
+        const originalText = btn.innerText;
+        btn.innerText = "Processing Receipt...";
+        btn.disabled = true;
+
+        const formData = new FormData();
+        formData.append("poId", _activePoId);
+        formData.append("locationId", locationId);
+        formData.append("__RequestVerificationToken", document.querySelector('input[name="__RequestVerificationToken"]').value);
+
+        try {
+            const res = await fetch('/Dashboard/ReceivePOJson', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await res.json();
+
+            if (result.success) {
+                // Success!
+                closePoVerify();
+                showBanner('success', result.message);
+                
+                // Refresh logs table or reload page
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                alert("Error: " + result.message);
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        } catch (err) {
+            console.error("AJAX Error during receipt:", err);
+            alert("Connection error. Inventory may not have been updated.");
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    }
+
+    function onPoDropdownChange() {
+        const poSelect = document.getElementById('po-select');
+        const opt = poSelect.options[poSelect.selectedIndex];
+        if (opt && opt.value) {
+            openPoVerifyModal(opt);
+        }
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       BANNER HELPER
+    ══════════════════════════════════════════════════════════════ */
+    let _bannerTimer = null;
+    function showBanner(type, message) {
+        const banner     = document.getElementById('scan-po-banner');
+        const bannerText = document.getElementById('scan-po-banner-text');
+        if (!banner || !bannerText) return;
+
+        const base   = 'flex items-start gap-2.5 px-4 py-3 rounded-xl border text-xs font-semibold mt-3';
+        const themes = {
+            success: 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400',
+            warn:    'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-400',
+            error:   'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400',
+        };
+
+        banner.className     = `${base} ${themes[type] || themes.warn}`;
+        bannerText.innerText = message;
+        banner.classList.remove('hidden');
+
+        if (_bannerTimer) clearTimeout(_bannerTimer);
+        _bannerTimer = setTimeout(() => banner.classList.add('hidden'), 8000);
+    }
+</script>
 <style>
 @@keyframes scan {
     0%, 100% { transform: translateY(-100px); opacity: 0; }

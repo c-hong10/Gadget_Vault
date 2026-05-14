@@ -95,9 +95,11 @@ namespace GadgetVault.Controllers
 
 
         [HttpGet]
-        [Authorize(Roles = "Admin, SystemManager, System Manager")]
         public IActionResult UserManagement(string searchString, int pageNumber = 1)
         {
+            if (!HasPermission("UserManagement", "canView")) return RedirectToAction("Index");
+            ViewBag.CanEdit = HasPermission("UserManagement", "canEdit");
+
             var query = _context.Users.Include(u => u.Role).AsQueryable();
 
             if (!string.IsNullOrEmpty(searchString))
@@ -360,9 +362,11 @@ namespace GadgetVault.Controllers
         public IActionResult PickAndPack() { return View(); }
 
         [HttpGet]
-        [Authorize(Roles = "Admin, WarehouseManager, WarehouseStaff")]
         public async Task<IActionResult> ReceiveStock()
         {
+            if (!HasPermission("ReceiveStock", "canView")) return RedirectToAction("Index");
+            ViewBag.CanEdit = HasPermission("ReceiveStock", "canEdit");
+
             var acknowledgedOrders = await _context.PurchaseOrders
                 .Include(o => o.Supplier)
                 .Where(o => o.Status == POStatus.Acknowledged || o.Status == POStatus.Shipped)
@@ -397,10 +401,190 @@ namespace GadgetVault.Controllers
             return View();
         }
 
+        /// <summary>Returns line items for a PO as JSON — used by the ReceiveStock scanner "Load Items" call.</summary>
         [HttpGet]
-        [Authorize(Roles = "Admin, WarehouseManager")]
+        [Authorize(Roles = "Admin, WarehouseManager, WarehouseStaff")]
+        public async Task<IActionResult> GetPOItems(int id)
+        {
+            var items = await _context.PurchaseOrderItems
+                .Where(i => i.PurchaseOrderId == id)
+                .Include(i => i.Product)
+                .Select(i => new
+                {
+                    name     = i.Product != null ? i.Product.Name : "Unknown",
+                    sku      = i.Product != null ? i.Product.SKU  : "—",
+                    quantity = i.Quantity
+                })
+                .ToListAsync();
+
+            return Json(items);
+        }
+
+        /// <summary>AJAX endpoint to officially receive a PO and update inventory.</summary>
+        [HttpPost]
+        [Authorize(Roles = "Admin, WarehouseManager, WarehouseStaff")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReceivePOJson(int poId, int locationId)
+        {
+            if (poId <= 0 || locationId <= 0) return Json(new { success = false, message = "Invalid PO or Location ID." });
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var po = await _context.PurchaseOrders
+                    .Include(o => o.Items)
+                    .FirstOrDefaultAsync(o => o.Id == poId);
+
+                if (po == null) return Json(new { success = false, message = "Purchase Order not found." });
+                if (po.Status != POStatus.Acknowledged && po.Status != POStatus.Shipped)
+                {
+                    return Json(new { success = false, message = "Only Acknowledged or Shipped orders can be received." });
+                }
+
+                int totalItemsAdded = 0;
+                foreach (var item in po.Items)
+                {
+                    var stock = await _context.StockLevels
+                        .FirstOrDefaultAsync(s => s.ProductId == item.ProductId && s.LocationId == locationId);
+
+                    if (stock == null)
+                    {
+                        stock = new StockLevel
+                        {
+                            ProductId = item.ProductId,
+                            LocationId = locationId,
+                            Quantity = item.Quantity,
+                            LastUpdated = DateTime.UtcNow
+                        };
+                        _context.StockLevels.Add(stock);
+                    }
+                    else
+                    {
+                        stock.Quantity += item.Quantity;
+                        stock.LastUpdated = DateTime.UtcNow;
+                    }
+
+                    _context.InventoryTransactions.Add(new InventoryTransaction
+                    {
+                        ProductId = item.ProductId,
+                        Quantity = item.Quantity,
+                        Type = TransactionType.StockIn,
+                        ReferenceId = po.PONumber,
+                        PurchaseOrderId = poId,
+                        LocationId = locationId,
+                        Timestamp = DateTime.UtcNow,
+                        Notes = $"Received via PO (AJAX): {po.PONumber}"
+                    });
+                    
+                    totalItemsAdded += item.Quantity;
+                }
+
+                po.Status = POStatus.Received;
+                
+                _context.AuditLogs.Add(new AuditLog
+                {
+                    Action = "STOCK_RECEIVED_AJAX",
+                    PerformedBy = User.Identity?.Name ?? "System",
+                    Timestamp = DateTime.UtcNow,
+                    Details = $"Received stock for PO: {po.PONumber}. Total items added: {totalItemsAdded}."
+                });
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Json(new { success = true, message = $"Successfully received PO {po.PONumber}. Stock updated." });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return Json(new { success = false, message = $"Critical error: {ex.Message}" });
+            }
+        }
+        
+        public class UpdatePermissionsRequest
+        {
+            public int RoleId { get; set; }
+            public Dictionary<string, Dictionary<string, bool>>? Permissions { get; set; }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdatePermissions([FromBody] UpdatePermissionsRequest request)
+        {
+            try 
+            {
+                if (request == null || request.RoleId <= 0) 
+                    return Json(new { success = false, message = "Invalid request data. Role ID is required." });
+
+                var role = await _context.Roles.FindAsync(request.RoleId);
+                if (role == null) 
+                    return Json(new { success = false, message = $"Role with ID {request.RoleId} not found." });
+
+                // Persistence: Serialize the matrix to the Role.Permissions field
+                role.Permissions = System.Text.Json.JsonSerializer.Serialize(request.Permissions);
+                
+                _context.AuditLogs.Add(new AuditLog
+                {
+                    Action = "ROLE_CONFIG_DEPLOYED",
+                    PerformedBy = User.Identity?.Name ?? "Admin",
+                    Timestamp = DateTime.UtcNow,
+                    Details = $"Updated permissions matrix for role: {role.Name}"
+                });
+
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Internal Server Error: {ex.Message}" });
+            }
+        }
+
+        private bool HasPermission(string module, string permType)
+        {
+            if (User.IsInRole("Admin")) return true;
+            
+            var roleIdClaim = User.FindFirst("RoleId")?.Value;
+            if (string.IsNullOrEmpty(roleIdClaim)) return false;
+
+            var role = _context.Roles.Find(int.Parse(roleIdClaim));
+            if (role == null || string.IsNullOrEmpty(role.Permissions) || !role.Permissions.StartsWith("{")) return false;
+
+            try {
+                var perms = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, bool>>>(role.Permissions);
+                if (perms != null && perms.TryGetValue(module, out var m) && m.TryGetValue(permType, out var p)) return p;
+            } catch { }
+
+            return false;
+        }
+
+        /// <summary>Server-side proxy for barcode downloads to bypass CORS restrictions on the client side.</summary>
+        [HttpGet]
+        public async Task<IActionResult> DownloadBarcode(string poNumber)
+        {
+            if (string.IsNullOrEmpty(poNumber)) return BadRequest();
+
+            var url = $"https://barcode.tec-it.com/barcode.ashx?data={System.Uri.EscapeDataString(poNumber)}&code=QRCode&dpi=200&unit=Min&imagetype=Png&rotation=0&color=%23000000&bgcolor=%23ffffff";
+            
+            using (var client = new System.Net.Http.HttpClient())
+            {
+                var response = await client.GetAsync(url);
+                if (response.IsSuccessStatusCode)
+                {
+                    var bytes = await response.Content.ReadAsByteArrayAsync();
+                    return File(bytes, "image/png", $"{poNumber}-barcode.png");
+                }
+            }
+            return NotFound();
+        }
+
+        [HttpGet]
         public async Task<IActionResult> StockAdjustments() 
         { 
+            if (!HasPermission("StockAdjustments", "canView")) return RedirectToAction("Index");
+            ViewBag.CanEdit = HasPermission("StockAdjustments", "canEdit");
+
             var transactions = await _context.InventoryTransactions
                 .Include(t => t.Product)
                 .OrderByDescending(t => t.Timestamp)
@@ -437,9 +621,13 @@ namespace GadgetVault.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin, WarehouseManager")]
         public async Task<IActionResult> SubmitStockAdjustment(int productId, int locationId, int quantityChange, string reason, string? notes)
         {
+            if (!HasPermission("StockAdjustments", "canEdit")) {
+                TempData["Error"] = "Access Denied: You do not have permission to submit stock adjustments.";
+                return RedirectToAction("StockAdjustments");
+            }
+
             if (productId == 0 || locationId == 0 || quantityChange == 0)
             {
                 TempData["Error"] = "Invalid adjustment details.";
@@ -626,9 +814,10 @@ namespace GadgetVault.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin, WarehouseManager")]
         public async Task<IActionResult> MasterData()
         {
+            if (!HasPermission("MasterData", "canView")) return RedirectToAction("Index");
+
             // Ensure seed data exists
             if (!await _context.Categories.AnyAsync())
             {
@@ -668,9 +857,11 @@ namespace GadgetVault.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin, WarehouseManager, SalesAndProcurement, WarehouseStaff")]
         public async Task<IActionResult> ProductCatalog(string? search, string? category, int pageNumber = 1)
         {
+            if (!HasPermission("ProductCatalog", "canView")) return RedirectToAction("Index");
+            ViewBag.CanEdit = HasPermission("ProductCatalog", "canEdit");
+
             var query = _context.Products
                 .Include(p => p.Category)
                 .Include(p => p.Supplier)
@@ -731,9 +922,11 @@ namespace GadgetVault.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> RolesPermissions()
         {
+            if (!HasPermission("RolesPermissions", "canView")) return RedirectToAction("Index");
+            ViewBag.CanEdit = HasPermission("RolesPermissions", "canEdit");
+
             var roles = await _context.Roles
                 .Include(r => r.Users)
                 .Where(r => r.Name != "Customer")
@@ -790,9 +983,10 @@ namespace GadgetVault.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> SecurityLogs()
         {
+            if (!HasPermission("SecurityLogs", "canView")) return RedirectToAction("Index");
+
             string[] securityKeywords = { "LOGIN", "LOGOUT", "FAILED_LOGIN", "USER_MANAGEMENT", "ROLE_CHANGE", "ACCOUNT_SECURITY", "SYSTEM INITIALIZATION", "SECURITY_ALERT" };
             
             var logs = await _context.AuditLogs
@@ -829,9 +1023,10 @@ namespace GadgetVault.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> SystemLogs()
         {
+            if (!HasPermission("SystemLogs", "canView")) return RedirectToAction("Index");
+
             string[] securityKeywords = { "LOGIN", "LOGOUT", "FAILED_LOGIN", "USER_MANAGEMENT", "ROLE_CHANGE", "ACCOUNT_SECURITY", "SYSTEM INITIALIZATION", "SECURITY_ALERT" };
 
             var logs = await _context.AuditLogs
@@ -844,8 +1039,11 @@ namespace GadgetVault.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
-        public IActionResult CompanySettings() { return View(); }
+        public IActionResult CompanySettings() 
+        { 
+            if (!HasPermission("CompanySettings", "canView")) return RedirectToAction("Index");
+            return View(); 
+        }
 
         [HttpGet]
         [Authorize(Roles = "Supplier, Vendor, Admin")]
@@ -1024,9 +1222,11 @@ namespace GadgetVault.Controllers
 
 
         [HttpGet]
-        [Authorize(Roles = "Admin, WarehouseManager, SalesAndProcurement")]
         public async Task<IActionResult> PurchaseOrders(string? search, string? status)
         {
+            if (!HasPermission("PurchaseOrders", "canView")) return RedirectToAction("Index");
+            ViewBag.CanEdit = HasPermission("PurchaseOrders", "canEdit");
+
             var currentUsername = User.Identity?.Name;
             var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Username == currentUsername);
 
@@ -1073,9 +1273,13 @@ namespace GadgetVault.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin, WarehouseManager, SalesAndProcurement")]
         public async Task<IActionResult> CreatePurchaseOrder(int supplierId, DateTime orderDate, string? notes, List<PurchaseOrderItem> Items)
         {
+            if (!HasPermission("PurchaseOrders", "canEdit")) {
+                TempData["Error"] = "Access Denied: You do not have permission to create Purchase Orders.";
+                return RedirectToAction("PurchaseOrders");
+            }
+
             // Auto-generate PO Number: PO-YYYYMMDD-COUNT+1
             var dateStr = DateTime.Now.ToString("yyyyMMdd");
             var countToday = await _context.PurchaseOrders
@@ -1133,9 +1337,11 @@ namespace GadgetVault.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin, WarehouseManager, SalesAndProcurement")]
         public async Task<IActionResult> SalesOrders()
         {
+            if (!HasPermission("SalesOrders", "canView")) return RedirectToAction("Index");
+            ViewBag.CanEdit = HasPermission("SalesOrders", "canEdit");
+
             var query = _context.SalesOrders
                 .Include(o => o.Customer)
                 .Include(o => o.Items)
@@ -1162,9 +1368,11 @@ namespace GadgetVault.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin, WarehouseManager, SalesAndProcurement")]
         public async Task<IActionResult> BusinessDirectory()
         {
+            if (!HasPermission("BusinessDirectory", "canView")) return RedirectToAction("Index");
+            ViewBag.CanEdit = HasPermission("BusinessDirectory", "canEdit");
+
             var partners = await _context.BusinessPartners
                 .Where(p => p.IsActive)
                 .OrderBy(p => p.CompanyName)
@@ -1173,9 +1381,13 @@ namespace GadgetVault.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin, WarehouseManager, SalesAndProcurement")]
         public async Task<IActionResult> AddOrEditBusinessPartner(BusinessPartner model)
         {
+            if (!HasPermission("BusinessDirectory", "canEdit")) {
+                TempData["Error"] = "Access Denied: You do not have permission to modify business partners.";
+                return RedirectToAction("BusinessDirectory");
+            }
+
             // 1. Normalize Phone (numeric only)
             if (!string.IsNullOrEmpty(model.Phone))
             {
@@ -1246,9 +1458,13 @@ namespace GadgetVault.Controllers
         // â”€â”€ Archive (soft-delete) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin, WarehouseManager, SalesAndProcurement")]
         public async Task<IActionResult> ArchivePartner(int id)
         {
+            if (!HasPermission("BusinessDirectory", "canEdit")) {
+                TempData["Error"] = "Access Denied: You do not have permission to archive partners.";
+                return RedirectToAction("BusinessDirectory");
+            }
+
             var partner = await _context.BusinessPartners.FindAsync(id);
             if (partner != null)
             {

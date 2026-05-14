@@ -55,8 +55,6 @@ namespace GadgetVault.Controllers
                 {
                     existing.CompanyName = model.CompanyName;
                     existing.PrimaryColorHex = model.PrimaryColorHex;
-                    existing.LowStockThreshold = model.LowStockThreshold;
-                    existing.InStockThreshold = model.InStockThreshold;
                     if (logoUrl != null)
                     {
                         existing.LogoUrl = logoUrl;
