@@ -15,6 +15,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<GadgetVault.Services.ImageService>();
 builder.Services.AddScoped<GadgetVault.Services.IShippingService, GadgetVault.Services.ShippingService>();
+builder.Services.AddScoped<GadgetVault.Services.IEmailService, GadgetVault.Services.EmailService>();
 builder.Services.AddAuthentication("Cookies")
     .AddCookie("Cookies", options => {
         options.LoginPath = "/Account/Login";

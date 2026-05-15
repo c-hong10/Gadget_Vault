@@ -476,7 +476,7 @@
             </button>
         </div>
         <div class="p-6">
-            <form method="post" asp-action="InviteUser" class="space-y-4">
+            <form id="inviteUserForm" onsubmit="handleInviteSubmit(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Email Address</label>
                     <input type="email" name="email" required placeholder="member@company.com"
@@ -517,7 +517,61 @@
 <script>
     // ── Invite Modal ──
     function openInviteModal()  { document.getElementById('inviteModal').classList.remove('hidden'); }
-    function closeInviteModal() { document.getElementById('inviteModal').classList.add('hidden'); }
+    function closeInviteModal() { 
+        document.getElementById('inviteModal').classList.add('hidden'); 
+        document.getElementById('inviteUserForm').reset();
+    }
+
+    // ── Invite Submission (AJAX) ──
+    async function handleInviteSubmit(e) {
+        e.preventDefault();
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        // UI Loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+            <svg class="animate-spin h-4 w-4 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>`;
+
+        try {
+            const formData = new FormData(form);
+            const response = await fetch('/Dashboard/InviteUser', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? ''
+                }
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                // Success
+                if (result.warning) {
+                    showInfoToast('User Invited', result.warning);
+                } else {
+                    showSuccessToast('Success', result.message || 'Invitation sent successfully.');
+                }
+                
+                // Close modal and refresh or update table
+                closeInviteModal();
+                setTimeout(() => location.reload(), 1500); 
+            } else {
+                // Error (Duplicate email or other BadRequest)
+                showErrorToast('Error', result.message || 'An error occurred while inviting the user.');
+                // Modal stays open as requested
+            }
+        } catch (error) {
+            showErrorToast('System Error', 'Failed to communicate with the server.');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    }
 
     // ── Edit Modal ──
     function openEditModal(id, email, roleId) {

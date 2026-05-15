@@ -159,9 +159,22 @@
                 </div>
             </div>
 
-            <!-- Footer -->
-            <div class="px-6 py-3 border-t border-slate-200 dark:border-[#1e1e24] bg-slate-50/50 dark:bg-[#111113]/50">
-                <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">@categories.Count() active categories</span>
+            <!-- Table Footer / Pagination -->
+            <div class="px-6 py-4 border-t border-slate-200 dark:border-[#1e1e24] bg-slate-50/50 dark:bg-[#111113]/30 flex items-center justify-between">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" id="cat-pagination-info">
+                    Showing 1-10 of @categories.Count() categories
+                </p>
+                <div class="flex items-center gap-2">
+                    <button onclick="changeCatPage(-1)" id="cat-btn-prev" class="p-2 rounded-lg bg-white dark:bg-[#1e1e24] border border-slate-200 dark:border-[#1e1e24] text-slate-400 hover:text-slate-900 dark:hover:text-white disabled:opacity-50 transition-all border-none outline-none">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <div id="cat-page-numbers" class="flex items-center gap-1">
+                        <!-- Page numbers injected here -->
+                    </div>
+                    <button onclick="changeCatPage(1)" id="cat-btn-next" class="p-2 rounded-lg bg-white dark:bg-[#1e1e24] border border-slate-200 dark:border-[#1e1e24] text-slate-400 hover:text-slate-900 dark:hover:text-white disabled:opacity-50 transition-all border-none outline-none">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -198,7 +211,7 @@
                     <tbody class="divide-y divide-slate-100 dark:divide-[#1e1e24]">
                         @foreach (var row in locations)
                         {
-                            <tr class="hover:bg-slate-50/60 dark:hover:bg-[#1e1e24]/30 transition-colors group"
+                            <tr class="hover:bg-slate-50/60 dark:hover:bg-[#1e1e24]/30 transition-colors group zone-row"
                                 data-id="@row.Id" data-zone="@row.Zone" data-aisle="@row.Aisle" data-rack="@row.Rack">
                                 <td class="px-6 py-4 font-bold text-slate-800 dark:text-slate-200">@row.Zone</td>
                                 <td class="px-6 py-4 text-slate-500 dark:text-slate-400">@row.Aisle</td>
@@ -256,9 +269,22 @@
                     </table>
                 </div>
             </div>
-            <!-- Footer -->
-            <div class="px-6 py-3 border-t border-slate-200 dark:border-[#1e1e24] bg-slate-50/50 dark:bg-[#111113]/50">
-                <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">@locations.Count() active zones</span>
+            <!-- Table Footer / Pagination -->
+            <div class="px-6 py-4 border-t border-slate-200 dark:border-[#1e1e24] bg-slate-50/50 dark:bg-[#111113]/30 flex items-center justify-between">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest" id="zone-pagination-info">
+                    Showing 1-10 of @locations.Count() zones
+                </p>
+                <div class="flex items-center gap-2">
+                    <button onclick="changeZonePage(-1)" id="zone-btn-prev" class="p-2 rounded-lg bg-white dark:bg-[#1e1e24] border border-slate-200 dark:border-[#1e1e24] text-slate-400 hover:text-slate-900 dark:hover:text-white disabled:opacity-50 transition-all border-none outline-none">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <div id="zone-page-numbers" class="flex items-center gap-1">
+                        <!-- Page numbers injected here -->
+                    </div>
+                    <button onclick="changeZonePage(1)" id="zone-btn-next" class="p-2 rounded-lg bg-white dark:bg-[#1e1e24] border border-slate-200 dark:border-[#1e1e24] text-slate-400 hover:text-slate-900 dark:hover:text-white disabled:opacity-50 transition-all border-none outline-none">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -628,13 +654,75 @@
     }
 
     // ── Table Filtering & Modals ──
-    function filterCategories() {
-        const q = document.getElementById('cat-search').value.toLowerCase();
-        document.querySelectorAll('.cat-row').forEach(row => {
-            const name = row.querySelector('.cat-name').textContent.toLowerCase();
-            row.style.display = name.includes(q) ? '' : 'none';
-        });
+    // ── Table Pagination & Filtering ──
+    let catPage = 1;
+    let zonePage = 1;
+    const pageSize = 10;
+
+    function renderTable(type) {
+        const rowClass = type === 'cat' ? '.cat-row' : '.zone-row';
+        const infoId   = type === 'cat' ? 'cat-pagination-info' : 'zone-pagination-info';
+        const prevId   = type === 'cat' ? 'cat-btn-prev' : 'zone-btn-prev';
+        const nextId   = type === 'cat' ? 'cat-btn-next' : 'zone-btn-next';
+        const numId    = type === 'cat' ? 'cat-page-numbers' : 'zone-page-numbers';
+        const pageVar  = type === 'cat' ? catPage : zonePage;
+
+        const rows = Array.from(document.querySelectorAll(rowClass));
+        let filteredRows = rows;
+
+        // Apply filtering for categories if search is active
+        if (type === 'cat') {
+            const q = document.getElementById('cat-search').value.toLowerCase();
+            filteredRows = rows.filter(r => r.querySelector('.cat-name').textContent.toLowerCase().includes(q));
+        }
+
+        // Hide all rows
+        rows.forEach(r => r.classList.add('hidden'));
+
+        // Paginate
+        const start = (pageVar - 1) * pageSize;
+        const end   = start + pageSize;
+        const pageRows = filteredRows.slice(start, end);
+
+        pageRows.forEach(r => r.classList.remove('hidden'));
+
+        // Update Info Text
+        const total = filteredRows.length;
+        const label = type === 'cat' ? 'categories' : 'zones';
+        document.getElementById(infoId).innerText = `Showing ${Math.min(start + 1, total)}-${Math.min(end, total)} of ${total} ${label}`;
+
+        // Update Buttons
+        document.getElementById(prevId).disabled = pageVar === 1;
+        document.getElementById(nextId).disabled = end >= total;
+
+        // Render Page Numbers
+        const totalPages = Math.ceil(total / pageSize);
+        const pageContainer = document.getElementById(numId);
+        pageContainer.innerHTML = '';
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.innerText = i;
+            btn.className = `w-8 h-8 rounded-lg text-xs font-bold transition-all ${i === pageVar ? 'bg-gv-brand text-white shadow-md shadow-gv-brand/20' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1e1e24]'}`;
+            btn.onclick = () => { 
+                if (type === 'cat') catPage = i; else zonePage = i;
+                renderTable(type); 
+            };
+            pageContainer.appendChild(btn);
+        }
     }
+
+    function changeCatPage(dir) { catPage += dir; renderTable('cat'); }
+    function changeZonePage(dir) { zonePage += dir; renderTable('zone'); }
+
+    function filterCategories() {
+        catPage = 1; // Reset to page 1 on search
+        renderTable('cat');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        renderTable('cat');
+        renderTable('zone');
+    });
 
     function openEditCategoryModal(btn) {
         const row = btn.closest('tr');

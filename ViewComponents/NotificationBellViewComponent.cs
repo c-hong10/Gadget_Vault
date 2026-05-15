@@ -27,8 +27,8 @@ namespace GadgetVault.ViewComponents
                 .Include(s => s.Location)
                 .Where(s => s.Product != null && s.Product.IsActive && s.Quantity <= globalThreshold)
                 .Select(s => new LowStockNotification {
-                    ProductName = s.Product.Name,
-                    SKU = s.Product.SKU,
+                    ProductName = s.Product != null ? s.Product.Name : "Unknown",
+                    SKU = s.Product != null ? s.Product.SKU : "N/A",
                     CurrentQty = s.Quantity,
                     Threshold = globalThreshold,
                     LocationLabel = s.Location != null ? $"{s.Location.Zone}-{s.Location.Aisle}" : "Unknown",

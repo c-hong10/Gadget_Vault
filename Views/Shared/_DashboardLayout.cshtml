@@ -114,7 +114,7 @@
 
                 // --- RBAC Implementation ---
                 var roleIdClaim = User.FindFirst("RoleId")?.Value;
-                Dictionary<string, Dictionary<string, bool>> permsDict = null;
+                Dictionary<string, Dictionary<string, bool>>? permsDict = null;
                 if (!string.IsNullOrEmpty(roleIdClaim)) {
                     var roleObj = DbContext.Roles.Find(int.Parse(roleIdClaim));
                     if (roleObj != null && !string.IsNullOrEmpty(roleObj.Permissions) && roleObj.Permissions.StartsWith("{")) {

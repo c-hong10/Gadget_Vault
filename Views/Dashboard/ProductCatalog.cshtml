@@ -149,7 +149,7 @@
                             <td class="px-6 py-4 font-mono text-xs font-semibold text-slate-500 dark:text-slate-400">
                                 <div class="flex items-center gap-2">
                                     @p.SKU
-                                    <button onclick="showBarcode('@p.SKU')" class="p-1 rounded bg-slate-100 dark:bg-[#1e1e24] text-slate-400 hover:text-gv-brand transition-colors" title="Generate Test Barcode">
+                                    <button onclick="showBarcode('@p.SKU')" class="p-1 rounded bg-slate-100 dark:bg-[#1e1e24] text-slate-400 hover:text-gv-brand transition-colors" title="View Product Barcode">
                                         <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 4h4v16H3V4zm6 0h2v16H9V4zm4 0h1v16h-1V4zm3 0h5v16h-5V4z"/></svg>
                                     </button>
                                 </div>
@@ -522,7 +522,7 @@
     <div class="relative w-full max-w-sm dark:bg-[#111113] border border-[#1e1e24] rounded-3xl shadow-2xl overflow-hidden flex flex-col">
         <div class="p-6 border-b border-[#1e1e24] flex items-center justify-between">
             <div>
-                <h3 class="text-lg font-extrabold text-white tracking-tight">Test Barcode</h3>
+                <h3 class="text-lg font-extrabold text-white tracking-tight">Product Barcode</h3>
                 <p id="barcode-sku" class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1"></p>
             </div>
             <button onclick="document.getElementById('modal-barcode').classList.add('hidden')" class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-colors">
@@ -531,10 +531,11 @@
         </div>
         <div class="p-8 bg-white flex flex-col items-center justify-center gap-4">
             <svg id="barcode-canvas"></svg>
-            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Point scanner at screen to test</p>
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Point scanner at screen to scan</p>
         </div>
-        <div class="p-4 bg-[#111113] text-center">
-             <button onclick="document.getElementById('modal-barcode').classList.add('hidden')" class="w-full py-3 rounded-xl bg-slate-800 text-white text-sm font-bold hover:bg-slate-700 transition-all">Close Preview</button>
+        <div class="p-4 bg-[#111113] flex flex-col gap-2">
+             <button onclick="downloadBarcode()" id="btn-download-barcode" class="w-full py-3 rounded-xl bg-gv-brand text-white text-sm font-bold hover:opacity-90 transition-all border-none outline-none" style="background-color: var(--brand-color) !important;">Download PNG</button>
+             <button onclick="document.getElementById('modal-barcode').classList.add('hidden')" class="w-full py-3 rounded-xl bg-slate-800 text-white text-sm font-bold hover:bg-slate-700 transition-all border-none outline-none">Close Preview</button>
         </div>
     </div>
 </div>
@@ -556,6 +557,60 @@
             margin: 10
         });
         document.getElementById('modal-barcode').classList.remove('hidden');
+    }
+
+    async function downloadBarcode() {
+        const btn = document.getElementById('btn-download-barcode');
+        const sku = document.getElementById('barcode-sku').innerText;
+        if (!sku) return;
+
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '⏳ Processing...';
+        btn.disabled = true;
+
+        try {
+            const svg = document.getElementById('barcode-canvas');
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const canvas = document.createElement("canvas");
+            const svgSize = svg.getBBox();
+            
+            // Higher resolution for print
+            const scale = 2;
+            canvas.width = svgSize.width * scale;
+            canvas.height = svgSize.height * scale;
+            
+            const ctx = canvas.getContext("2d");
+            const img = new Image();
+            
+            // Encode SVG data to Base64
+            const svgBase64 = btoa(unescape(encodeURIComponent(svgData)));
+            img.src = "data:image/svg+xml;base64," + svgBase64;
+
+            await new Promise((resolve, reject) => {
+                img.onload = resolve;
+                img.onerror = reject;
+            });
+
+            // Draw white background
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            
+            const pngUrl = canvas.toDataURL("image/png");
+            const link = document.createElement("a");
+            link.href = pngUrl;
+            link.download = `Barcode-${sku}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            btn.innerHTML = '✓ Downloaded!';
+            setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2000);
+        } catch (err) {
+            console.error('Download failed:', err);
+            btn.innerHTML = '⚠ Error';
+            setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2000);
+        }
     }
 
     function toggleVault() {

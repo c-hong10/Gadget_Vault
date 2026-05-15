@@ -16,11 +16,15 @@ namespace GadgetVault.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly GadgetVault.Services.ImageService _imageService;
+        private readonly GadgetVault.Services.IEmailService _emailService;
 
-        public DashboardController(ApplicationDbContext context, GadgetVault.Services.ImageService imageService)
+        public DashboardController(ApplicationDbContext context, 
+                                 GadgetVault.Services.ImageService imageService,
+                                 GadgetVault.Services.IEmailService emailService)
         {
             _context = context;
             _imageService = imageService;
+            _emailService = emailService;
         }
 
         [HttpGet]
@@ -130,9 +134,18 @@ namespace GadgetVault.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin, SystemManager, System Manager")]
-        public IActionResult InviteUser(string email, int roleId)
+        public async Task<IActionResult> InviteUser(string email, int roleId)
         {
             if (string.IsNullOrEmpty(email) || roleId == 0) return RedirectToAction("UserManagement");
+
+            // Check for duplicate email
+            var emailExists = await _context.Users.AnyAsync(u => u.Email == email);
+            if (emailExists)
+            {
+                // For AJAX requests, we return a BadRequest with the message
+                // For standard posts, we'd need TempData, but the user requested the modal to stay open, which requires AJAX.
+                return BadRequest(new { message = "Error: An account with this email address already exists." });
+            }
 
             var newUser = new User
             {
@@ -147,7 +160,7 @@ namespace GadgetVault.Controllers
             };
 
             _context.Users.Add(newUser);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             // Record USER_MANAGEMENT event
             _context.AuditLogs.Add(new AuditLog
@@ -157,9 +170,16 @@ namespace GadgetVault.Controllers
                 Timestamp = System.DateTime.UtcNow,
                 Details = $"Created user: {newUser.Username} (Role ID: {roleId})"
             });
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return RedirectToAction("UserManagement");
+            // Send Invitation Email
+            var emailSent = await _emailService.SendInviteEmailAsync(newUser.Email, newUser.Username, "default123");
+            if (!emailSent)
+            {
+                return Ok(new { success = true, warning = "User created, but there was an error sending the invitation email." });
+            }
+            
+            return Ok(new { success = true, message = $"Invitation email sent to {email}." });
         }
 
 
@@ -318,7 +338,7 @@ namespace GadgetVault.Controllers
                 .Include(s => s.Location)
                 .Where(s => s.Product != null && s.Product.IsActive && s.Quantity <= threshold)
                 .Select(s => new { 
-                    Name = s.Product.Name, 
+                    Name = s.Product != null ? s.Product.Name : "Unknown", 
                     Qty = s.Quantity,
                     Location = s.Location != null ? $"{s.Location.Zone}-{s.Location.Aisle}" : "Unknown"
                 })
@@ -992,7 +1012,7 @@ namespace GadgetVault.Controllers
             var logs = await _context.AuditLogs
                 .Where(l => securityKeywords.Contains(l.Action.ToUpper()))
                 .OrderByDescending(l => l.Timestamp)
-                .Take(50)
+                .Take(100)
                 .ToListAsync();
             return View(logs);
         }
@@ -1032,7 +1052,7 @@ namespace GadgetVault.Controllers
             var logs = await _context.AuditLogs
                 .Where(l => !securityKeywords.Contains(l.Action.ToUpper()))
                 .OrderByDescending(l => l.Timestamp)
-                .Take(50)
+                .Take(100)
                 .ToListAsync();
             
             return View(logs);
