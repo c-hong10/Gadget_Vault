@@ -593,9 +593,9 @@
 
     .lp-roles-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(5, 1fr);
         gap: 24px;
-        max-width: 1180px;
+        max-width: 1320px;
         margin: 0 auto;
     }
 
@@ -667,9 +667,10 @@
     }
 
     .badge-full    { background: rgba(35, 164, 118, 0.12); color: #0a7a56; }
-    .badge-senior  { background: rgba(17, 87, 64, 0.1);    color: #115740; }
-    .badge-floor   { background: rgba(10, 49, 36, 0.08);   color: #0a3124; }
-    .badge-biz     { background: rgba(46, 204, 154, 0.12); color: #1a7a5a; }
+    .badge-senior  { background: rgba(35, 164, 118, 0.1);    color: #0a7a56; }
+    .badge-floor   { background: rgba(35, 164, 118, 0.08);   color: #0a7a56; }
+    .badge-biz     { background: rgba(35, 164, 118, 0.12); color: #0a7a56; }
+    .badge-vendor  { background: rgba(35, 164, 118, 0.12); color: #0a7a56; }
 
     /* ─────────────────────────────────────────────
        CTA BANNER
@@ -697,64 +698,7 @@
         margin: 0 auto;
     }
 
-    /* ─────────────────────────────────────────────
-       DEMO DROPDOWN
-       ───────────────────────────────────────────── */
-    .lp-demo-wrap {
-        /* Layout handled by Tailwind classes (relative inline-block) */
-    }
 
-    .lp-demo-dropdown {
-        display: none;
-        background: #061f17;       /* solid background to prevent transparency overlap */
-        border: 1px solid rgba(35, 164, 118, 0.4);
-        border-radius: 16px;
-        padding: 10px;
-        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.70), 0 0 0 1px rgba(35,164,118,0.15);
-    }
-
-    .lp-demo-dropdown.open {
-        display: block;
-        animation: lp-fadeUp 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
-
-    .lp-demo-header {
-        font-family: 'Inter', sans-serif;
-        font-size: 0.67rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: rgba(168, 220, 200, 0.5);
-        padding: 6px 10px 8px;
-    }
-
-    .lp-demo-link {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 12px;
-        border-radius: 10px;
-        font-family: 'Inter', sans-serif;
-        font-size: 0.82rem;
-        font-weight: 600;
-        color: #d1e8df;
-        text-decoration: none;
-        transition: background 0.18s ease, color 0.18s ease;
-        cursor: pointer;
-    }
-
-    .lp-demo-link:hover {
-        background: rgba(35, 164, 118, 0.15);
-        color: #2ecc9a;
-        text-decoration: none;
-    }
-
-    .lp-demo-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        flex-shrink: 0;
-    }
 
     .lp-cta-title {
         font-size: 2.8rem;
@@ -802,7 +746,7 @@
        ───────────────────────────────────────────── */
     @@media (max-width: 1100px) {
         .lp-feat-grid { grid-template-columns: repeat(2, 1fr); }
-        .lp-roles-grid { grid-template-columns: repeat(2, 1fr); }
+        .lp-roles-grid { grid-template-columns: repeat(3, 1fr); }
     }
 
     @@media (max-width: 991px) {
@@ -878,7 +822,7 @@
                                 <circle cx="8.5" cy="8.5" r="8" stroke="#23a476" stroke-width="1.5"/>
                                 <path d="M5.5 8.7L7.7 11L12 6.5" stroke="#23a476" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            FIFO &amp; moving-average inventory valuation
+                            Automated Stock Level &amp; Low Inventory Alerts
                         </div>
                         <div class="lp-check-item">
                             <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
@@ -889,95 +833,7 @@
                         </div>
                     </div>
 
-                    <!-- CTAs -->
-                    <div class="lp-hero-ctas flex flex-col sm:flex-row items-center justify-start gap-4 mt-8">
-                        <!-- Get Started → SignUp -->
-                        <a asp-controller="Account" asp-action="Login" class="lp-btn lp-btn-primary" id="hero-get-started">
-                            Sign In
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </a>
 
-                        <!-- Watch System Demo — toggles role demo dropdown -->
-                        <div class="relative">
-                            <button type="button"
-                                    id="btn-demo-toggle"
-                                    class="lp-btn lp-btn-outline"
-                                    aria-haspopup="true"
-                                    aria-expanded="false"
-                                    aria-controls="demo-dropdown">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                    <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
-                                    <path d="M6.5 5.5l4 2.5-4 2.5V5.5z" fill="currentColor"/>
-                                </svg>
-                                Watch System Demo
-                                <svg id="demo-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" style="transition: transform 0.2s ease;">
-                                    <path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </button>
-
-                            <!-- Role demo dropdown -->
-                            <div id="demo-dropdown" class="lp-demo-dropdown absolute top-full mt-2 left-0 w-max z-50" role="menu" aria-label="Demo role dashboards">
-                                <div class="lp-demo-header">Choose a role to preview</div>
-
-                                <a href="/Dashboard/SystemManager"
-                                   class="lp-demo-link" role="menuitem">
-                                    <span class="lp-demo-dot" style="background:#a78bfa;"></span>
-                                     Demo as System Admin
-                                </a>
-
-                                <a href="/Dashboard/SalesAndProcurement"
-                                   class="lp-demo-link" role="menuitem">
-                                    <span class="lp-demo-dot" style="background:#23a476;"></span>
-                                     Demo as Sales Officer
-                                </a>
-
-                                <a href="/Dashboard/WarehouseManager"
-                                   class="lp-demo-link" role="menuitem">
-                                    <span class="lp-demo-dot" style="background:#3b82f6;"></span>
-                                     Demo as Warehouse Manager
-                                </a>
-
-                                <a href="/Warehouse/LiveInventory"
-                                   class="lp-demo-link" role="menuitem">
-                                    <span class="lp-demo-dot" style="background:#f59e0b;"></span>
-                                     Demo as Warehouse Staff
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Demo toggle JS — purely toggles visibility -->
-                    <script>
-                        (function () {
-                            var btn  = document.getElementById('btn-demo-toggle');
-                            var dd   = document.getElementById('demo-dropdown');
-                            var chev = document.getElementById('demo-chevron');
-                            if (!btn) return;
-
-                            btn.addEventListener('click', function (e) {
-                                e.stopPropagation();
-                                var isOpen = dd.classList.contains('open');
-                                if (!isOpen) {
-                                    dd.classList.add('open');
-                                    btn.setAttribute('aria-expanded', 'true');
-                                    chev.style.transform = 'rotate(180deg)';
-                                } else {
-                                    dd.classList.remove('open');
-                                    btn.setAttribute('aria-expanded', 'false');
-                                    chev.style.transform = 'rotate(0deg)';
-                                }
-                            });
-
-                            // Close on outside click
-                            document.addEventListener('click', function () {
-                                dd.classList.remove('open');
-                                btn.setAttribute('aria-expanded', 'false');
-                                chev.style.transform = 'rotate(0deg)';
-                            });
-                        })();
-                    </script>
                 </div>
 
                 <!-- RIGHT: live dashboard widget -->
@@ -1058,17 +914,17 @@
     <section class="lp-stats-band" aria-label="Key statistics">
         <div class="lp-stats-inner">
             <div class="lp-stat">
-                <div class="lp-stat-val">99.98%</div>
-                <div class="lp-stat-label">System Uptime</div>
+                <div class="lp-stat-val">100% Secure</div>
+                <div class="lp-stat-label">BCrypt Password Hashing</div>
             </div>
             <div class="lp-stat-divider" aria-hidden="true"></div>
             <div class="lp-stat">
-                <div class="lp-stat-val">&lt; 2s</div>
-                <div class="lp-stat-label">Stock Sync Latency</div>
+                <div class="lp-stat-val">Instant</div>
+                <div class="lp-stat-label">Audit Trail Logging</div>
             </div>
             <div class="lp-stat-divider" aria-hidden="true"></div>
             <div class="lp-stat">
-                <div class="lp-stat-val">4 Roles</div>
+                <div class="lp-stat-val">5 Roles</div>
                 <div class="lp-stat-label">RBAC User Tiers</div>
             </div>
             <div class="lp-stat-divider" aria-hidden="true"></div>
@@ -1118,39 +974,41 @@
                     </div>
                 </article>
 
-                <!-- Card 2: Inventory Valuation -->
-                <article class="lp-feat-card" aria-label="Inventory Valuation">
+                <!-- Card 2: System & Security Audit -->
+                <article class="lp-feat-card" aria-label="System &amp; Security Audit">
                     <div class="lp-feat-icon-box">
-                        <img src="https://img.icons8.com/m_rounded/100/23a476/money-yours.png" alt="" />
+                        <img src="https://img.icons8.com/m_rounded/100/23a476/checked-user-male.png" alt="" />
                     </div>
-                    <div class="lp-feat-tag">Financial Accuracy</div>
-                    <h3 class="lp-feat-title">Inventory Valuation</h3>
+                    <div class="lp-feat-tag">System Integrity</div>
+                    <h3 class="lp-feat-title">System &amp; Security Audit</h3>
                     <p class="lp-feat-desc">
-                        Automatically calculate asset values in real-time. Supports industry-standard
-                        FIFO and Moving Average computational models for audit-ready financials.
+                        Track every system event and data adjustment in real-time. Full history transparency 
+                        for administrative accountability.
                     </p>
                     <div class="lp-feat-bullets">
-                        <div class="lp-feat-bullet"><span class="lp-bullet-dot" aria-hidden="true"></span>FIFO &amp; weighted-average cost</div>
-                        <div class="lp-feat-bullet"><span class="lp-bullet-dot" aria-hidden="true"></span>Real-time P&amp;L visibility</div>
-                        <div class="lp-feat-bullet"><span class="lp-bullet-dot" aria-hidden="true"></span>Audit-ready financial reports</div>
+                        <div class="lp-feat-bullet"><span class="lp-bullet-dot" aria-hidden="true"></span>Activity log tracking</div>
+                        <div class="lp-feat-bullet"><span class="lp-bullet-dot" aria-hidden="true"></span>Secure administrator dashboard</div>
+                        <div class="lp-feat-bullet"><span class="lp-bullet-dot" aria-hidden="true"></span>Irreversible activity timestamps</div>
                     </div>
                 </article>
 
                 <!-- Card 3: Auto Replenishment -->
                 <article class="lp-feat-card" aria-label="Auto Replenishment">
                     <div class="lp-feat-icon-box">
-                        <img src="https://img.icons8.com/m_rounded/100/23a476/sync.png" alt="" />
+                        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#23a476" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0px 2px 4px rgba(35, 164, 118, 0.25));">
+                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                        </svg>
                     </div>
                     <div class="lp-feat-tag">Smart Automation</div>
                     <h3 class="lp-feat-title">Auto Replenishment</h3>
                     <p class="lp-feat-desc">
-                        Rapid manual overrides and AI-backed alerts trigger precisely when goods hit
+                        Rapid manual overrides and Automated system alerts trigger precisely when goods hit
                         critical reorder thresholds — keeping your warehouse perpetually stocked.
                     </p>
                     <div class="lp-feat-bullets">
                         <div class="lp-feat-bullet"><span class="lp-bullet-dot" aria-hidden="true"></span>Threshold-based reorder triggers</div>
-                        <div class="lp-feat-bullet"><span class="lp-bullet-dot" aria-hidden="true"></span>One-click PO generation</div>
-                        <div class="lp-feat-bullet"><span class="lp-bullet-dot" aria-hidden="true"></span>Supplier lead-time awareness</div>
+                        <div class="lp-feat-bullet"><span class="lp-bullet-dot" aria-hidden="true"></span>Low stock threshold triggers</div>
+                        <div class="lp-feat-bullet"><span class="lp-bullet-dot" aria-hidden="true"></span>Manual override capabilities</div>
                     </div>
                 </article>
 
@@ -1179,7 +1037,9 @@
 
                 <!-- Role 1: System Manager -->
                 <div class="lp-role-card" aria-label="System Manager role">
-                    <div class="lp-role-icon" aria-hidden="true">🛡️</div>
+                    <div class="lp-role-icon" aria-hidden="true" style="color: #0a7a56;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><circle cx="12" cy="11" r="3"></circle><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"></path></svg>
+                    </div>
                     <h4 class="lp-role-name">System Manager</h4>
                     <span class="lp-role-access-badge badge-full">Full Access</span>
                     <p class="lp-role-desc">
@@ -1190,7 +1050,9 @@
 
                 <!-- Role 2: Warehouse Manager -->
                 <div class="lp-role-card" aria-label="Warehouse Manager role">
-                    <div class="lp-role-icon" aria-hidden="true">📊</div>
+                    <div class="lp-role-icon" aria-hidden="true" style="color: #0a7a56;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    </div>
                     <h4 class="lp-role-name">Warehouse Manager</h4>
                     <span class="lp-role-access-badge badge-senior">Senior Access</span>
                     <p class="lp-role-desc">
@@ -1201,7 +1063,9 @@
 
                 <!-- Role 3: Warehouse Staff -->
                 <div class="lp-role-card" aria-label="Warehouse Staff role">
-                    <div class="lp-role-icon" aria-hidden="true">📦</div>
+                    <div class="lp-role-icon" aria-hidden="true" style="color: #0a7a56;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg>
+                    </div>
                     <h4 class="lp-role-name">Warehouse Staff</h4>
                     <span class="lp-role-access-badge badge-floor">Floor Access</span>
                     <p class="lp-role-desc">
@@ -1212,12 +1076,26 @@
 
                 <!-- Role 4: Sales & Procurement -->
                 <div class="lp-role-card" aria-label="Sales and Procurement role">
-                    <div class="lp-role-icon" aria-hidden="true">🤝</div>
+                    <div class="lp-role-icon" aria-hidden="true" style="color: #0a7a56;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    </div>
                     <h4 class="lp-role-name">Sales &amp; Procurement</h4>
                     <span class="lp-role-access-badge badge-biz">Biz Access</span>
                     <p class="lp-role-desc">
                         Exclusive authorization to draft Purchase Orders and finalize live Sales Orders
                         against existing stock levels.
+                    </p>
+                </div>
+
+                <!-- Role 5: Supplier -->
+                <div class="lp-role-card" aria-label="Supplier role">
+                    <div class="lp-role-icon" aria-hidden="true" style="color: #0a7a56;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                    </div>
+                    <h4 class="lp-role-name">Supplier</h4>
+                    <span class="lp-role-access-badge badge-vendor">Vendor Access</span>
+                    <p class="lp-role-desc">
+                        Restricted external dashboard for vendors to review assigned Purchase Orders, confirm shipment fulfillment, and manage their specific product catalogs.
                     </p>
                 </div>
 

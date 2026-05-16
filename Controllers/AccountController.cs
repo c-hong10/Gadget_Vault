@@ -24,6 +24,7 @@ namespace GadgetVault.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+            SetBrandingViewData();
             return View();
         }
 
@@ -44,6 +45,7 @@ namespace GadgetVault.Controllers
             if (string.IsNullOrEmpty(recaptchaResponse))
             {
                 ViewBag.Error = "Please complete the reCAPTCHA challenge.";
+                SetBrandingViewData();
                 return View();
             }
 
@@ -71,6 +73,7 @@ namespace GadgetVault.Controllers
                     await _context.SaveChangesAsync();
 
                     ViewBag.Error = "Security verification failed. Please try again.";
+                    SetBrandingViewData();
                     return View();
                 }
             }
@@ -78,6 +81,7 @@ namespace GadgetVault.Controllers
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password)) 
             {
                 ViewBag.Error = "Please enter both your email and password.";
+                SetBrandingViewData();
                 return View();
             }
 
@@ -91,6 +95,7 @@ namespace GadgetVault.Controllers
                 if (!user.IsActive)
                 {
                     ViewBag.Error = "Account disabled. Please contact the System Manager.";
+                    SetBrandingViewData();
                     return View();
                 }
 
@@ -99,6 +104,7 @@ namespace GadgetVault.Controllers
                 {
                     var waitMinutes = Math.Ceiling((user.LockoutEnd.Value - DateTime.UtcNow).TotalMinutes);
                     ViewBag.Error = $"Account temporarily locked for {waitMinutes} more minutes.";
+                    SetBrandingViewData();
                     return View();
                 }
             }
@@ -156,7 +162,7 @@ namespace GadgetVault.Controllers
                     Details = $"Failed login attempt for {email} from IP {ip}."
                 });
                 await _context.SaveChangesAsync();
-
+                SetBrandingViewData();
                 return View();
             }
 
@@ -214,6 +220,13 @@ namespace GadgetVault.Controllers
                 "Supplier"             => RedirectToAction("SupplierDashboard", "Dashboard"),
                 _                      => RedirectToAction("Index", "Home")
             };
+        }
+
+        private void SetBrandingViewData()
+        {
+            var settings = _context.SystemSettings.FirstOrDefault();
+            ViewData["CompanyName"] = settings?.CompanyName ?? "GadgetVault";
+            ViewData["LogoUrl"] = settings?.LogoUrl ?? "/img/logo.png";
         }
 
         [HttpGet]
